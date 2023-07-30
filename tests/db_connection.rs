@@ -8,10 +8,17 @@ fn test_connection() {
     let db_conn = init_db().db_conn_pool.get().unwrap();
     let flag = Flag::new(gen_flag());
     dbg!(&flag);
+    
     let db_conn = DbConn { master: db_conn };
     let flag_repo = SqliteFlagRepo::new(&db_conn);
-    let res = flag_repo.save_new(&flag);
+    flag_repo.save_new(&flag);
+
+    let res = flag_repo.find_all();
     dbg!(&res);
+
+    let flag = res.into_iter().find(|item| item.flag == flag.flag).unwrap();
+    flag_repo.delete_by_id(flag.id.unwrap());
+
     let res = flag_repo.find_all();
     dbg!(&res);
 }

@@ -14,8 +14,8 @@ use crate::db::schema::flags;
 #[table_name = "flags"]
 pub struct Flag {
     #[diesel(deserialize_as = "i32")]
-    id: Option<i32>,
-    flag: Cow<'static, str>,
+    pub id: Option<i32>,
+    pub flag: Cow<'static, str>,
     sploit: Option<Cow<'static, str>>,
     team: Option<Cow<'static, str>>,
     time: NaiveDateTime,
