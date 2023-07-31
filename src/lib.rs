@@ -7,3 +7,5 @@ pub mod repos;
 pub mod models;
 pub mod controllers;
 pub mod middleware;
+pub mod settings;
+pub mod config;

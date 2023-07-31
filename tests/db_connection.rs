@@ -1,3 +1,4 @@
+use sibears_farm::config::get_config;
 use sibears_farm::db::connection::*;
 use sibears_farm::models::flag::Flag;
 use sibears_farm::repos::flag::*;
@@ -5,7 +6,8 @@ use rand::Rng;
 
 #[test]
 fn test_connection() {
-    let db_conn = init_db().db_conn_pool.get().unwrap();
+    let config = get_config();
+    let db_conn = init_db(&config).db_conn_pool.get().unwrap();
     let flag = Flag::new(gen_flag());
     dbg!(&flag);
 
