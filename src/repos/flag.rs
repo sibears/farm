@@ -8,7 +8,7 @@ use diesel::Connection;
 use crate::models::flag::Flag;
 use crate::db::schema::flags;
 use crate::diesel::RunQueryDsl;
-use crate::repos::flags_repo::flags::dsl::flags as flags_dsl;
+use crate::repos::flag::flags::dsl::flags as flags_dsl;
 use crate::db::connection::*;
 use crate::diesel::ExpressionMethods;
 

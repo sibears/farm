@@ -1,6 +1,6 @@
 use sibears_farm::db::connection::*;
 use sibears_farm::models::flag::Flag;
-use sibears_farm::repos::flags_repo::*;
+use sibears_farm::repos::flag::*;
 use rand::Rng;
 
 #[test]
@@ -8,7 +8,7 @@ fn test_connection() {
     let db_conn = init_db().db_conn_pool.get().unwrap();
     let flag = Flag::new(gen_flag());
     dbg!(&flag);
-    
+
     let db_conn = DbConn { master: db_conn };
     let flag_repo = SqliteFlagRepo::new(&db_conn);
     flag_repo.save_new(&flag);
