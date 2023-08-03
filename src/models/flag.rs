@@ -9,7 +9,7 @@ use serde::Deserialize;
 use crate::db::schema::flags;
 
 
-#[derive(Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset)]
 #[diesel(primary_key(id))]
 #[table_name = "flags"]
 pub struct Flag {

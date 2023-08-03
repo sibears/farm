@@ -1,10 +1,13 @@
 use std::ops::Deref;
 
 use diesel::QueryDsl;
+use diesel::result::Error;
+use diesel::result::Error::NotFound;
 use r2d2_diesel::ConnectionManager;
 use r2d2::PooledConnection;
 use r2d2::Pool;
 use diesel::Connection;
+use crate::errors::ApiError;
 use crate::models::flag::Flag;
 use crate::db::schema::flags;
 use crate::diesel::RunQueryDsl;
@@ -15,8 +18,10 @@ use crate::diesel::ExpressionMethods;
 
 pub trait FlagRepo {
     fn find_all(&self) -> Vec<Flag>;
+    fn find_by_id(&self, id: i32) -> Result<Flag, Error>;
     fn save_new(&self, flag: &Flag) -> usize;
-    fn delete_by_id(&self, id: i32) -> usize;
+    fn delete_by_id(&self, id: i32) -> Result<(), Error>;
+    fn update_flag(&self, flag: &Flag) -> usize;
 }
 
 pub struct SqliteFlagRepo<'a> {
@@ -36,6 +41,12 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
         all_flags
     }
 
+    fn find_by_id(&self, id: i32) -> Result<Flag, Error> {
+        let conn = self.db_conn.master.deref();
+        let flag = flags_dsl.filter(flags::dsl::id.eq(id)).first(conn);
+        flag
+    }
+
     fn save_new(&self, flag: &Flag) -> usize {
         let conn = self.db_conn.master.deref();
         
@@ -46,10 +57,25 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
         count
     }
 
-    fn delete_by_id(&self, id: i32) -> usize {
+    fn delete_by_id(&self, id: i32) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
     
-        let count = diesel::delete(flags_dsl.filter(flags::dsl::id.eq(id)))
+        let result = diesel::delete(flags_dsl.filter(flags::dsl::id.eq(id)))
+            .execute(conn)
+            .unwrap();
+        
+        match result {
+            1 => Ok(()),
+            0 => Err(Error::NotFound),
+            _ => Err(Error::__Nonexhaustive)
+        }
+    }
+
+    fn update_flag(&self, flag: &Flag) -> usize {
+        let conn = self.db_conn.master.deref();
+
+        let count = diesel::update(flags_dsl.find(flag.id.unwrap()))
+            .set(flag)
             .execute(conn)
             .unwrap();
         count

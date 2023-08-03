@@ -9,3 +9,4 @@ pub mod controllers;
 pub mod middleware;
 pub mod settings;
 pub mod config;
+pub mod errors;

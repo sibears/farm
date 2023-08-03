@@ -2,6 +2,7 @@
 #[macro_use] extern crate rocket;
 
 use rocket::{routes, Rocket, Build};
+use sibears_farm::controllers::flag::get_flag_by_id;
 use sibears_farm::{db::connection::init_db, controllers::flag::get_flags};
 use sibears_farm::config::{self, get_config};
 
@@ -16,5 +17,5 @@ fn rocket() -> Rocket<Build> {
     rocket::build()
         .manage(init_db(&config.database))
         .mount("/", routes![hello])
-        .mount("/api", routes![get_flags])
+        .mount("/api", routes![get_flags, get_flag_by_id])
 }
