@@ -7,7 +7,7 @@ use rand::Rng;
 #[test]
 fn test_connection() {
     let config = get_config();
-    let db_conn = init_db(&config).db_conn_pool.get().unwrap();
+    let db_conn = init_db(&config.database).db_conn_pool.get().unwrap();
     let flag = Flag::new(gen_flag());
     dbg!(&flag);
 

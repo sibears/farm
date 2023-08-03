@@ -14,7 +14,7 @@ fn hello() -> &'static str {
 fn rocket() -> Rocket<Build> {
     let config = get_config();
     rocket::build()
-        .manage(init_db(&config))
+        .manage(init_db(&config.database))
         .mount("/", routes![hello])
         .mount("/api", routes![get_flags])
 }
