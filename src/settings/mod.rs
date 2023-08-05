@@ -1,20 +1,21 @@
 use std::{borrow::Cow, env};
 use dotenv::dotenv;
 
-use serde::Deserialize;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct DatabaseConfig {
     pub database_url: Cow<'static, str>
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AuthConfig {
     pub password: Cow<'static, str>
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct ProtocolConfig {
     pub protocol: Cow<'static, str>,
     pub team_token: Cow<'static, str>,
@@ -22,7 +23,7 @@ pub struct ProtocolConfig {
     pub checksys_port: u32
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct CtfConfig {
     pub protocol: ProtocolConfig,
     pub flag_format: Cow<'static, str>,
@@ -33,7 +34,7 @@ pub struct CtfConfig {
     pub teams: Vec<Cow<'static, str>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct Config {
     pub database: DatabaseConfig,
     pub auth: AuthConfig,

@@ -9,6 +9,7 @@ use rocket_okapi::openapi_get_routes_spec;
 use sibears_farm::db::connection::init_db;
 use sibears_farm::config::get_config;
 use sibears_farm::controllers::flag::*;
+use sibears_farm::controllers::config::*;
 
 #[openapi]
 #[get("/")]
@@ -21,8 +22,17 @@ fn rocket() -> Rocket<Build> {
     let config = get_config();
     let mut rocket_app = rocket::build()
         .manage(init_db(&config.database))
+        .manage(get_config())
         .mount("/", openapi_get_routes![hello])
-        .mount("/api", openapi_get_routes![get_flags, get_flag_by_id, create_flag, update_flag, delete_flag_by_id])
+        .mount("/api", openapi_get_routes![
+            get_flags, 
+            get_flag_by_id, 
+            create_flag, 
+            update_flag, 
+            delete_flag_by_id,
+            get_config,
+            post_flags
+        ])
         .mount(
             "/swagger-ui/",
             make_swagger_ui(&SwaggerUIConfig {
@@ -50,7 +60,15 @@ fn rocket() -> Rocket<Build> {
     mount_endpoints_and_merged_docs! {
         rocket_app, "/v1", openapi_settings,
         "" => openapi_get_routes_spec![openapi_settings: hello],
-        "/api" => openapi_get_routes_spec![openapi_settings: get_flags, get_flag_by_id, delete_flag_by_id, create_flag, update_flag]
+        "/api" => openapi_get_routes_spec![openapi_settings: 
+            get_flags, 
+            get_flag_by_id, 
+            delete_flag_by_id, 
+            create_flag, 
+            update_flag,
+            get_config,
+            post_flags
+        ]
     };
     rocket_app
 }
