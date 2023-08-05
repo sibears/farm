@@ -1,8 +1,8 @@
-use rocket::{serde::json::Json, response::status::{NotFound, NoContent}, log::private::debug};
-use rocket_okapi::{openapi};
+use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}, log::private::{debug, info, error}};
+use rocket_okapi::openapi;
 
 
-use crate::{models::flag::Flag, db::connection::DbConn, repos::flag::{FlagRepo, SqliteFlagRepo}};
+use crate::{models::flag::{Flag, NewFlag, UpdateFlag}, db::connection::DbConn, repos::flag::{FlagRepo, SqliteFlagRepo}};
 use crate::errors::ApiError;
 
 
@@ -14,7 +14,7 @@ pub fn get_flags(db: DbConn) -> Json<Vec<Flag>> {
     match flags_result {
         Ok(flags) => Json(flags),
         Err(e) => {
-            debug!("{}", e.to_string());
+            error!("{}", e.to_string());
             Json(Vec::new())
         }
     }
@@ -28,6 +28,40 @@ pub fn get_flag_by_id(id: i32, db: DbConn) -> Result<Json<Flag>, NotFound<Json<A
     flag_result
         .map(Json)
         .map_err(|e| { 
+            NotFound(Json(ApiError::new(
+                e.to_string()
+            )))
+        })
+}
+
+#[openapi(tag = "Flag", ignore = "db")]
+#[post("/flag", data = "<new_flags>")]
+pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
+    let flag_repo = SqliteFlagRepo::new(&db);
+    let result = flag_repo.save_all(&mut new_flags.into_inner());
+    result
+        .map(|_| Created::new("/"))
+        .map_err(|e| {
+            Json(ApiError::new(
+                e.to_string()
+            ))
+        })
+}
+
+#[openapi(tag = "Flag", ignore = "db")]
+#[post("/post_flags", data = "<new_flags>")]
+pub fn post_flags(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
+    create_flag(new_flags, db)
+}
+
+#[openapi(tag = "Flag", ignore = "db")]
+#[put("/flag", data = "<updated_flag>")]
+pub fn update_flag(updated_flag: Json<UpdateFlag>, db: DbConn) -> Result<Json<UpdateFlag>, NotFound<Json<ApiError>>> {
+    let flag_repo = SqliteFlagRepo::new(&db);
+    let result = flag_repo.update(&updated_flag);
+    result
+        .map(|_| updated_flag)
+        .map_err(|e| {
             NotFound(Json(ApiError::new(
                 e.to_string()
             )))

@@ -11,6 +11,8 @@ use crate::errors::ApiError;
 use crate::models::flag::Flag;
 use crate::db::schema::flags;
 use crate::diesel::RunQueryDsl;
+use crate::models::flag::NewFlag;
+use crate::models::flag::UpdateFlag;
 use crate::repos::flag::flags::dsl::flags as flags_dsl;
 use crate::db::connection::*;
 use crate::diesel::ExpressionMethods;
@@ -19,9 +21,10 @@ use crate::diesel::ExpressionMethods;
 pub trait FlagRepo {
     fn find_all(&self) -> Result<Vec<Flag>, Error>;
     fn find_by_id(&self, id: i32) -> Result<Flag, Error>;
-    fn save_new(&self, flag: &Flag) -> usize;
+    fn save(&self, flag: &mut NewFlag) -> Result<(), Error>;
+    fn save_all(&self, flag: &mut Vec<NewFlag>) -> Result<(), Error>;
     fn delete_by_id(&self, id: i32) -> Result<(), Error>;
-    fn update_flag(&self, flag: &Flag) -> usize;
+    fn update(&self, flag: &UpdateFlag) -> Result<(), Error>;
 }
 
 pub struct SqliteFlagRepo<'a> {
@@ -47,14 +50,35 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
         flag
     }
 
-    fn save_new(&self, flag: &Flag) -> usize {
+    fn save(&self, flag: &mut NewFlag) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        
-        let count = diesel::insert_into(flags_dsl)
-            .values(flag)
+        flag.update_time();
+        let result = diesel::insert_into(flags_dsl)
+            .values(flag.deref())
             .execute(conn)
             .unwrap();
-        count
+
+        match result {
+            1 => Ok(()),
+            0 => Err(Error::NotFound),
+            _ => Err(Error::__Nonexhaustive)
+        }
+    }
+
+    fn save_all(&self, flags: &mut Vec<NewFlag>) -> Result<(), Error> {
+        let conn = self.db_conn.master.deref();
+        flags.iter_mut().for_each(|flag| flag.update_time());
+        let result = diesel::insert_into(flags_dsl)
+            .values(flags.deref())
+            .execute(conn)
+            .unwrap();
+
+        
+        if result == flags.len() { 
+            Ok(()) 
+        } else { 
+            Err(Error::NotFound) 
+        }
     }
 
     fn delete_by_id(&self, id: i32) -> Result<(), Error> {
@@ -71,13 +95,17 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
         }
     }
 
-    fn update_flag(&self, flag: &Flag) -> usize {
+    fn update(&self, flag: &UpdateFlag) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
 
-        let count = diesel::update(flags_dsl.find(flag.id.unwrap()))
+        let result = diesel::update(flags_dsl.find(flag.id))
             .set(flag)
             .execute(conn)
             .unwrap();
-        count
+        match result {
+            1 => Ok(()),
+            0 => Err(Error::NotFound),
+            _ => Err(Error::__Nonexhaustive)
+        }
     }
 }
