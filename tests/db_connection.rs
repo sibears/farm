@@ -17,12 +17,6 @@ fn test_connection() {
 
     let res = flag_repo.find_all();
     dbg!(&res);
-
-    let flag = res.into_iter().find(|item| item.flag == flag.flag).unwrap();
-    flag_repo.delete_by_id(flag.id.unwrap());
-
-    let res = flag_repo.find_all();
-    dbg!(&res);
 }
 
 fn generate(len: usize) -> String {

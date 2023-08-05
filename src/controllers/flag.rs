@@ -1,4 +1,4 @@
-use rocket::{serde::json::Json, log::private::debug, response::status::{NotFound, NoContent}};
+use rocket::{serde::json::Json, response::status::{NotFound, NoContent}, log::private::debug};
 use rocket_okapi::{openapi};
 
 
@@ -10,8 +10,14 @@ use crate::errors::ApiError;
 #[get("/flag")]
 pub fn get_flags(db: DbConn) -> Json<Vec<Flag>> {
     let flag_repo = SqliteFlagRepo::new(&db);
-    let flags = flag_repo.find_all();
-    Json(flags)
+    let flags_result = flag_repo.find_all();
+    match flags_result {
+        Ok(flags) => Json(flags),
+        Err(e) => {
+            debug!("{}", e.to_string());
+            Json(Vec::new())
+        }
+    }
 }
 
 #[openapi(tag = "Flag", ignore = "db")]

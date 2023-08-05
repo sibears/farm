@@ -17,7 +17,7 @@ use crate::diesel::ExpressionMethods;
 
 
 pub trait FlagRepo {
-    fn find_all(&self) -> Vec<Flag>;
+    fn find_all(&self) -> Result<Vec<Flag>, Error>;
     fn find_by_id(&self, id: i32) -> Result<Flag, Error>;
     fn save_new(&self, flag: &Flag) -> usize;
     fn delete_by_id(&self, id: i32) -> Result<(), Error>;
@@ -35,9 +35,9 @@ impl<'a> SqliteFlagRepo<'a> {
 }
 
 impl<'a> FlagRepo for SqliteFlagRepo<'a> {
-    fn find_all(&self) -> Vec<Flag> {
+    fn find_all(&self) -> Result<Vec<Flag>, Error> {
         let conn = self.db_conn.master.deref();
-        let all_flags = flags::table.load::<Flag>(conn).unwrap();
+        let all_flags = flags::table.load::<Flag>(conn);
         all_flags
     }
 
