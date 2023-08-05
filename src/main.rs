@@ -2,10 +2,15 @@
 #[macro_use] extern crate rocket;
 
 use rocket::{routes, Rocket, Build};
-use sibears_farm::controllers::flag::get_flag_by_id;
-use sibears_farm::{db::connection::init_db, controllers::flag::get_flags};
-use sibears_farm::config::{self, get_config};
+use rocket_okapi::{openapi, openapi_get_routes, rapidoc::*, swagger_ui::*, mount_endpoints_and_merged_docs};
+use rocket_okapi::settings::UrlObject;
+use rocket_okapi::openapi_get_routes_spec;
 
+use sibears_farm::{db::connection::init_db};
+use sibears_farm::config::{self, get_config};
+use sibears_farm::controllers::flag::*;
+
+#[openapi]
 #[get("/")]
 fn hello() -> &'static str {
     "Hello, world!"
@@ -14,8 +19,38 @@ fn hello() -> &'static str {
 #[launch]
 fn rocket() -> Rocket<Build> {
     let config = get_config();
-    rocket::build()
+    let mut rocket_app = rocket::build()
         .manage(init_db(&config.database))
-        .mount("/", routes![hello])
-        .mount("/api", routes![get_flags, get_flag_by_id])
+        .mount("/", openapi_get_routes![hello])
+        .mount("/api", openapi_get_routes![get_flags, get_flag_by_id])
+        .mount(
+            "/swagger-ui/",
+            make_swagger_ui(&SwaggerUIConfig {
+                url: "../v1/openapi.json".to_owned(),
+                ..Default::default()
+            }),
+        )
+        .mount(
+            "/rapidoc/",
+            make_rapidoc(&RapiDocConfig {
+                general: GeneralConfig {
+                    spec_urls: vec![UrlObject::new("General", "../v1/openapi.json")],
+                    ..Default::default()
+                },
+                hide_show: HideShowConfig {
+                    allow_spec_url_load: false,
+                    allow_spec_file_load: false,
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+        );
+
+    let openapi_settings = rocket_okapi::settings::OpenApiSettings::default();
+    mount_endpoints_and_merged_docs! {
+        rocket_app, "/v1", openapi_settings,
+        "" => openapi_get_routes_spec![openapi_settings: hello],
+        "/api" => openapi_get_routes_spec![openapi_settings: get_flags, get_flag_by_id, delete_flag_by_id]
+    };
+    rocket_app
 }

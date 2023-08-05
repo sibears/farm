@@ -1,17 +1,20 @@
 use rocket::{serde::json::Json, log::private::debug, response::status::{NotFound, NoContent}};
+use rocket_okapi::{openapi};
+
 
 use crate::{models::flag::Flag, db::connection::DbConn, repos::flag::{FlagRepo, SqliteFlagRepo}};
 use crate::errors::ApiError;
 
 
-#[get("/flags")]
+#[openapi(tag = "Flag", ignore = "db")]
+#[get("/flag")]
 pub fn get_flags(db: DbConn) -> Json<Vec<Flag>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let flags = flag_repo.find_all();
     Json(flags)
 }
 
-
+#[openapi(tag = "Flag", ignore = "db")]
 #[get("/flag/<id>")]
 pub fn get_flag_by_id(id: i32, db: DbConn) -> Result<Json<Flag>, NotFound<Json<ApiError>>> {
     let flag_repo = SqliteFlagRepo::new(&db);
@@ -25,6 +28,7 @@ pub fn get_flag_by_id(id: i32, db: DbConn) -> Result<Json<Flag>, NotFound<Json<A
         })
 }
 
+#[openapi(tag = "Flag", ignore = "db")]
 #[delete("/flag/<id>")]
 pub fn delete_flag_by_id(id: i32, db: DbConn) -> Result<NoContent, NotFound<Json<ApiError>>> {
     let flag_repo = SqliteFlagRepo::new(&db);

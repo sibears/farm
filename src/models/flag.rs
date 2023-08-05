@@ -4,12 +4,13 @@ use chrono::Utc;
 use chrono::naive::NaiveDateTime;
 
 
+use schemars::JsonSchema;
 use serde::Serialize;
 use serde::Deserialize;
 use crate::db::schema::flags;
 
 
-#[derive(Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset)]
+#[derive(Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset, JsonSchema)]
 #[diesel(primary_key(id))]
 #[table_name = "flags"]
 pub struct Flag {

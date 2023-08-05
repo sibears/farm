@@ -1,9 +1,10 @@
 use std::borrow::Cow;
 
 use serde::Serialize;
+use schemars::JsonSchema;
 use serde::Deserialize;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub struct ApiError {
     pub details: Cow<'static, str>,
 }
