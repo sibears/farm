@@ -12,6 +12,7 @@ use crate::models::flag::Flag;
 use crate::db::schema::flags;
 use crate::diesel::RunQueryDsl;
 use crate::models::flag::NewFlag;
+use crate::models::flag::SavedFlag;
 use crate::models::flag::UpdateFlag;
 use crate::repos::flag::flags::dsl::flags as flags_dsl;
 use crate::db::connection::*;
@@ -52,9 +53,9 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
 
     fn save(&self, flag: &mut NewFlag) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        flag.update_time();
+        let flag = SavedFlag::from(flag.deref());
         let result = diesel::insert_into(flags_dsl)
-            .values(flag.deref())
+            .values(flag)
             .execute(conn)
             .unwrap();
 
@@ -67,7 +68,7 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
 
     fn save_all(&self, flags: &mut Vec<NewFlag>) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        flags.iter_mut().for_each(|flag| flag.update_time());
+        let flags: Vec<SavedFlag> = flags.into_iter().map(|item| SavedFlag::from(item.deref())).collect();
         let result = diesel::insert_into(flags_dsl)
             .values(flags.deref())
             .execute(conn)
