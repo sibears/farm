@@ -16,7 +16,7 @@ pub fn get_config() -> Config {
             ),
             "\\w{31}=",
             5*60,
-            2,
+            5,
             100,
             vec!["team1", "team2"]
         )

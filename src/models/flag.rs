@@ -85,7 +85,7 @@ impl Flag {
 
 
 #[derive(Debug)]
-enum FlagStatus {
+pub enum FlagStatus {
     QUEUED,
     SKIPPED,
     ACCEPTED,
