@@ -33,6 +33,8 @@ pub trait FlagRepo {
     fn delete_by_id(&self, id: i32) -> Result<(), Error>;
     fn update(&self, flag: &UpdateFlag) -> Result<(), Error>;
     fn skip_flags(&self, skip_time: NaiveDateTime);
+    fn get_limit(&self, limit: i64) -> Vec<Flag>;
+    fn update_status(&self, flags: Vec<Flag>);
 }
 
 pub struct SqliteFlagRepo<'a> {
@@ -125,5 +127,26 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
             .execute(conn)
             .unwrap();
         debug!("Skipped: {} flags", res);
+    }
+
+    fn get_limit(&self, limit: i64) -> Vec<Flag> {
+        let conn = self.db_conn.master.deref();
+        
+        let res = flags_dsl.filter(status.eq(FlagStatus::QUEUED.to_string()))
+            .limit(limit)
+            .load::<Flag>(conn)
+            .unwrap();
+        res
+    }
+
+    fn update_status(&self, flags: Vec<Flag>) {
+        let conn = self.db_conn.master.deref();
+
+        for flag in flags {
+            diesel::update(flags_dsl.find(flag.id))
+                .set(flag)
+                .execute(conn)
+                .unwrap();
+        }
     }
 }

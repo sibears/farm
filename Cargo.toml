@@ -19,6 +19,9 @@ r2d2-diesel = "1.0.0"
 rand = "0.8.5"
 rocket_okapi = { version = "=0.8.0-rc.3", features = ["swagger", "rapidoc"] }
 schemars = { version = "0.8.12", features = ["chrono"] }
+reqwest = { version = "0.11", features = ["json", "blocking"] } # reqwest with JSON parsing support
+tokio = { version = "1.31", features = ["full"] }
+futures = "0.3.28"
 
 
 

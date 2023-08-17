@@ -62,9 +62,9 @@ pub struct UpdateFlag {
     pub checksystem_response: Option<Cow<'static, str>>
 }
 
-#[derive(Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset, JsonSchema)]
+#[derive(Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset, JsonSchema, Clone)]
 #[diesel(primary_key(id))]
-#[table_name = "flags"]
+#[diesel(table_name = flags)]
 pub struct Flag {
     #[diesel(deserialize_as = "i32")]
     pub id: i32,
@@ -72,8 +72,8 @@ pub struct Flag {
     sploit: Option<Cow<'static, str>>,
     team: Option<Cow<'static, str>>,
     time: NaiveDateTime,
-    status: Cow<'static, str>,
-    checksystem_response: Option<Cow<'static, str>>
+    pub status: Cow<'static, str>,
+    pub checksystem_response: Option<Cow<'static, str>>
 }
 
 impl Flag {

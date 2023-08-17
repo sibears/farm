@@ -10,9 +10,9 @@ pub fn get_config() -> Config {
         CtfConfig::new(
             ProtocolConfig::new(
                 "test_proto", 
-                "test_token", 
-                "test_checksys_host", 
-                1337
+                "23d81685fb77150f", 
+                "forkad.docker.localhost", 
+                80
             ),
             "\\w{31}=",
             5*60,
