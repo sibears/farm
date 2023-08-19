@@ -1,9 +1,10 @@
-use std::{borrow::Cow, env};
+use std::{borrow::Cow, env, collections::HashMap};
 use dotenv::dotenv;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use crate::protocols::{ProtocolHandler, forcad_http::ForcAdHttp, PROTOCOLS};
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct DatabaseConfig {
@@ -21,6 +22,14 @@ pub struct ProtocolConfig {
     pub team_token: Cow<'static, str>,
     pub checksys_host: Cow<'static, str>,
     pub checksys_port: u32
+}
+
+impl ProtocolConfig {
+    pub fn get_protocol_handler(&self) -> &dyn ProtocolHandler {
+        unsafe {
+            *PROTOCOLS.get(&self.protocol).unwrap()
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]

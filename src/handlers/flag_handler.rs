@@ -5,7 +5,7 @@ use futures::executor;
 use chrono::{Utc, NaiveDate, NaiveDateTime, Duration};
 use rocket::log::private::debug;
 
-use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag, protocols::forkad_http::send_flags};
+use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag};
 
 pub fn flag_handler(config: Config) {
     let db_pool = init_db(&config.database).db_conn_pool;
@@ -37,5 +37,6 @@ pub fn flag_handler(config: Config) {
 }
 
 fn submit_flags(queue_flags: Vec<Flag>, config: &Config) -> Vec<Flag> {
-    send_flags(queue_flags, &config.ctf.protocol)
+    let handler = config.ctf.protocol.get_protocol_handler();
+    handler.send_flags(queue_flags, &config.ctf.protocol)
 }

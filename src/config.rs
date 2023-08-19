@@ -9,8 +9,8 @@ pub fn get_config() -> Config {
         ),
         CtfConfig::new(
             ProtocolConfig::new(
-                "test_proto", 
-                "23d81685fb77150f", 
+                "forcad_http", 
+                "3e74875c9a2d2eb0", 
                 "forkad.docker.localhost", 
                 80
             ),

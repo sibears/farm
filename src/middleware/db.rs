@@ -9,7 +9,7 @@ use crate::db::connection::{DbConn, DbCollection};
 impl<'r> FromRequest<'r> for DbConn {
     type Error = ();
     
-    async fn from_request(request: &'r Request<'_>) -> request::Outcome<DbConn, ()> {
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, ()> {
         let pool = request.guard::<&State<DbCollection>>().await.unwrap();
         let db_pool = &pool.db_conn_pool;
         match db_pool.get() {
