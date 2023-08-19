@@ -6,8 +6,8 @@ use rocket_okapi::openapi;
 use crate::{settings::Config, models::auth::BasicAuth};
 
 
-#[openapi(tag = "Config", ignore = "config", ignore = "auth")]
+#[openapi(tag = "Config", ignore = "config", ignore = "_auth")]
 #[get("/get_config")]
-pub fn get_config(config: &State<Config>, auth: BasicAuth) -> Json<&Config> {
+pub fn get_config(config: &State<Config>, _auth: BasicAuth) -> Json<&Config> {
     Json(config.deref())
 }

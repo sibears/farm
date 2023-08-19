@@ -5,6 +5,7 @@ use chrono::Utc;
 use chrono::naive::NaiveDateTime;
 
 
+use regex::Regex;
 use schemars::JsonSchema;
 use serde::Serialize;
 use serde::Deserialize;
@@ -26,6 +27,9 @@ impl NewFlag {
             sploit: None, 
             team: None 
         } 
+    }
+    pub fn match_regex(&self, regex: &Regex) -> bool {
+        regex.is_match(&self.flag)
     }
 }
 
@@ -79,6 +83,10 @@ pub struct Flag {
 impl Flag {
     pub fn update_time(&mut self) {
         self.time = Utc::now().naive_local();
+    }
+
+    pub fn match_regex(&self, regex: &Regex) -> bool {
+        regex.is_match(&self.flag)
     }
 }
 
