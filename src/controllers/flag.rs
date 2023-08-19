@@ -4,13 +4,13 @@ use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}
 use rocket_okapi::openapi;
 
 
-use crate::{models::flag::{Flag, NewFlag, UpdateFlag}, db::connection::DbConn, repos::flag::{FlagRepo, SqliteFlagRepo}};
+use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::connection::DbConn, repos::flag::{FlagRepo, SqliteFlagRepo}};
 use crate::errors::ApiError;
 
 
-#[openapi(tag = "Flag", ignore = "db")]
+#[openapi(tag = "Flag", ignore = "db", ignore = "auth")]
 #[get("/flag")]
-pub fn get_flags(db: DbConn) -> Json<Vec<Flag>> {
+pub fn get_flags(db: DbConn, auth: BasicAuth) -> Json<Vec<Flag>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let flags_result = flag_repo.find_all();
     match flags_result {
@@ -22,9 +22,9 @@ pub fn get_flags(db: DbConn) -> Json<Vec<Flag>> {
     }
 }
 
-#[openapi(tag = "Flag", ignore = "db")]
+#[openapi(tag = "Flag", ignore = "db", ignore = "auth")]
 #[get("/flag/<id>")]
-pub fn get_flag_by_id(id: i32, db: DbConn) -> Result<Json<Flag>, NotFound<Json<ApiError>>> {
+pub fn get_flag_by_id(id: i32, db: DbConn, auth: BasicAuth) -> Result<Json<Flag>, NotFound<Json<ApiError>>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let flag_result = flag_repo.find_by_id(id);
     flag_result
@@ -36,9 +36,9 @@ pub fn get_flag_by_id(id: i32, db: DbConn) -> Result<Json<Flag>, NotFound<Json<A
         })
 }
 
-#[openapi(tag = "Flag", ignore = "db")]
+#[openapi(tag = "Flag", ignore = "db", ignore = "auth")]
 #[post("/flag", data = "<new_flags>")]
-pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
+pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn, auth: BasicAuth) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let result = flag_repo.save_all(&mut new_flags.into_inner());
     result
@@ -50,15 +50,15 @@ pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<
         })
 }
 
-#[openapi(tag = "Flag", ignore = "db")]
+#[openapi(tag = "Flag", ignore = "db", ignore = "auth")]
 #[post("/post_flags", data = "<new_flags>")]
-pub fn post_flags(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
-    create_flag(new_flags, db)
+pub fn post_flags(new_flags: Json<Vec<NewFlag>>, db: DbConn, auth: BasicAuth) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
+    create_flag(new_flags, db, auth)
 }
 
-#[openapi(tag = "Flag", ignore = "db")]
+#[openapi(tag = "Flag", ignore = "db", ignore = "auth")]
 #[post("/post_simple", data = "<new_flags>")]
-pub fn post_simple(new_flags: Json<Vec<String>>, db: DbConn) -> Result<Created<Json<Vec<String>>>, Json<ApiError>> {
+pub fn post_simple(new_flags: Json<Vec<String>>, db: DbConn, auth: BasicAuth) -> Result<Created<Json<Vec<String>>>, Json<ApiError>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let new_flags = new_flags.to_vec();
     let mut new_flags: Vec<NewFlag> = new_flags.into_iter().map(|flag| NewFlag::new(flag)).collect();
@@ -72,9 +72,9 @@ pub fn post_simple(new_flags: Json<Vec<String>>, db: DbConn) -> Result<Created<J
         })
 }
 
-#[openapi(tag = "Flag", ignore = "db")]
+#[openapi(tag = "Flag", ignore = "db", ignore = "auth")]
 #[put("/flag", data = "<updated_flag>")]
-pub fn update_flag(updated_flag: Json<UpdateFlag>, db: DbConn) -> Result<Json<UpdateFlag>, NotFound<Json<ApiError>>> {
+pub fn update_flag(updated_flag: Json<UpdateFlag>, db: DbConn, auth: BasicAuth) -> Result<Json<UpdateFlag>, NotFound<Json<ApiError>>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let result = flag_repo.update(&updated_flag);
     result
@@ -86,9 +86,9 @@ pub fn update_flag(updated_flag: Json<UpdateFlag>, db: DbConn) -> Result<Json<Up
         })
 }
 
-#[openapi(tag = "Flag", ignore = "db")]
+#[openapi(tag = "Flag", ignore = "db", ignore = "auth")]
 #[delete("/flag/<id>")]
-pub fn delete_flag_by_id(id: i32, db: DbConn) -> Result<NoContent, NotFound<Json<ApiError>>> {
+pub fn delete_flag_by_id(id: i32, db: DbConn, auth: BasicAuth) -> Result<NoContent, NotFound<Json<ApiError>>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let result = flag_repo.delete_by_id(id);
     result
