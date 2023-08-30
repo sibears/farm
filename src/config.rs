@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::settings::{Config, AuthConfig, CtfConfig, ProtocolConfig};
 
 
@@ -14,11 +16,14 @@ pub fn get_config() -> Config {
                 "forkad.docker.localhost", 
                 80
             ),
-            "\\w{31}=",
+            r"\w{31}=",
             5*60,
             5,
             100,
-            vec!["team1", "team2"]
+            HashMap::from([
+                ("First", "first.docker.localhost"),
+                ("Second", "second.docker.localhost")
+            ])
         )
     )
 }

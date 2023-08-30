@@ -1,5 +1,7 @@
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate rocket;
+#[macro_use] extern crate serde_json;
+
 
 use rocket::{Rocket, Build};
 use rocket_okapi::{openapi, openapi_get_routes, rapidoc::*, swagger_ui::*, mount_endpoints_and_merged_docs};
@@ -7,11 +9,14 @@ use rocket_okapi::settings::UrlObject;
 use rocket_okapi::openapi_get_routes_spec;
 use sibears_farm::handlers::flag_handler::flag_handler;
 use std::thread;
+use rocket::http::Method;
+
 
 use sibears_farm::db::connection::init_db;
 use sibears_farm::config::get_config;
 use sibears_farm::controllers::flag::*;
 use sibears_farm::controllers::config::*;
+use sibears_farm::middleware::cors::CORS;
 
 #[openapi]
 #[get("/")]
@@ -26,6 +31,7 @@ fn rocket() -> Rocket<Build> {
         flag_handler(get_config());
     });
     let mut rocket_app = rocket::build()
+        .attach(CORS)
         .manage(init_db(&config.database))
         .manage(config)
         .mount("/", openapi_get_routes![hello])

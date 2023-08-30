@@ -42,8 +42,13 @@ impl ProtocolHandler for ForcAdHttp {
         if result.is_err() {
             return Vec::new();
         }
-        //debug!("result: {}", result.unwrap().text().unwrap());
-        let result = result.unwrap().json::<Value>().unwrap();
+        let result = match result.unwrap().json::<Value>() {
+            Ok(v) => v,
+            Err(e) => {
+                debug!("{}", e.to_string());
+                return queue_flags;
+            }
+        };
         debug!("Checksys response: {:?}", &result.to_string());
         if !result["error"].is_null() {
             error!("{}", result["error"].as_str().unwrap());

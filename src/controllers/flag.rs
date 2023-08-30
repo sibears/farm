@@ -5,7 +5,7 @@ use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}
 use rocket_okapi::openapi;
 
 
-use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::connection::DbConn, repos::flag::{FlagRepo, SqliteFlagRepo}, settings::Config};
+use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::{connection::DbConn, schema::flags::flag}, repos::flag::{FlagRepo, SqliteFlagRepo}, settings::Config};
 use crate::errors::ApiError;
 
 
@@ -43,6 +43,11 @@ pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn, config: &State<Con
     let flag_repo = SqliteFlagRepo::new(&db);
     let re = Regex::new(&config.ctf.flag_format).unwrap();
     let mut matched_flags: Vec<NewFlag> = new_flags.into_inner().into_iter().filter(|x| x.match_regex(&re)).collect();
+    matched_flags.sort_unstable();
+    matched_flags.dedup();
+    debug!("{:?}", &matched_flags);
+    let mut matched_flags = flag_repo.skip_duplicate(matched_flags);
+    debug!("{:?}", &matched_flags);
     let result = flag_repo.save_all(&mut matched_flags);
     result
         .map(|_| Created::new("/").body(Json(Vec::new())))
@@ -64,7 +69,10 @@ pub fn post_flags(new_flags: Json<Vec<NewFlag>>, db: DbConn, config: &State<Conf
 pub fn post_simple(new_flags: Json<Vec<String>>, db: DbConn, _auth: BasicAuth) -> Result<Created<Json<Vec<String>>>, Json<ApiError>> {
     let flag_repo = SqliteFlagRepo::new(&db);
     let new_flags = new_flags.to_vec();
-    let mut new_flags: Vec<NewFlag> = new_flags.into_iter().map(|flag| NewFlag::new(flag)).collect();
+    let mut new_flags: Vec<NewFlag> = new_flags.into_iter().map(|x| NewFlag::new(x)).collect();
+    new_flags.sort_unstable();
+    new_flags.dedup();
+    let mut new_flags = flag_repo.skip_duplicate(new_flags);
     let result = flag_repo.save_all(&mut new_flags);
     result
         .map(|_| Created::new("/").body(Json(Vec::new())))

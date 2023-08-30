@@ -40,7 +40,7 @@ pub struct CtfConfig {
     pub submit_period: u32,
     pub submit_flag_limit: u32,
     // TODO: Заменить вектор на мапу, чтобы можно было вставлять названия комманд
-    pub teams: Vec<Cow<'static, str>>,
+    pub teams: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
@@ -80,7 +80,7 @@ impl CtfConfig {
         flag_lifetime: u32,
         submit_period: u32,
         submit_flag_limit: u32,
-        teams: Vec<S>
+        teams: HashMap<S, S>
     ) -> Self 
         where S: Into<Cow<'static, str>> 
     { 
@@ -90,7 +90,7 @@ impl CtfConfig {
             flag_lifetime: flag_lifetime, 
             submit_period: submit_period, 
             submit_flag_limit: submit_flag_limit, 
-            teams: teams.into_iter().map(|item| item.into()).collect()
+            teams: teams.into_iter().map(|item| (item.0.into(), item.1.into())).collect()
         }
     }
 }
