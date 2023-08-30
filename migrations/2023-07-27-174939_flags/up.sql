@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS flags (
     sploit TEXT,
     team TEXT,
     time DATETIME NOT NULL,
-    status TEXT,
+    status TEXT NOT NULL,
     checksystem_response TEXT
 );

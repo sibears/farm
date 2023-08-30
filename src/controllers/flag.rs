@@ -1,3 +1,5 @@
+use std::{ops::Deref, borrow::BorrowMut};
+
 use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}, log::private::{debug, info, error}};
 use rocket_okapi::openapi;
 
@@ -40,7 +42,7 @@ pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<
     let flag_repo = SqliteFlagRepo::new(&db);
     let result = flag_repo.save_all(&mut new_flags.into_inner());
     result
-        .map(|_| Created::new("/"))
+        .map(|_| Created::new("/").body(Json(Vec::new())))
         .map_err(|e| {
             Json(ApiError::new(
                 e.to_string()
@@ -52,6 +54,22 @@ pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<
 #[post("/post_flags", data = "<new_flags>")]
 pub fn post_flags(new_flags: Json<Vec<NewFlag>>, db: DbConn) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
     create_flag(new_flags, db)
+}
+
+#[openapi(tag = "Flag", ignore = "db")]
+#[post("/post_simple", data = "<new_flags>")]
+pub fn post_simple(new_flags: Json<Vec<String>>, db: DbConn) -> Result<Created<Json<Vec<String>>>, Json<ApiError>> {
+    let flag_repo = SqliteFlagRepo::new(&db);
+    let new_flags = new_flags.to_vec();
+    let mut new_flags: Vec<NewFlag> = new_flags.into_iter().map(|flag| NewFlag::new(flag)).collect();
+    let result = flag_repo.save_all(&mut new_flags);
+    result
+        .map(|_| Created::new("/").body(Json(Vec::new())))
+        .map_err(|e| {
+            Json(ApiError::new(
+                e.to_string()
+            ))
+        })
 }
 
 #[openapi(tag = "Flag", ignore = "db")]

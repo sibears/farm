@@ -7,7 +7,7 @@ diesel::table! {
         sploit -> Nullable<Text>,
         team -> Nullable<Text>,
         time -> Timestamp,
-        status -> Nullable<Text>,
+        status -> Text,
         checksystem_response -> Nullable<Text>,
     }
 }

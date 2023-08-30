@@ -1,5 +1,6 @@
 use std::ops::Deref;
 
+use chrono::NaiveDateTime;
 use diesel::QueryDsl;
 use diesel::result::Error;
 use diesel::result::Error::NotFound;
@@ -7,11 +8,17 @@ use r2d2_diesel::ConnectionManager;
 use r2d2::PooledConnection;
 use r2d2::Pool;
 use diesel::Connection;
+use rocket::log::private::debug;
+use rocket::log::private::error;
+use crate::db::schema::flags::status;
+use crate::db::schema::flags::time;
 use crate::errors::ApiError;
 use crate::models::flag::Flag;
 use crate::db::schema::flags;
 use crate::diesel::RunQueryDsl;
+use crate::models::flag::FlagStatus;
 use crate::models::flag::NewFlag;
+use crate::models::flag::SavedFlag;
 use crate::models::flag::UpdateFlag;
 use crate::repos::flag::flags::dsl::flags as flags_dsl;
 use crate::db::connection::*;
@@ -25,6 +32,9 @@ pub trait FlagRepo {
     fn save_all(&self, flag: &mut Vec<NewFlag>) -> Result<(), Error>;
     fn delete_by_id(&self, id: i32) -> Result<(), Error>;
     fn update(&self, flag: &UpdateFlag) -> Result<(), Error>;
+    fn skip_flags(&self, skip_time: NaiveDateTime);
+    fn get_limit(&self, limit: i64) -> Vec<Flag>;
+    fn update_status(&self, flags: Vec<Flag>);
 }
 
 pub struct SqliteFlagRepo<'a> {
@@ -52,9 +62,9 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
 
     fn save(&self, flag: &mut NewFlag) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        flag.update_time();
+        let flag = SavedFlag::from(flag.deref());
         let result = diesel::insert_into(flags_dsl)
-            .values(flag.deref())
+            .values(flag)
             .execute(conn)
             .unwrap();
 
@@ -67,7 +77,7 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
 
     fn save_all(&self, flags: &mut Vec<NewFlag>) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        flags.iter_mut().for_each(|flag| flag.update_time());
+        let flags: Vec<SavedFlag> = flags.into_iter().map(|item| SavedFlag::from(item.deref())).collect();
         let result = diesel::insert_into(flags_dsl)
             .values(flags.deref())
             .execute(conn)
@@ -106,6 +116,37 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
             1 => Ok(()),
             0 => Err(Error::NotFound),
             _ => Err(Error::__Nonexhaustive)
+        }
+    }
+
+    fn skip_flags(&self, skip_time: NaiveDateTime) {
+        let conn = self.db_conn.master.deref();
+        
+        let res = diesel::update(flags_dsl.filter(time.lt(skip_time)).filter(status.eq(FlagStatus::QUEUED.to_string())))
+            .set(status.eq(FlagStatus::SKIPPED.to_string()))
+            .execute(conn)
+            .unwrap();
+        debug!("Skipped: {} flags", res);
+    }
+
+    fn get_limit(&self, limit: i64) -> Vec<Flag> {
+        let conn = self.db_conn.master.deref();
+        
+        let res = flags_dsl.filter(status.eq(FlagStatus::QUEUED.to_string()))
+            .limit(limit)
+            .load::<Flag>(conn)
+            .unwrap();
+        res
+    }
+
+    fn update_status(&self, flags: Vec<Flag>) {
+        let conn = self.db_conn.master.deref();
+
+        for flag in flags {
+            diesel::update(flags_dsl.find(flag.id))
+                .set(flag)
+                .execute(conn)
+                .unwrap();
         }
     }
 }

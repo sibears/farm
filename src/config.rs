@@ -9,14 +9,14 @@ pub fn get_config() -> Config {
         ),
         CtfConfig::new(
             ProtocolConfig::new(
-                "test_proto", 
-                "test_token", 
-                "test_checksys_host", 
-                1337
+                "forcad_http", 
+                "3e74875c9a2d2eb0", 
+                "forkad.docker.localhost", 
+                80
             ),
             "\\w{31}=",
             5*60,
-            2,
+            5,
             100,
             vec!["team1", "team2"]
         )
