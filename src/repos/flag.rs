@@ -35,6 +35,7 @@ pub trait FlagRepo {
     fn skip_flags(&self, skip_time: NaiveDateTime);
     fn get_limit(&self, limit: i64) -> Vec<Flag>;
     fn update_status(&self, flags: Vec<Flag>);
+    fn skip_duplicate(&self, flags: Vec<NewFlag>) -> Vec<NewFlag>;
 }
 
 pub struct SqliteFlagRepo<'a> {
@@ -148,5 +149,15 @@ impl<'a> FlagRepo for SqliteFlagRepo<'a> {
                 .execute(conn)
                 .unwrap();
         }
+    }
+
+    fn skip_duplicate(&self, mut flags: Vec<NewFlag>) -> Vec<NewFlag> {
+        let conn = self.db_conn.master.deref();
+
+        let res = flags_dsl.select(flags::dsl::flag)
+            .load::<String>(conn)
+            .unwrap();
+        flags.retain(|x| !res.contains(&x.flag.to_string()));
+        flags
     }
 }

@@ -42,8 +42,13 @@ impl ProtocolHandler for ForcAdHttp {
         if result.is_err() {
             return Vec::new();
         }
-        //debug!("result: {}", result.unwrap().text().unwrap());
-        let result = result.unwrap().json::<Value>().unwrap();
+        let result = match result.unwrap().json::<Value>() {
+            Ok(v) => v,
+            Err(e) => {
+                debug!("{}", e.to_string());
+                return queue_flags;
+            }
+        };
         debug!("Checksys response: {:?}", &result.to_string());
         if !result["error"].is_null() {
             error!("{}", result["error"].as_str().unwrap());
@@ -52,7 +57,8 @@ impl ProtocolHandler for ForcAdHttp {
         let mut updated_flags: Vec<Flag> = Vec::new();
         for item in result.as_array().unwrap() {
             debug!("item: {}", item);
-            let item = item.as_object().unwrap();
+            let mut item = item.as_object().unwrap().to_owned();
+            item["msg"] = json!(item["msg"].as_str().unwrap()[34..]);
             let mut old_flag: Flag = queue_flags.iter().find(|x| x.flag == item["flag"].as_str().unwrap()).unwrap().clone();
             let tmp = item["msg"].as_str().unwrap().to_string();
             old_flag.checksystem_response = Some(tmp.into());

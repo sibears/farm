@@ -5,12 +5,13 @@ use chrono::Utc;
 use chrono::naive::NaiveDateTime;
 
 
+use regex::Regex;
 use schemars::JsonSchema;
 use serde::Serialize;
 use serde::Deserialize;
 use crate::db::schema::flags;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug)]
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Eq)]
 pub struct NewFlag {
     pub flag: Cow<'static, str>,
     pub sploit: Option<Cow<'static, str>>,
@@ -26,6 +27,27 @@ impl NewFlag {
             sploit: None, 
             team: None 
         } 
+    }
+    pub fn match_regex(&self, regex: &Regex) -> bool {
+        regex.is_match(&self.flag)
+    }
+}
+
+impl PartialEq for NewFlag {
+    fn eq(&self, other: &Self) -> bool {
+        self.flag == other.flag
+    }
+}
+
+impl PartialOrd for NewFlag {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.flag.partial_cmp(&other.flag)
+    }
+}
+
+impl Ord for NewFlag {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.flag.cmp(&other.flag)
     }
 }
 
@@ -79,6 +101,10 @@ pub struct Flag {
 impl Flag {
     pub fn update_time(&mut self) {
         self.time = Utc::now().naive_local();
+    }
+
+    pub fn match_regex(&self, regex: &Regex) -> bool {
+        regex.is_match(&self.flag)
     }
 }
 
