@@ -1,5 +1,11 @@
 image: "rust:latest"
 
+test:cargo:
+  script:
+    - rustc --version && cargo --version  # Print version info for debugging
+    - cargo test --workspace --verbose
+
+
 deploy:
   stage: deploy
   script: echo "Define your deployment script!"
