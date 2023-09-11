@@ -1,6 +1,12 @@
 image: "rust:latest"
 
-test:cargo:
+stages:
+  - build
+  - test
+  - deploy
+
+tests:
+  stage: test
   script:
     - rustc --version && cargo --version  # Print version info for debugging
     - cargo test --workspace --verbose
@@ -10,3 +16,12 @@ deploy:
   stage: deploy
   script: echo "Define your deployment script!"
   environment: production
+
+build:amd64:
+  stage: build
+  image: rust
+  script:
+    - cargo build --release
+  artifacts:
+    paths:
+      - target/release/sibears_farm
