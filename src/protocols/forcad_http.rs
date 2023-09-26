@@ -51,7 +51,7 @@ impl ProtocolHandler for ForcAdHttp {
         };
         debug!("Checksys response: {:?}", &result.to_string());
         if !result["error"].is_null() {
-            error!("{}", result["error"].as_str().unwrap());
+            error!("{:?}", result["error"]);
             return Vec::new();
         }
         let mut updated_flags: Vec<Flag> = Vec::new();

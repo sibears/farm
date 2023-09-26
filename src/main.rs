@@ -12,7 +12,7 @@ use std::thread;
 use rocket::http::Method;
 
 
-use sibears_farm::db::connection::init_db;
+use sibears_farm::db::connection::init_sqlite_db;
 use sibears_farm::config::get_config;
 use sibears_farm::controllers::flag::*;
 use sibears_farm::controllers::config::*;
@@ -32,7 +32,7 @@ fn rocket() -> Rocket<Build> {
     });
     let mut rocket_app = rocket::build()
         .attach(CORS)
-        .manage(init_db(&config.database))
+        .manage(init_sqlite_db(&config.database))
         .manage(config)
         .mount("/", openapi_get_routes![hello])
         .mount("/api", openapi_get_routes![
@@ -43,7 +43,8 @@ fn rocket() -> Rocket<Build> {
             delete_flag_by_id,
             get_config,
             post_flags,
-            post_simple
+            post_simple,
+            check_auth,
         ])
         .mount(
             "/swagger-ui/",
@@ -80,7 +81,8 @@ fn rocket() -> Rocket<Build> {
             update_flag,
             get_config,
             post_flags,
-            post_simple
+            post_simple,
+            check_auth,
         ]
     };
     rocket_app

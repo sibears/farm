@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 
+use diesel::{SqliteConnection, pg};
+
 use crate::settings::{Config, AuthConfig, CtfConfig, ProtocolConfig};
 
 
+pub type DieselConnection = pg::PgConnection;
 // TODO: Зарефакторить конфиги в удобную структуру для редактирования, мб добавить макросы для этого
 pub fn get_config() -> Config {
     Config::new(

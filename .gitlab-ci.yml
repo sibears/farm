@@ -1,7 +1,6 @@
 image: "rust:latest"
 
 stages:
-  - build
   - test
   - deploy
 
@@ -16,12 +15,3 @@ deploy:
   stage: deploy
   script: echo "Define your deployment script!"
   environment: production
-
-build:amd64:
-  stage: build
-  image: rust
-  script:
-    - cargo build --release
-  artifacts:
-    paths:
-      - target/release/sibears_farm

@@ -5,10 +5,10 @@ use futures::executor;
 use chrono::{Utc, NaiveDate, NaiveDateTime, Duration};
 use rocket::log::private::debug;
 
-use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag};
+use crate::{settings::Config, db::connection::{init_sqlite_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag};
 
 pub fn flag_handler(config: Config) {
-    let db_pool = init_db(&config.database).db_conn_pool;
+    let db_pool = init_sqlite_db(&config.database).db_conn_pool;
     loop {
         let conn = DbConn { master: db_pool.get().unwrap() };
         let flag_repo = SqliteFlagRepo::new(&conn);
