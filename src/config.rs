@@ -24,8 +24,8 @@ pub fn get_config() -> Config {
             5,
             100,
             HashMap::from([
-                ("First", "first.docker.localhost"),
-                ("Second", "second.docker.localhost")
+                ("First", "ad.docker.localhost"),
+                ("Second", "ad.docker.localhost")
             ])
         )
     )
