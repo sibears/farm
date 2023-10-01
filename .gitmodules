@@ -1,0 +1,3 @@
+[submodule "front"]
+	path = front
+	url = git@prod:sibears/sibears-farm-front.git
