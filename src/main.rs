@@ -8,6 +8,7 @@ use rocket_okapi::{openapi, openapi_get_routes, rapidoc::*, swagger_ui::*, mount
 use rocket_okapi::settings::UrlObject;
 use rocket_okapi::openapi_get_routes_spec;
 use sibears_farm::handlers::flag_handler::flag_handler;
+use std::sync::{Mutex, Arc};
 use std::thread;
 use rocket::http::Method;
 
@@ -26,13 +27,13 @@ fn hello() -> &'static str {
 
 #[launch]
 fn rocket() -> Rocket<Build> {
-    let config = get_config();
+    let mut config = get_config();
     thread::spawn(|| {
         flag_handler(get_config());
     });
     let mut rocket_app = rocket::build()
         .attach(CORS)
-        .manage(init_sqlite_db(&config.database))
+        .manage(init_sqlite_db(config.database.get_mut().unwrap()))
         .manage(config)
         .mount("/", openapi_get_routes![hello])
         .mount("/api", openapi_get_routes![
@@ -45,6 +46,7 @@ fn rocket() -> Rocket<Build> {
             post_flags,
             post_simple,
             check_auth,
+            set_config,
         ])
         .mount(
             "/swagger-ui/",
@@ -83,6 +85,7 @@ fn rocket() -> Rocket<Build> {
             post_flags,
             post_simple,
             check_auth,
+            set_config,
         ]
     };
     rocket_app

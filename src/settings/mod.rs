@@ -1,4 +1,4 @@
-use std::{borrow::Cow, env, collections::HashMap};
+use std::{borrow::Cow, env, collections::HashMap, sync::Mutex};
 use dotenv::dotenv;
 
 use schemars::JsonSchema;
@@ -45,6 +45,14 @@ pub struct CtfConfig {
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct Config {
+    pub database: Mutex<DatabaseConfig>,
+    pub auth: Mutex<AuthConfig>,
+    pub ctf: Mutex<CtfConfig>,
+}
+
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+pub struct RawConfig {
     pub database: DatabaseConfig,
     pub auth: AuthConfig,
     pub ctf: CtfConfig,
@@ -56,12 +64,18 @@ impl Config {
         let database_url = env::var("DATABASE_URL")
             .expect("DATABASE_URL must be set");
         Config { 
-            database: DatabaseConfig { 
+            database: Mutex::new(DatabaseConfig { 
                 database_url: database_url.into()
-            },
-            auth: auth_config,
-            ctf: ctf_config,
+            }),
+            auth: Mutex::new(auth_config),
+            ctf: Mutex::new(ctf_config),
         }
+    }
+}
+
+impl DatabaseConfig {
+    pub fn copy(&mut self, another: &DatabaseConfig) {
+        self.database_url = another.database_url.to_owned();
     }
 }
 
@@ -70,6 +84,10 @@ impl AuthConfig {
         where S: Into<Cow<'static, str>> 
     { 
         AuthConfig { password: password.into() }
+    }
+
+    pub fn copy(&mut self, another: &AuthConfig) {
+        self.password = another.password.to_owned();
     }
 }
 
@@ -93,6 +111,16 @@ impl CtfConfig {
             teams: teams.into_iter().map(|item| (item.0.into(), item.1.into())).collect()
         }
     }
+
+    pub fn copy(&mut self, another: &CtfConfig) {
+        self.flag_format = another.flag_format.to_owned();
+        self.flag_lifetime = another.flag_lifetime.to_owned();
+        self.submit_flag_limit = another.submit_flag_limit;
+        self.teams = another.teams.to_owned();
+        self.submit_period = self.submit_period;
+        self.protocol.copy(&another.protocol);
+    }
+
 }
 
 impl ProtocolConfig {
@@ -110,5 +138,12 @@ impl ProtocolConfig {
             checksys_host: checksys_host.into(), 
             checksys_port: checksys_port 
         }
+    }
+
+    pub fn copy(&mut self, another: &ProtocolConfig) {
+        self.protocol = another.protocol.to_owned();
+        self.team_token = another.team_token.to_owned();
+        self.checksys_host = another.checksys_host.to_owned();
+        self.checksys_port = another.checksys_port;
     }
 }

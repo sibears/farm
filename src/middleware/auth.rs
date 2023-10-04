@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
 use rocket::{request::Outcome, Request, State};
@@ -18,7 +20,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
         let keys: Vec<_> = request.headers().get("Authorization").collect();
         match keys.len() {
             0 => Outcome::Forward(()),
-            1 => if keys[0] == config.auth.password {
+            1 => if keys[0] == config.auth.lock().unwrap().password {
                 Outcome::Success(BasicAuth)
             } else {
                 Outcome::Failure((Status::BadRequest, BasicAuthError::Invalid))

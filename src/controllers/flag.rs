@@ -1,4 +1,4 @@
-use std::{ops::Deref, borrow::BorrowMut};
+use std::{ops::Deref, borrow::BorrowMut, sync::Arc};
 
 use regex::Regex;
 use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}, log::private::{debug, info, error}, State};
@@ -41,7 +41,7 @@ pub fn get_flag_by_id(id: i32, db: DbConn, _auth: BasicAuth) -> Result<Json<Flag
 #[post("/flag", data = "<new_flags>")]
 pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn, config: &State<Config>, _auth: BasicAuth) -> Result<Created<Json<Vec<Flag>>>, Json<ApiError>> {
     let flag_repo = SqliteFlagRepo::new(&db);
-    let re = Regex::new(&config.ctf.flag_format).unwrap();
+    let re = Regex::new(&config.ctf.lock().unwrap().flag_format).unwrap();
     let mut matched_flags: Vec<NewFlag> = new_flags.into_inner().into_iter().filter(|x| x.match_regex(&re)).collect();
     matched_flags.sort_unstable();
     matched_flags.dedup();

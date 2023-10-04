@@ -1,0 +1,24 @@
+{
+	"database": {
+		"database_url": "postgres://postgres:sibears1cool@localhost:8001/flags"
+	},
+	"auth": {
+		"password": "sibears1cool"
+	},
+	"ctf": {
+		"protocol": {
+			"protocol": "forcad_http",
+			"team_token": "3e74875c9a2d2eb0",
+			"checksys_host": "forkad.docker.localhost",
+			"checksys_port": 80
+		},
+		"flag_format": "\\w{31}=",
+		"flag_lifetime": 300,
+		"submit_period": 5,
+		"submit_flag_limit": 100,
+		"teams": {
+			"First": "ad.docker.localhost",
+			"Second": "ad.docker.localhost"
+		}
+	}
+}
