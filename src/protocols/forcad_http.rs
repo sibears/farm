@@ -45,11 +45,11 @@ impl ProtocolHandler for ForcAdHttp {
         let result = match result.unwrap().json::<Value>() {
             Ok(v) => v,
             Err(e) => {
-                debug!("{}", e.to_string());
+                error!("{}", e.to_string());
                 return queue_flags;
             }
         };
-        debug!("Checksys response: {:?}", &result.to_string());
+        info!("Checksys response: {:?}", &result.to_string());
         if !result["error"].is_null() {
             error!("{:?}", result["error"]);
             return Vec::new();

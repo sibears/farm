@@ -1,6 +1,6 @@
 {
 	"database": {
-		"database_url": "postgres://postgres:sibears1cool@localhost:8001/flags"
+		"database_url": "postgres://postgres:sibears1cool@postgres/flags"
 	},
 	"auth": {
 		"password": "sibears1cool"

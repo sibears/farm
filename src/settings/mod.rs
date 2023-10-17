@@ -39,7 +39,6 @@ pub struct CtfConfig {
     pub flag_lifetime: u32,
     pub submit_period: u32,
     pub submit_flag_limit: u32,
-    // TODO: Заменить вектор на мапу, чтобы можно было вставлять названия комманд
     pub teams: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 

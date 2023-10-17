@@ -45,7 +45,6 @@ pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn, config: &State<Con
     let mut matched_flags: Vec<NewFlag> = new_flags.into_inner().into_iter().filter(|x| x.match_regex(&re)).collect();
     matched_flags.sort_unstable();
     matched_flags.dedup();
-    debug!("{:?}", &matched_flags);
     let mut matched_flags = flag_repo.skip_duplicate(matched_flags);
     debug!("{:?}", &matched_flags);
     let result = flag_repo.save_all(&mut matched_flags);

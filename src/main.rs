@@ -13,7 +13,7 @@ use std::thread;
 use rocket::http::Method;
 
 
-use sibears_farm::db::connection::init_sqlite_db;
+use sibears_farm::db::connection::init_db;
 use sibears_farm::config::get_config;
 use sibears_farm::controllers::flag::*;
 use sibears_farm::controllers::config::*;
@@ -27,13 +27,14 @@ fn hello() -> &'static str {
 
 #[launch]
 fn rocket() -> Rocket<Build> {
+    dotenv::dotenv();
     let mut config = get_config();
     thread::spawn(|| {
         flag_handler(get_config());
     });
     let mut rocket_app = rocket::build()
         .attach(CORS)
-        .manage(init_sqlite_db(config.database.get_mut().unwrap()))
+        .manage(init_db(std::env::var("DATABASE_URL").unwrap()))
         .manage(config)
         .mount("/", openapi_get_routes![hello])
         .mount("/api", openapi_get_routes![

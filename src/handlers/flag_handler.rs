@@ -5,10 +5,10 @@ use futures::executor;
 use chrono::{Utc, NaiveDate, NaiveDateTime, Duration};
 use rocket::log::private::debug;
 
-use crate::{settings::Config, db::connection::{init_sqlite_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag};
+use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag};
 
 pub fn flag_handler(config: Config) {
-    let db_pool = init_sqlite_db(&config.database.lock().unwrap()).db_conn_pool;
+    let db_pool = init_db(std::env::var("DATABASE_URL").unwrap()).db_conn_pool;
     loop {
         let conn = DbConn { master: db_pool.get().unwrap() };
         let flag_repo = SqliteFlagRepo::new(&conn);
@@ -22,7 +22,7 @@ pub fn flag_handler(config: Config) {
         flag_repo.skip_flags(skip_time);
         
         let queue_flags = flag_repo.get_limit(lock_ctf_config.submit_flag_limit as i64);
-        debug!("Queue flags: {:?}", queue_flags);
+        info!("Queue flags: {:?}", queue_flags);
         if queue_flags.len() > 0 {
             let updated_flags = submit_flags(queue_flags, &config);
             if updated_flags.len() > 0 {
