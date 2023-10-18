@@ -1,4 +1,5 @@
 use std::{thread, ops::Deref};
+use std::sync::MutexGuard;
 use diesel::update;
 use futures::executor;
 
@@ -6,9 +7,11 @@ use chrono::{Utc, NaiveDate, NaiveDateTime, Duration};
 use rocket::log::private::debug;
 
 use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag};
+use crate::settings::CtfConfig;
 
 pub fn flag_handler(config: Config) {
     let db_pool = init_db(std::env::var("DATABASE_URL").unwrap()).db_conn_pool;
+    // TODO: Оптимизировать lock мутекса
     loop {
         let conn = DbConn { master: db_pool.get().unwrap() };
         let flag_repo = SqliteFlagRepo::new(&conn);
@@ -24,7 +27,7 @@ pub fn flag_handler(config: Config) {
         let queue_flags = flag_repo.get_limit(lock_ctf_config.submit_flag_limit as i64);
         info!("Queue flags: {:?}", queue_flags);
         if queue_flags.len() > 0 {
-            let updated_flags = submit_flags(queue_flags, &config);
+            let updated_flags = submit_flags(queue_flags, &lock_ctf_config);
             if updated_flags.len() > 0 {
                 flag_repo.update_status(updated_flags);
             }
@@ -37,8 +40,7 @@ pub fn flag_handler(config: Config) {
     }
 }
 
-fn submit_flags(queue_flags: Vec<Flag>, config: &Config) -> Vec<Flag> {
-    let locked_ctf_config = config.ctf.lock().unwrap();
-    let handler = locked_ctf_config.protocol.get_protocol_handler();
-    handler.send_flags(queue_flags, &locked_ctf_config.protocol)
+fn submit_flags(queue_flags: Vec<Flag>, config: &MutexGuard<CtfConfig>) -> Vec<Flag> {
+    let handler = config.protocol.get_protocol_handler();
+    handler.send_flags(queue_flags, &config.protocol)
 }
