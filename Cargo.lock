@@ -1639,6 +1639,7 @@ dependencies = [
  "dotenv",
  "futures",
  "lazy_static",
+ "log",
  "once_cell",
  "phf",
  "r2d2",
