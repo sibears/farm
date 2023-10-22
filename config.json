@@ -7,18 +7,18 @@
 	},
 	"ctf": {
 		"protocol": {
-			"protocol": "forcad_http",
+			"protocol": "ructf_tcp",
 			"team_token": "3e74875c9a2d2eb0",
-			"checksys_host": "forkad.docker.localhost",
-			"checksys_port": 80
+			"checksys_host": "localhost",
+			"checksys_port": 8778
 		},
 		"flag_format": "\\w{31}=",
 		"flag_lifetime": 300,
 		"submit_period": 5,
 		"submit_flag_limit": 100,
 		"teams": {
-			"First": "ad.docker.localhost",
-			"Second": "ad.docker.localhost"
+			"First": "first.docker.localhost",
+			"Second": "second.docker.localhost"
 		}
 	}
 }
