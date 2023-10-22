@@ -7,6 +7,7 @@ COPY . .
 RUN cargo build --release
 
 FROM rust:1.73-slim
+LABEL authors="x5113nc3x"
 RUN apt-get update &&  \
     apt-get install -y openssl libsqlite3-dev libpq-dev &&  \
     rm -rf /var/lib/apt/lists/* &&  \

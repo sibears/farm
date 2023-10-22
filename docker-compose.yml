@@ -1,6 +1,13 @@
 version: '3'
 
 services:
+  sibears_farm_front:
+    image: sibears_farm_front:1.0
+    build: ./front/
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_FARM_URL=localhost:8000
   sibears_farm_back:
     image: sibears_farm_back:1.0
     build: .
@@ -18,7 +25,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=sibears1cool
   external_redis:
-    image: redis:7.2.0-alpine
+    image: redis:7.2-alpine
     ports:
       - "6378:6379"
     restart: unless-stopped

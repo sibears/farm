@@ -2,7 +2,7 @@
 
 diesel::table! {
     flags (id) {
-        id -> Integer,
+        id -> Int4,
         flag -> Text,
         sploit -> Nullable<Text>,
         team -> Nullable<Text>,

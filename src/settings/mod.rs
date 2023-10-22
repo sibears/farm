@@ -4,7 +4,7 @@ use dotenv::dotenv;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::protocols::{ProtocolHandler, forcad_http::ForcAdHttp, PROTOCOLS};
+use crate::protocols::{ProtocolHandler, PROTOCOLS};
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct DatabaseConfig {
