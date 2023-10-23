@@ -25,7 +25,7 @@ impl Fairing for CORS {
 
         response.set_header(Header::new(
             "Access-Control-Allow-Origin",
-            "http://localhost:3000",
+            "*",
         ));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
