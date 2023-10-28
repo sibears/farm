@@ -18,7 +18,7 @@ impl Fairing for CORS {
             response.set_status(Status::NoContent);
             response.set_header(Header::new(
                 "Access-Control-Allow-Methods",
-                "POST, PATCH, GET, DELETE",
+                "POST, PATCH, GET, DELETE, PUT",
             ));
             response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         }

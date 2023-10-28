@@ -5,14 +5,12 @@ services:
     image: sibears_farm_front:1.0
     build: ./front/
     ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_FARM_URL=localhost:8000
+      - "8776:80"
   sibears_farm_back:
     image: sibears_farm_back:1.0
     build: .
     ports:
-      - "8000:8000"
+      - "8777:8000"
     depends_on:
       - postgres
     environment:
@@ -24,6 +22,9 @@ services:
     image: postgres:14.1-alpine
     environment:
       - POSTGRES_PASSWORD=sibears1cool
+    ports:
+      - "5432:5432"
+
   external_redis:
     image: redis:7.2-alpine
     ports:
