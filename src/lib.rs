@@ -1,4 +1,3 @@
-#![feature(return_position_impl_trait_in_trait)]
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate serde_json;
