@@ -70,8 +70,8 @@ impl ProtocolHandler for ForсAdHttp {
             old_flag.checksystem_response = Some(tmp.into());
             for (status, key_words) in &responses {
                 let lowercase_response = old_flag.checksystem_response
-                    .unwrap()
                     .to_owned()
+                    .unwrap()
                     .to_lowercase();
                 if key_words.iter().any(|word| lowercase_response.contains(word)) {
                     old_flag.status = status.clone().into();
