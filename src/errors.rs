@@ -1,8 +1,8 @@
 use std::borrow::Cow;
 
-use serde::Serialize;
 use schemars::JsonSchema;
 use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub struct ApiError {
@@ -10,17 +10,17 @@ pub struct ApiError {
 }
 
 impl ApiError {
-    pub fn new<S>(details: S) -> Self 
+    pub fn new<S>(details: S) -> Self
         where S: Into<Cow<'static, str>>
     {
-        ApiError { 
+        ApiError {
             details: details.into()
-         }
+        }
     }
 }
 
 #[derive(Debug)]
 pub enum BasicAuthError {
     BadCount,
-    Invalid
-} 
+    Invalid,
+}

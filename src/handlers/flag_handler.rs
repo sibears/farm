@@ -6,7 +6,8 @@ use futures::executor;
 use chrono::{Utc, NaiveDate, NaiveDateTime, Duration};
 use rocket::log::private::debug;
 
-use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{SqliteFlagRepo, FlagRepo}, models::flag::Flag};
+use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{PostgresFlagRepo, FlagRepo}, models::flag::Flag};
+use crate::config::DbFlagRepo;
 use crate::settings::CtfConfig;
 
 pub fn flag_handler(config: Config) {
@@ -14,7 +15,7 @@ pub fn flag_handler(config: Config) {
     // TODO: Оптимизировать lock мутекса
     loop {
         let conn = DbConn { master: db_pool.get().unwrap() };
-        let flag_repo = SqliteFlagRepo::new(&conn);
+        let flag_repo = DbFlagRepo::new(conn);
         let lock_ctf_config = config.ctf.lock().unwrap();
 
         let submit_start_time = Utc::now().naive_local();

@@ -10,6 +10,7 @@ use r2d2::Pool;
 use diesel::Connection;
 use rocket::log::private::debug;
 use rocket::log::private::error;
+use crate::config::DbFlagRepo;
 use crate::db::schema::flags::status;
 use crate::db::schema::flags::time;
 use crate::errors::ApiError;
@@ -38,17 +39,17 @@ pub trait FlagRepo {
     fn skip_duplicate(&self, flags: Vec<NewFlag>) -> Vec<NewFlag>;
 }
 
-pub struct SqliteFlagRepo<'a> {
-    db_conn: &'a DbConn,
+pub struct PostgresFlagRepo {
+    db_conn: DbConn,
 }
 
-impl<'a> SqliteFlagRepo<'a> {
-    pub fn new(conn: &'a DbConn) -> SqliteFlagRepo<'a> {
-        SqliteFlagRepo { db_conn: conn }
+impl PostgresFlagRepo {
+    pub fn new(conn: DbConn) -> PostgresFlagRepo {
+        PostgresFlagRepo { db_conn: conn }
     }
 }
 
-impl<'a> FlagRepo for SqliteFlagRepo<'a> {
+impl FlagRepo for PostgresFlagRepo {
     fn find_all(&self) -> Result<Vec<Flag>, Error> {
         let conn = self.db_conn.master.deref();
         let all_flags = flags::table.load::<Flag>(conn);

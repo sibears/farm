@@ -28,13 +28,14 @@ fn hello() -> &'static str {
 #[launch]
 fn rocket() -> Rocket<Build> {
     dotenv::dotenv();
-    let mut config = get_config();
+    let config = get_config();
     thread::spawn(|| {
         flag_handler(get_config());
     });
+    let database_url = config.database.lock().unwrap().database_url.to_string();
     let mut rocket_app = rocket::build()
         .attach(CORS)
-        .manage(init_db(std::env::var("DATABASE_URL").unwrap()))
+        .manage(init_db(database_url))
         .manage(config)
         .mount("/", openapi_get_routes![hello])
         .mount("/api", openapi_get_routes![

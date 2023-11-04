@@ -1,11 +1,13 @@
 use std::{collections::HashMap, fs};
 
 use diesel::pg;
+use crate::repos::flag::PostgresFlagRepo;
 
 use crate::settings::{Config, AuthConfig, CtfConfig, ProtocolConfig};
 
 
 pub type DieselConnection = pg::PgConnection;
+pub type DbFlagRepo = PostgresFlagRepo;
 pub fn get_config() -> Config {
     let config = fs::read_to_string("./config.json");
     let config: Config = match config {

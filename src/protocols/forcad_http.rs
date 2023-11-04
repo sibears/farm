@@ -9,18 +9,18 @@ use serde_json::Value;
 
 use super::{ProtocolHandler, PROTOCOLS};
 
-pub struct ForkAdHttp;
+pub struct ForсAdHttp;
 
-impl ProtocolHandler for ForkAdHttp {
+impl ProtocolHandler for ForсAdHttp {
     fn send_flags(&self, queue_flags: Vec<Flag>, config: &ProtocolConfig) -> Vec<Flag> {
 
         let responses: HashMap<String, Vec<&str>> = HashMap::from([
-            (FlagStatus::QUEUED.to_string(), 
-                vec!["timeout", 
-                "game not started", 
-                "try again later", 
-                "game over", 
-                "is not up", 
+            (FlagStatus::QUEUED.to_string(),
+                vec!["timeout",
+                "game not started",
+                "try again later",
+                "game over",
+                "is not up",
                 "no such flag"]),
             (FlagStatus::ACCEPTED.to_string(),
                 vec!["accepted", "congrat"]),
@@ -33,13 +33,16 @@ impl ProtocolHandler for ForkAdHttp {
         let url = format!("http://{}:{}/flags", config.checksys_host, config.checksys_port);
         let mut headers = HeaderMap::new();
         headers.insert("X-Team-Token", config.team_token.parse().unwrap());
-        let flag_str: Vec<Cow<'static, str>> = queue_flags.iter().map(|item| item.flag.to_owned()).collect();
+        let flag_str: Vec<Cow<'static, str>> = queue_flags
+            .iter()
+            .map(|item| item.flag.to_owned()).collect();
     
         let result = client.put(url)
             .headers(headers)
             .json(&flag_str)
             .send();
         if result.is_err() {
+            error!("Http put error: {:?}", result.unwrap_err());
             return Vec::new();
         }
         let result = match result.unwrap().json::<Value>() {
@@ -51,25 +54,33 @@ impl ProtocolHandler for ForkAdHttp {
         };
         info!("Checksys response: {:?}", &result.to_string());
         if !result["error"].is_null() {
-            error!("{:?}", result["error"]);
+            error!("Response error: {:?}", result["error"]);
             return Vec::new();
         }
         let mut updated_flags: Vec<Flag> = Vec::new();
         for item in result.as_array().unwrap() {
-            debug!("item: {}", item);
             let mut item = item.as_object().unwrap().to_owned();
             item["msg"] = json!(item["msg"].as_str().unwrap()[34..]);
-            let mut old_flag: Flag = queue_flags.iter().find(|x| x.flag == item["flag"].as_str().unwrap()).unwrap().clone();
+            let mut old_flag: Flag = queue_flags
+                .iter()
+                .find(|x| x.flag == item["flag"].as_str().unwrap())
+                .unwrap()
+                .clone();
             let tmp = item["msg"].as_str().unwrap().to_string();
             old_flag.checksystem_response = Some(tmp.into());
             for (status, key_words) in &responses {
-                if key_words.iter().any(|word| old_flag.checksystem_response.to_owned().unwrap().contains(word)) {
+                let lowercase_response = old_flag.checksystem_response
+                    .unwrap()
+                    .to_owned()
+                    .to_lowercase();
+                if key_words.iter().any(|word| lowercase_response.contains(word)) {
                     old_flag.status = status.clone().into();
                     break;
                 }
             }
             updated_flags.push(old_flag);
         }
+        info!("Updated: {:?}", updated_flags);
         updated_flags
     }
 }

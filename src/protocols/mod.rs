@@ -4,7 +4,7 @@ use phf::phf_map;
 
 use crate::{models::flag::Flag, settings::ProtocolConfig};
 
-use self::forcad_http::ForkAdHttp;
+use self::forcad_http::ForсAdHttp;
 use crate::protocols::ructf_tcp::RuCtfTcp;
 
 pub mod forcad_http;
@@ -15,6 +15,6 @@ pub trait ProtocolHandler: Send + Sync {
 }
 
 pub static mut PROTOCOLS: phf::Map<&str, &dyn ProtocolHandler> = phf_map!{
-    "forkad_http" => &ForkAdHttp,
+    "forсad_http" => &ForсAdHttp,
     "ructf_tcp" => &RuCtfTcp
 };

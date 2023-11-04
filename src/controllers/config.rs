@@ -31,8 +31,7 @@ pub fn set_config(config: &State<Config>, _auth: BasicAuth, new_config: Json<Raw
 #[post("/check_auth", data = "<passwd>")]
 pub fn check_auth(config: &State<Config>, passwd: Json<HashMap<String, String>>) -> Value {
     let lock_auth = config.auth.lock().unwrap();
-    debug!("{:?}", passwd);
-    debug!("{:?}", lock_auth.password.eq(passwd.get("passwd").unwrap_or(&"".to_string())));
+    debug!("{:?} compare {:?}", passwd, lock_auth.password.eq(passwd.get("passwd").unwrap_or(&"".to_string())));
     if lock_auth.password.eq(passwd.get("passwd").unwrap_or(&"".to_string())) {
         json!("ok")
     } else {
