@@ -9,9 +9,9 @@ use serde_json::Value;
 
 use super::{ProtocolHandler, PROTOCOLS};
 
-pub struct ForсAdHttp;
+pub struct ForcAdHttp;
 
-impl ProtocolHandler for ForсAdHttp {
+impl ProtocolHandler for ForcAdHttp {
     fn send_flags(&self, queue_flags: Vec<Flag>, config: &ProtocolConfig) -> Vec<Flag> {
 
         let responses: HashMap<String, Vec<&str>> = HashMap::from([

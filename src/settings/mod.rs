@@ -26,9 +26,7 @@ pub struct ProtocolConfig {
 
 impl ProtocolConfig {
     pub fn get_protocol_handler(&self) -> &dyn ProtocolHandler {
-        unsafe {
-            *PROTOCOLS.get(&self.protocol).unwrap()
-        }
+        *PROTOCOLS.get(&self.protocol).unwrap()
     }
 }
 
@@ -52,7 +50,6 @@ pub struct Config {
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RawConfig {
-    pub database: DatabaseConfig,
     pub auth: AuthConfig,
     pub ctf: CtfConfig,
 }
@@ -104,7 +101,7 @@ impl CtfConfig {
         CtfConfig { 
             protocol: proto_config, 
             flag_format: flag_format.into(), 
-            flag_lifetime: flag_lifetime, 
+            flag_lifetime: flag_lifetime,
             submit_period: submit_period, 
             submit_flag_limit: submit_flag_limit, 
             teams: teams.into_iter().map(|item| (item.0.into(), item.1.into())).collect()

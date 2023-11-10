@@ -15,7 +15,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
     type Error = BasicAuthError;
     
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        let config = request.guard::<&State<Config>>().await.unwrap();
+        let config = request.guard::<&State<Arc<Config>>>().await.unwrap();
 
         let keys: Vec<_> = request.headers().get("Authorization").collect();
         match keys.len() {

@@ -10,7 +10,7 @@ services:
     image: sibears_farm_back:1.0
     build: .
     ports:
-      - "8777:8000"
+      - "8777:8777"
     depends_on:
       - postgres
     environment:

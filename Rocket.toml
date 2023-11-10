@@ -1,9 +1,12 @@
 [debug]
 log_level = "debug"
 address = "0.0.0.0"
+port = 8777
 
 [global]
 address = "0.0.0.0"
+port = 8777
 
 [release]
 address = "0.0.0.0"
+port = 8777
