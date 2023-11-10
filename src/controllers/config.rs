@@ -8,7 +8,6 @@ use rocket_okapi::openapi;
 use serde_json::Value;
 
 use crate::{settings::{Config, RawConfig}, models::auth::BasicAuth};
-use crate::settings::metrics::HTTP_REQUEST_DURATION;
 
 
 #[openapi(tag = "Config", ignore = "config", ignore = "_auth")]
