@@ -12,14 +12,12 @@ use sibears_farm::handlers::flag_handler::flag_handler;
 use std::sync::{Mutex, Arc};
 use std::thread;
 use rocket::http::Method;
-use sibears_farm::controllers::metrics::okapi_add_operation_for_get_metrics_;
 
 
 use sibears_farm::db::connection::init_db;
 use sibears_farm::config::get_config;
 use sibears_farm::controllers::flag::*;
 use sibears_farm::controllers::config::*;
-use sibears_farm::controllers::metrics::get_metrics;
 use sibears_farm::middleware::cors::CORS;
 
 #[openapi]
@@ -53,7 +51,6 @@ fn rocket() -> Rocket<Build> {
             post_simple,
             check_auth,
             set_config,
-            get_metrics,
             start_sploit
         ])
         .mount(
@@ -94,7 +91,6 @@ fn rocket() -> Rocket<Build> {
             post_simple,
             check_auth,
             set_config,
-            get_metrics,
             start_sploit
         ]
     };
