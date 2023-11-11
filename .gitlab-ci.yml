@@ -1,13 +1,52 @@
+variables:
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  RELEASE_TAG: $CI_REGISTRY_IMAGE:$TAG
+  LATEST_TAG: $CI_REGISTRY_IMAGE:latest
+
 build:
   image: docker:20.10.16
   stage: build
   services:
     - docker:20.10.16-dind
-  variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+prepare_job:
+  stage: release
+  image: docker:20.10.16
+  needs:
+    - job: build
+  services:
+    - docker:20.10.16-dind
+  script:
+    - docker build -t $RELEASE_TAG .
+    - docker tag $LATEST_TAG $RELEASE_TAG
+    - docker push $RELEASE_TAG
+    - docker push $LATEST_TAG
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+release_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: prepare_job
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH  # Run this job when commits are pushed or merged to the default branch
+  script:
+    - echo "running release_job for $TAG"
+  release:
+    name: 'Release $TAG'
+    description: 'Стабильный релиз'  # $EXTRA_DESCRIPTION and the $TAG
+    tag_name: '$CI_COMMIT_TAG'                                                 # variables must be defined elsewhere
+    ref: '$CI_COMMIT_SHA'
+    assets:
+      links:
+        - name: 'Backend'
+          url: '$RELEASE_TAG'
