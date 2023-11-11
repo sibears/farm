@@ -3,12 +3,12 @@ stages:
   - release
 
 build:
-  image: docker:latest
+  image: docker:24.0.7-dind
   stage: build
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   services:
-    - docker:latest-dind
+    - docker:24.0.7-dind
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $IMAGE_TAG .
@@ -18,11 +18,11 @@ build:
 
 prepare_job:
   stage: release
-  image: docker:latest
+  image: docker:24.0.7-dind
   needs:
     - job: build
   services:
-    - docker:latest-dind
+    - docker:24.0.7-dind
   variables:
     RELEASE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
     LATEST_TAG: $CI_REGISTRY_IMAGE:latest
