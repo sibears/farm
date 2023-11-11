@@ -3,7 +3,7 @@ stages:
   - release
 
 build:
-  image: docker:24.0.7-dind
+  image: docker:24.0.7
   stage: build
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
@@ -18,7 +18,7 @@ build:
 
 prepare_job:
   stage: release
-  image: docker:24.0.7-dind
+  image: docker:24.0.7
   needs:
     - job: build
   services:
