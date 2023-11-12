@@ -27,14 +27,15 @@ os_windows = (os.name == 'nt')
 
 
 HEADER = r'''
- ____            _                   _   _             _____
-|  _ \  ___  ___| |_ _ __ _   _  ___| |_(_)_   _____  |  ___|_ _ _ __ _ __ ___
-| | | |/ _ \/ __| __| '__| | | |/ __| __| \ \ / / _ \ | |_ / _` | '__| '_ ` _ `
-| |_| |  __/\__ \ |_| |  | |_| | (__| |_| |\ V /  __/ |  _| (_| | |  | | | | |
-|____/ \___||___/\__|_|   \__,_|\___|\__|_| \_/ \___| |_|  \__,_|_|  |_| |_| |_
-
-Note that this software is highly destructive. Keep it away from children.
-'''[1:]
+   _____ _ ____                        ______                   
+  / ____(_)  _ \                      |  ____|                  
+ | (___  _| |_) | ___  __ _ _ __ ___  | |__ __ _ _ __ _ __ ___  
+  \___ \| |  _ < / _ \/ _` | '__/ __| |  __/ _` | '__| '_ ` _ \ 
+  ____) | | |_) |  __/ (_| | |  \__ \ | | | (_| | |  | | | | | |
+ |_____/|_|____/ \___|\__,_|_|  |___/ |_|  \__,_|_|  |_| |_| |_|
+                                                                
+                                                                
+'''
 
 
 class Style(Enum):
@@ -397,6 +398,9 @@ class InstanceStorage:
         self.n_completed = 0
         self.n_killed = 0
 
+        self.n_successful = 0
+        self.n_failed = 0
+
     def register_start(self, process):
         instance_id = self._counter
         self.instances[instance_id] = process
@@ -426,6 +430,8 @@ def launch_sploit(args, team_name, team_addr, attack_no, flag_format):
         command = [args.interpreter] + command
     if team_addr is not None:
         command.append(team_addr)
+    command.append(team_name)
+    command.append(flag_format.pattern)
     need_close_fds = (not os_windows)
 
     if os_windows:
@@ -467,6 +473,8 @@ def run_sploit(args, team_name, team_addr, attack_no, max_runtime, flag_format):
     try:
         try:
             proc.wait(timeout=max_runtime)
+            if proc.returncode != 0:  # Проверка статуса завершения процесса
+                raise Exception("Sploit process exited with error")
             need_kill = False
         except subprocess.TimeoutExpired:
             need_kill = True
@@ -476,10 +484,15 @@ def run_sploit(args, team_name, team_addr, attack_no, max_runtime, flag_format):
         with instance_lock:
             if need_kill:
                 proc.kill()
+                instance_storage.n_failed += 1
+            else:
+                instance_storage.n_successful += 1
 
             instance_storage.register_stop(instance_id, need_kill)
     except Exception as e:
         logging.error('Failed to finish sploit: {}'.format(repr(e)))
+        with instance_lock:
+            instance_storage.n_failed += 1
 
 
 def show_time_limit_info(args, config, max_runtime, attack_no):
@@ -560,6 +573,14 @@ def main(args):
 
         for team_name, team_addr in teams.items():
             pool.submit(run_sploit, args, team_name, team_addr, attack_no, max_runtime, flag_format)
+
+        pool.shutdown(wait=True)
+        pool = ThreadPoolExecutor(max_workers=args.pool_size)
+
+        with instance_lock:
+            logging.info(f'Success launch: {instance_storage.n_successful}, fails: {instance_storage.n_failed}')
+            instance_storage.n_successful = 0
+            instance_storage.n_failed = 0
 
 
 def shutdown():
