@@ -1,3 +1,0 @@
-[submodule "front"]
-	path = front
-	url = git@gitlab.com:sibears/infrastructure/sibears-farm-front.git

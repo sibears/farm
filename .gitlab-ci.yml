@@ -33,7 +33,6 @@ prepare_job:
     - docker push $LATEST_TAG
   rules:
     - if: $CI_COMMIT_TAG
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 release_job:
   stage: release
@@ -42,7 +41,6 @@ release_job:
     - job: prepare_job
   rules:
     - if: $CI_COMMIT_TAG
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH  # Run this job when commits are pushed or merged to the default branch
   script:
     - echo "running release_job for $TAG"
   release:
