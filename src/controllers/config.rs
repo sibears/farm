@@ -3,6 +3,7 @@ use futures::future::err;
 
 use rocket::{State, serde::json::Json};
 use rocket::fs::NamedFile;
+use rocket::http::ContentType;
 use rocket::response::status::BadRequest;
 use rocket_okapi::openapi;
 use serde_json::Value;
