@@ -41,8 +41,9 @@ pub fn check_auth(config: &State<Arc<Config>>, passwd: Json<HashMap<String, Stri
 }
 
 #[openapi(tag = "Config")]
-#[get("/start_sploit")]
-pub async fn start_sploit() -> Result<NamedFile, BadRequest<String>> {
+#[get("/start_sploit.py")]
+pub async fn start_sploit() -> Result<(ContentType, NamedFile), BadRequest<String>> {
     NamedFile::open("./start_sploit.py").await
         .map_err(|err| BadRequest(Some(err.to_string())))
+        .map(|file| (ContentType::new("application", "x-python-code"), file))
 }
