@@ -25,11 +25,11 @@ prepare_job:
   services:
     - docker:24.0.7-dind
   variables:
-    RELEASE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    RELEASE_TAG: $CI_REGISTRY_IMAGE:$TAG
     LATEST_TAG: $CI_REGISTRY_IMAGE:latest
   script:
     - docker build -t $RELEASE_TAG .
-    - docker tag $LATEST_TAG $RELEASE_TAG
+    - docker tag $RELEASE_TAG $LATEST_TAG
     - docker push $RELEASE_TAG
     - docker push $LATEST_TAG
   rules:
