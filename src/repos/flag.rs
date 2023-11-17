@@ -27,6 +27,7 @@ use crate::diesel::ExpressionMethods;
 
 
 pub trait FlagRepo {
+    fn new(conn: DbConn) -> DbFlagRepo;
     fn find_all(&self) -> Result<Vec<Flag>, Error>;
     fn find_by_id(&self, id: i32) -> Result<Flag, Error>;
     fn save(&self, flag: &mut NewFlag) -> Result<(), Error>;
@@ -37,6 +38,12 @@ pub trait FlagRepo {
     fn get_limit(&self, limit: i64) -> Vec<Flag>;
     fn update_status(&self, flags: Vec<Flag>);
     fn skip_duplicate(&self, flags: Vec<NewFlag>) -> Vec<NewFlag>;
+}
+
+impl FlagRepo {
+    fn new(conn: DbConn) -> DbFlagRepo {
+        DbFlagRepo { db_conn: conn }
+    }
 }
 
 pub struct PostgresFlagRepo {
