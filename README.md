@@ -11,6 +11,8 @@
  - registry.gitlab.com/sibears/infrastructure/sibears_farm:main
  - registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
 
+*Или можно взять конкретную версию из gitlab*
+
 Может потребоваться авторизоваться в gitlab registry из докера, т.к. образы приватные
 
 Пример типичного **docker-compose.yml** для поднятия фермы, 
@@ -31,6 +33,7 @@ services:
       - ROCKET_LOG_LEVEL=normal
     volumes:
       - ./config.json:/srv/config.json:ro
+      - ./start_sploit.py:/srv/start_sploit.py:ro
   
   farm_front:
     image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
@@ -86,13 +89,22 @@ services:
 
 ### Локальная сборка
 
-`docker-compose up -d` 
+`docker-compose up -d`
+
+Для тестов или допила фермы проще собирать и запускать без докеров:
+ - Поднять БД в докере
+ - `cargo run`
+
+Не забыть поменять url-ы в конфигах
 
 ### Запуск сплойтов
 
 Скачайте файл **start_sploit.py**,
 это модифицированный запускатор из destructive farm.
-Модифицированный **start_sploit.py** передаёт в сплойт название команды и регулярку в argv 2 и 3 соответственно. Также выводит статистику сколько удачных и неудачных запусков было за раунд.
+Модифицированный **start_sploit.py** передаёт в сплойт название команды и регулярку в argv 2 и 3 соответственно.
+Также выводит статистику сколько удачных и неудачных запусков было за раунд.
+
+Можно скачать с фермы по `/api/start_sploit.py`
 
 ### API
 
