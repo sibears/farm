@@ -5,8 +5,6 @@ use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}
 use rocket::response::status;
 use rocket::response::status::BadRequest;
 use rocket_okapi::openapi;
-
-
 use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::{connection::DbConn, schema::flags::flag}, repos::flag::{FlagRepo, PostgresFlagRepo}, settings::Config};
 use crate::config::DbFlagRepo;
 
