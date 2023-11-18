@@ -5,8 +5,6 @@ use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}
 use rocket::response::status;
 use rocket::response::status::BadRequest;
 use rocket_okapi::openapi;
-
-
 use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::{connection::DbConn, schema::flags::flag}, repos::flag::{FlagRepo, PostgresFlagRepo}, settings::Config};
 use crate::config::DbFlagRepo;
 
@@ -14,7 +12,7 @@ use crate::config::DbFlagRepo;
 #[openapi(tag = "Flag", ignore = "db", ignore = "_auth")]
 #[get("/flag")]
 pub fn get_flags(db: DbConn, _auth: BasicAuth) -> Result<Json<Vec<Flag>>, BadRequest<String>> {
-    let flag_repo = FlagRepo::new(db);
+    let flag_repo = DbFlagRepo::new(db);
     let flags_result = flag_repo.find_all();
     flags_result
         .map(Json)

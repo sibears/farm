@@ -1,78 +1,60 @@
 use std::{borrow::Cow, collections::HashMap, vec, ops::Deref};
 
-use lazy_static::lazy_static;
-use reqwest::header::HeaderMap;
+use reqwest::StatusCode;
 
 use crate::{models::{flag::{Flag, FlagStatus}, checksys::ForkadResponse}, settings::{Config, ProtocolConfig}};
-use rocket::{serde::json::Json, log::private::debug};
-use serde_json::Value;
 
 use super::{ProtocolHandler, PROTOCOLS};
 
-pub struct ForcAdHttp;
+pub struct Ctf01dHttp;
 
-impl ProtocolHandler for ForcAdHttp {
+impl ProtocolHandler for Ctf01dHttp {
     fn send_flags(&self, queue_flags: Vec<Flag>, config: &ProtocolConfig) -> Vec<Flag> {
-
-        let responses: HashMap<String, Vec<&str>> = HashMap::from([
-            (FlagStatus::QUEUED.to_string(),
-                vec!["timeout",
-                "game not started",
-                "try again later",
-                "game over",
-                "is not up",
-                "no such flag"]),
-            (FlagStatus::ACCEPTED.to_string(),
-                vec!["accepted", "congrat"]),
-            (FlagStatus::REJECTED.to_string(),
-                vec!["bad", "wrong", "expired", "unknown", "your own",
-                "too old", "not in database", "already submitted", "invalid flag"])
-        ]);
-    
         let client = reqwest::blocking::Client::new();
         let url = format!("http://{}:{}/flag", config.checksys_host, config.checksys_port);
         let flag_str: Vec<Cow<'static, str>> = queue_flags
             .iter()
             .map(|item| item.flag.to_owned()).collect();
     
+        let mut updated_flags: Vec<Flag> = Vec::new();
         for flag in flag_str {
-            let result = client.get(url)
+            let result = client.get(&url)
                 .query(&[
-                    ("teamid", config.team_token),
-                    ("flag", flag)
+                    ("teamid", &config.team_token),
+                    ("flag", &flag)
                 ])
                 .send();
 
-            if result.is_err() {
-                error!("Http put error: {:?}", result.unwrap_err());
-                continue;
-            }
-            let result = match result.unwrap().text() {
+            
+            let result = match result {
+                Ok(x) => x,
+                Err(e) => {
+                    error!("Http put error: {}", e.to_string());
+                    continue;
+                }
+            };
+            let result_status = result.status();
+            let result_body = match result.text() {
                 Ok(v) => v,
                 Err(e) => {
                     error!("{}", e.to_string());
                     continue;
                 }
             };
-            info!("Checksys response: {:?}", &result);
+            info!("Checksys response: {:?}", &result_body);
 
-            let mut updated_flags: Vec<Flag> = Vec::new();
             let mut old_flag: Flag = queue_flags
                 .iter()
-                .find(|x| x.flag == flag.as_str().unwrap())
+                .find(|x| x.flag == flag)
                 .unwrap()
                 .clone();
-            old_flag.checksystem_response = Some(result.into());
+            old_flag.checksystem_response = Some(result_body.into());
 
-            for (status, key_words) in &responses {
-                let lowercase_response = old_flag.checksystem_response
-                    .to_owned()
-                    .unwrap()
-                    .to_lowercase();
-                if key_words.iter().any(|word| lowercase_response.contains(word)) {
-                    old_flag.status = status.clone().into();
-                    break;
-                }
+            match result_status {
+                StatusCode::OK => old_flag.status = FlagStatus::ACCEPTED.to_string().into(),
+                StatusCode::BAD_REQUEST => old_flag.status = FlagStatus::REJECTED.to_string().into(),
+                StatusCode::FORBIDDEN => old_flag.status = FlagStatus::REJECTED.to_string().into(),
+                _ => error!("Result error: {:?} {:?}", result_status, old_flag.checksystem_response)
             }
             updated_flags.push(old_flag);
         }
