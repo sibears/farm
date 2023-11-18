@@ -3,7 +3,7 @@ use phf::phf_map;
 use crate::{models::flag::Flag, settings::ProtocolConfig};
 
 use self::forcad_http::ForcAdHttp;
-use self::protocols::ructf_tcp::RuCtfTcp;
+use self::ructf_tcp::RuCtfTcp;
 use self::ctf01d_http::Ctf01dHttp;
 
 pub mod forcad_http;
