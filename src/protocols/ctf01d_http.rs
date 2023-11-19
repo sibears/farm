@@ -48,13 +48,17 @@ impl ProtocolHandler for Ctf01dHttp {
                 .find(|x| x.flag == flag)
                 .unwrap()
                 .clone();
-            old_flag.checksystem_response = Some(result_body.into());
+            old_flag.checksystem_response = Some(result_body.clone().into());
 
             match result_status {
                 StatusCode::OK => old_flag.status = FlagStatus::ACCEPTED.to_string().into(),
                 StatusCode::BAD_REQUEST => old_flag.status = FlagStatus::REJECTED.to_string().into(),
                 StatusCode::FORBIDDEN => old_flag.status = FlagStatus::REJECTED.to_string().into(),
                 _ => error!("Result error: {:?} {:?}", result_status, old_flag.checksystem_response)
+            }
+
+            if result_body.contains("service is dead") {
+                old_flag.status = FlagStatus::QUEUED.to_string().into();
             }
             updated_flags.push(old_flag);
         }
