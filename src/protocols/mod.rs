@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use once_cell::sync::Lazy;
 use phf::phf_map;
 
 use crate::{models::flag::Flag, settings::ProtocolConfig};

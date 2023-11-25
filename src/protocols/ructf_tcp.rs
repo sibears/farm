@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 use std::ffi::CStr;
-use std::fmt::format;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use tokio::net::TcpSocket;
 use log::info;
 use crate::models::flag::{Flag, FlagStatus};
 use crate::settings::ProtocolConfig;
-use super::{ProtocolHandler, PROTOCOLS};
+use super::ProtocolHandler;
 
 pub struct RuCtfTcp;
 

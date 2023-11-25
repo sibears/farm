@@ -1,17 +1,15 @@
-#[macro_use] extern crate diesel;
+extern crate diesel;
 #[macro_use] extern crate rocket;
-#[macro_use] extern crate serde_json;
+extern crate serde_json;
 
-
-use std::ops::Deref;
 use rocket::{Rocket, Build};
 use rocket_okapi::{openapi, openapi_get_routes, rapidoc::*, swagger_ui::*, mount_endpoints_and_merged_docs};
 use rocket_okapi::settings::UrlObject;
 use rocket_okapi::openapi_get_routes_spec;
 use sibears_farm::handlers::flag_handler::flag_handler;
-use std::sync::{Mutex, Arc};
+use std::sync::Arc;
 use std::thread;
-use rocket::http::Method;
+use rocket_prometheus::PrometheusMetrics;
 
 
 use sibears_farm::db::connection::init_db;
@@ -35,23 +33,26 @@ fn rocket() -> Rocket<Build> {
         flag_handler(config_handler);
     });
     let database_url = config.database.lock().unwrap().database_url.to_string();
+    let prometheus = PrometheusMetrics::new();
     let mut rocket_app = rocket::build()
+        .attach(prometheus.clone())
         .attach(CORS)
         .manage(init_db(database_url))
         .manage(config)
         .mount("/", openapi_get_routes![hello])
+        .mount("/metrics", prometheus)
         .mount("/api", openapi_get_routes![
-            get_flags, 
-            get_flag_by_id, 
-            create_flag, 
-            update_flag, 
+            get_flags,
+            get_flag_by_id,
+            create_flag,
+            update_flag,
             delete_flag_by_id,
             get_config,
             post_flags,
             post_simple,
             check_auth,
             set_config,
-            start_sploit
+            start_sploit,
         ])
         .mount(
             "/swagger-ui/",
@@ -91,8 +92,8 @@ fn rocket() -> Rocket<Build> {
             post_simple,
             check_auth,
             set_config,
-            start_sploit
+            start_sploit,
         ]
-    };
+    }
     rocket_app
 }
