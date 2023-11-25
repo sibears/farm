@@ -7,18 +7,18 @@
 	},
 	"ctf": {
 		"protocol": {
-			"protocol": "ructf_tcp",
-			"team_token": "3e74875c9a2d2eb0",
+			"protocol": "ctf01d_http",
+			"team_token": "team1",
 			"checksys_host": "localhost",
-			"checksys_port": 8778
+			"checksys_port": 8080
 		},
-		"flag_format": "\\w{31}=",
+		"flag_format": "c01d[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}[0-9]{8}",
 		"flag_lifetime": 300,
 		"submit_period": 5,
 		"submit_flag_limit": 100,
 		"teams": {
-			"First": "first.docker.localhost",
-			"Second": "second.docker.localhost"
+			"First": "10.10.12.1",
+			"Second": "10.10.13.1"
 		}
 	}
 }
