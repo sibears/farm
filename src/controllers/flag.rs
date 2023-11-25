@@ -1,11 +1,12 @@
-use std::{ops::Deref, borrow::BorrowMut, sync::Arc};
+use std::sync::Arc;
 
 use regex::Regex;
-use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}, log::private::{debug, info, error}, State};
-use rocket::response::status;
+use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}, log::private::{debug, error}, State};
 use rocket::response::status::BadRequest;
 use rocket_okapi::openapi;
-use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::{connection::DbConn, schema::flags::flag}, repos::flag::{FlagRepo, PostgresFlagRepo}, settings::Config};
+
+
+use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::connection::DbConn, repos::flag::FlagRepo, settings::Config};
 use crate::config::DbFlagRepo;
 
 

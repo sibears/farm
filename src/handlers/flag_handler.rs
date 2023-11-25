@@ -1,14 +1,9 @@
-use std::{thread, ops::Deref};
-use std::sync::{Arc, MutexGuard};
-use diesel::update;
-use futures::executor;
-
-use chrono::{Utc, NaiveDate, NaiveDateTime, Duration};
-use rocket::log::private::debug;
-
-use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::{PostgresFlagRepo, FlagRepo}, models::flag::Flag};
+use std::thread;
+use std::sync::Arc;
+use chrono::{Utc, Duration};
+use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::FlagRepo, models::flag::Flag};
 use crate::config::DbFlagRepo;
-use crate::settings::{CtfConfig, ProtocolConfig};
+use crate::settings::ProtocolConfig;
 
 pub fn flag_handler(config: Arc<Config>) {
     let db_pool = init_db(std::env::var("DATABASE_URL").unwrap()).db_conn_pool;
@@ -60,6 +55,7 @@ pub fn flag_handler(config: Arc<Config>) {
 }
 
 fn submit_flags(queue_flags: Vec<Flag>, protocol_config: ProtocolConfig) -> Vec<Flag> {
+    info!("protocol: {}", protocol_config.protocol);
     let handler = protocol_config.get_protocol_handler();
     handler.send_flags(queue_flags, &protocol_config)
 }

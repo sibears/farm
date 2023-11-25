@@ -1,6 +1,4 @@
-use std::{ops::{Deref, DerefMut}, collections::HashMap, sync::{Mutex, Arc}, borrow::BorrowMut, cell::RefCell};
-use futures::future::err;
-
+use std::{ops::Deref, collections::HashMap, sync::Arc};
 use rocket::{State, serde::json::Json};
 use rocket::fs::NamedFile;
 use rocket::http::ContentType;

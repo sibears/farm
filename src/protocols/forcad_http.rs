@@ -1,13 +1,10 @@
-use std::{borrow::Cow, collections::HashMap, vec, ops::Deref};
-
-use lazy_static::lazy_static;
+use std::{borrow::Cow, collections::HashMap, vec};
 use reqwest::header::HeaderMap;
 
-use crate::{models::{flag::{Flag, FlagStatus}, checksys::ForkadResponse}, settings::{Config, ProtocolConfig}};
-use rocket::{serde::json::Json, log::private::debug};
+use crate::{models::{flag::{Flag, FlagStatus}}, settings::ProtocolConfig};
 use serde_json::Value;
 
-use super::{ProtocolHandler, PROTOCOLS};
+use super::ProtocolHandler;
 
 pub struct ForcAdHttp;
 

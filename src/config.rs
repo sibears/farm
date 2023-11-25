@@ -1,9 +1,9 @@
-use std::{collections::HashMap, fs};
+use std::fs;
 
 use diesel::pg;
 use crate::repos::flag::PostgresFlagRepo;
 
-use crate::settings::{Config, AuthConfig, CtfConfig, ProtocolConfig};
+use crate::settings::Config;
 
 
 pub type DieselConnection = pg::PgConnection;

@@ -1,14 +1,11 @@
 extern crate diesel;
 extern crate r2d2;
 extern crate r2d2_diesel;
-use dotenv::dotenv;
-use rocket::Data;
 
-use std::env;
 use r2d2_diesel::ConnectionManager;
 use r2d2::{PooledConnection, Pool};
 
-use crate::{settings::{Config, DatabaseConfig}, config::DieselConnection};
+use crate::config::DieselConnection;
 
 
 pub struct DbConn {
