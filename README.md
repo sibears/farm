@@ -25,7 +25,7 @@ services:
   farm_back:
     image: registry.gitlab.com/sibears/infrastructure/sibears_farm:main
     ports:
-      - "8777:8000"
+      - "8777:8777"
     depends_on:
       - postgres
     environment:
