@@ -57,7 +57,8 @@ impl ProtocolHandler for ForcAdHttp {
         let mut updated_flags: Vec<Flag> = Vec::new();
         for item in result.as_array().unwrap() {
             let mut item = item.as_object().unwrap().to_owned();
-            item["msg"] = json!(item["msg"].as_str().unwrap()[34..]);
+            let flag_template = format!("[{}]", &item["flag"]);
+            item["msg"] = json!(item["msg"].as_str().unwrap().replace(flag_template.as_str(), ""));
             let mut old_flag: Flag = queue_flags
                 .iter()
                 .find(|x| x.flag == item["flag"].as_str().unwrap())
