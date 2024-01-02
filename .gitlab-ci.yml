@@ -27,10 +27,12 @@ prepare_job:
   variables:
     RELEASE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
     LATEST_TAG: $CI_REGISTRY_IMAGE:latest
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $RELEASE_TAG .
-    - docker tag $RELEASE_TAG $LATEST_TAG
+    - docker pull $IMAGE_TAG
+    - docker tag $IMAGE_TAG $LATEST_TAG
+    - docker tag $IMAGE_TAG $RELEASE_TAG
     - docker push $RELEASE_TAG
     - docker push $LATEST_TAG
   rules:
