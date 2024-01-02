@@ -2,17 +2,13 @@ extern crate diesel;
 extern crate serde_json;
 
 use rocket::{Rocket, Build};
-use rocket_okapi::{openapi, openapi_get_routes, rapidoc::*, swagger_ui::*, mount_endpoints_and_merged_docs};
-use rocket_okapi::settings::UrlObject;
+use rocket_okapi::{openapi, openapi_get_routes, swagger_ui::*, mount_endpoints_and_merged_docs};
 use rocket_okapi::openapi_get_routes_spec;
-use crate::handlers::flag_handler::flag_handler;
 use std::sync::Arc;
-use std::thread;
 use rocket_prometheus::PrometheusMetrics;
 
 
 use crate::db::connection::init_db;
-use crate::config::get_config;
 use crate::controllers::flag::*;
 use crate::controllers::config::*;
 use crate::middleware::cors::CORS;
@@ -44,8 +40,6 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
             get_flags,
             get_flag_by_id,
             create_flag,
-            update_flag,
-            delete_flag_by_id,
             get_config,
             post_flags,
             post_simple,
@@ -59,21 +53,6 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
                 url: "../v1/openapi.json".to_owned(),
                 ..Default::default()
             }),
-        )
-        .mount(
-            "/rapidoc/",
-            make_rapidoc(&RapiDocConfig {
-                general: GeneralConfig {
-                    spec_urls: vec![UrlObject::new("General", "../v1/openapi.json")],
-                    ..Default::default()
-                },
-                hide_show: HideShowConfig {
-                    allow_spec_url_load: false,
-                    allow_spec_file_load: false,
-                    ..Default::default()
-                },
-                ..Default::default()
-            }),
         );
 
     let openapi_settings = rocket_okapi::settings::OpenApiSettings::default();
@@ -83,9 +62,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
         "/api" => openapi_get_routes_spec![openapi_settings:
             get_flags,
             get_flag_by_id,
-            delete_flag_by_id,
             create_flag,
-            update_flag,
             get_config,
             post_flags,
             post_simple,

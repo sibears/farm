@@ -1,13 +1,15 @@
 use std::sync::Arc;
 
 use regex::Regex;
-use rocket::{serde::json::Json, response::status::{NotFound, NoContent, Created}, log::private::{debug, error}, State};
+use rocket::{serde::json::Json, response::status::{NotFound, Created}, log::private::{debug, error}, State};
 use rocket::response::status::BadRequest;
 use rocket_okapi::openapi;
 
 
-use crate::{models::{flag::{Flag, NewFlag, UpdateFlag}, auth::BasicAuth}, db::connection::DbConn, repos::flag::FlagRepo, settings::Config};
+use crate::{models::{flag::{Flag, NewFlag}, auth::BasicAuth}, db::connection::DbConn, repos::flag::FlagRepo, settings::Config};
 use crate::config::DbFlagRepo;
+use crate::middleware::metrics::FLAG_COUNTER;
+use crate::models::flag::FlagStatus;
 
 
 #[openapi(tag = "Flag", ignore = "db", ignore = "_auth")]
@@ -43,9 +45,10 @@ pub fn create_flag(new_flags: Json<Vec<NewFlag>>, db: DbConn, config: &State<Arc
     let mut matched_flags: Vec<NewFlag> = new_flags.into_inner().into_iter().filter(|x| x.match_regex(&re)).collect();
     matched_flags.sort_unstable();
     matched_flags.dedup();
-    let mut matched_flags = flag_repo.skip_duplicate(matched_flags);
+    let matched_flags = flag_repo.skip_duplicate(matched_flags);
     debug!("{:?}", &matched_flags);
-    let result = flag_repo.save_all(&mut matched_flags);
+    FLAG_COUNTER.with_label_values(&[FlagStatus::QUEUED.to_string().as_str()]).add(matched_flags.len() as i64);
+    let result = flag_repo.save_all(matched_flags.as_slice());
     result
         .map(|_| Created::new("/").body(Json(Vec::new())))
         .map_err(|e| {
@@ -67,35 +70,12 @@ pub fn post_simple(new_flags: Json<Vec<String>>, db: DbConn, _auth: BasicAuth) -
     let mut new_flags: Vec<NewFlag> = new_flags.into_iter().map(|x| NewFlag::new(x)).collect();
     new_flags.sort_unstable();
     new_flags.dedup();
-    let mut new_flags = flag_repo.skip_duplicate(new_flags);
-    let result = flag_repo.save_all(&mut new_flags);
+    let new_flags = flag_repo.skip_duplicate(new_flags);
+    FLAG_COUNTER.with_label_values(&[FlagStatus::QUEUED.to_string().as_str()]).add(new_flags.len() as i64);
+    let result = flag_repo.save_all(new_flags.as_slice());
     result
         .map(|_| Created::new("/").body(Json(Vec::new())))
         .map_err(|e| {
             BadRequest(Some(e.to_string()))
-        })
-}
-
-#[openapi(tag = "Flag", ignore = "db", ignore = "_auth")]
-#[put("/flag", data = "<updated_flag>")]
-pub fn update_flag(updated_flag: Json<UpdateFlag>, db: DbConn, _auth: BasicAuth) -> Result<Json<UpdateFlag>, NotFound<String>> {
-    let flag_repo = DbFlagRepo::new(db);
-    let result = flag_repo.update(&updated_flag);
-    result
-        .map(|_| updated_flag)
-        .map_err(|e| {
-            NotFound(e.to_string())
-        })
-}
-
-#[openapi(tag = "Flag", ignore = "db", ignore = "_auth")]
-#[delete("/flag/<id>")]
-pub fn delete_flag_by_id(id: i32, db: DbConn, _auth: BasicAuth) -> Result<NoContent, NotFound<String>> {
-    let flag_repo = DbFlagRepo::new(db);
-    let result = flag_repo.delete_by_id(id);
-    result
-        .map(|_| NoContent)
-        .map_err(|e| {
-            NotFound(e.to_string())
         })
 }
