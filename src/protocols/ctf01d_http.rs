@@ -1,10 +1,10 @@
-use std::{borrow::Cow, collections::HashMap, vec, ops::Deref};
+use std::borrow::Cow;
 
 use reqwest::StatusCode;
 
-use crate::{models::{flag::{Flag, FlagStatus}, checksys::ForkadResponse}, settings::{Config, ProtocolConfig}};
+use crate::{models::{flag::{Flag, FlagStatus}}, settings::ProtocolConfig};
 
-use super::{ProtocolHandler, PROTOCOLS};
+use super::ProtocolHandler;
 
 pub struct Ctf01dHttp;
 

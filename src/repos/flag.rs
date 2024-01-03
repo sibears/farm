@@ -16,18 +16,19 @@ use crate::models::flag::UpdateFlag;
 use crate::repos::flag::flags::dsl::flags as flags_dsl;
 use crate::db::connection::*;
 use crate::diesel::ExpressionMethods;
+use crate::middleware::metrics::FLAG_COUNTER;
 
 
 pub trait FlagRepo {
     fn find_all(&self) -> Result<Vec<Flag>, Error>;
     fn find_by_id(&self, id: i32) -> Result<Flag, Error>;
-    fn save(&self, flag: &mut NewFlag) -> Result<(), Error>;
-    fn save_all(&self, flag: &mut Vec<NewFlag>) -> Result<(), Error>;
+    fn save(&self, flag: &NewFlag) -> Result<(), Error>;
+    fn save_all(&self, flag: &[NewFlag]) -> Result<(), Error>;
     fn delete_by_id(&self, id: i32) -> Result<(), Error>;
     fn update(&self, flag: &UpdateFlag) -> Result<(), Error>;
     fn skip_flags(&self, skip_time: NaiveDateTime);
     fn get_limit(&self, limit: i64) -> Vec<Flag>;
-    fn update_status(&self, flags: Vec<Flag>);
+    fn update_status(&self, flags: &[Flag]);
     fn skip_duplicate(&self, flags: Vec<NewFlag>) -> Vec<NewFlag>;
 }
 
@@ -54,9 +55,9 @@ impl FlagRepo for PostgresFlagRepo {
         flag
     }
 
-    fn save(&self, flag: &mut NewFlag) -> Result<(), Error> {
+    fn save(&self, flag: &NewFlag) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        let flag = SavedFlag::from(flag.deref());
+        let flag = SavedFlag::from(flag);
         let result = diesel::insert_into(flags_dsl)
             .values(flag)
             .execute(conn)
@@ -69,9 +70,9 @@ impl FlagRepo for PostgresFlagRepo {
         }
     }
 
-    fn save_all(&self, flags: &mut Vec<NewFlag>) -> Result<(), Error> {
+    fn save_all(&self, flags: &[NewFlag]) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        let flags: Vec<SavedFlag> = flags.into_iter().map(|item| SavedFlag::from(item.deref())).collect();
+        let flags: Vec<SavedFlag> = flags.into_iter().map(|item| SavedFlag::from(item)).collect();
         let result = diesel::insert_into(flags_dsl)
             .values(flags.deref())
             .execute(conn)
@@ -120,6 +121,8 @@ impl FlagRepo for PostgresFlagRepo {
             .set(status.eq(FlagStatus::SKIPPED.to_string()))
             .execute(conn)
             .unwrap();
+        FLAG_COUNTER.with_label_values(&[FlagStatus::SKIPPED.to_string().as_str()]).add(res as i64);
+        FLAG_COUNTER.with_label_values(&[FlagStatus::QUEUED.to_string().as_str()]).sub(res as i64);
         debug!("Skipped: {} flags", res);
     }
 
@@ -133,7 +136,7 @@ impl FlagRepo for PostgresFlagRepo {
         res
     }
 
-    fn update_status(&self, flags: Vec<Flag>) {
+    fn update_status(&self, flags: &[Flag]) {
         let conn = self.db_conn.master.deref();
 
         for flag in flags {
