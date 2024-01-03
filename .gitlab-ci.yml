@@ -10,6 +10,7 @@ test:
   services:
     - postgres:14.1-alpine
   variables:
+    POSTGRES_DB: flags
     POSTGRES_PASSWORD: sibears1cool
     POSTGRES_HOST_AUTH_METHOD: trust
   script:
