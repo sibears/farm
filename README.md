@@ -118,3 +118,6 @@ services:
 
 В целом почти как destructive farm, только на расте. 
 
+## Архитектура
+
+Высокоуровневая модель описана в [docs/design](./docs/design) в формате [c4](https://c4model.com/).
