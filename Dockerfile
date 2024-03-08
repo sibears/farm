@@ -1,4 +1,4 @@
-FROM rust:1.74 as builder
+FROM rust:1.74-bullseye as builder
 RUN apt-get update &&  \
     apt-get install -y openssl libsqlite3-dev libpq-dev && \
     rm -rf /var/lib/apt/lists/*
@@ -6,7 +6,7 @@ WORKDIR /srv
 COPY . .
 RUN cargo build --release
 
-FROM rust:1.74-slim
+FROM rust:1.74-slim-bullseye
 LABEL authors="x5113nc3x"
 RUN apt-get update &&  \
     apt-get install -y openssl libsqlite3-dev libpq-dev &&  \
