@@ -46,57 +46,65 @@ impl FlagRepo for PostgresFlagRepo {
     fn find_all(&self) -> Result<Vec<Flag>, Error> {
         let conn = self.db_conn.master.deref();
         let all_flags = flags::table.load::<Flag>(conn);
-        all_flags
+        all_flags.map_err(|_| Error::new(ErrorKind::Other, "Failed to find all flags."))
     }
 
     fn find_by_id(&self, id: i32) -> Result<Flag, Error> {
         let conn = self.db_conn.master.deref();
         let flag = flags_dsl.filter(flags::dsl::id.eq(id)).first(conn);
-        flag
+        flag.map_err(|_| Error::new(ErrorKind::Other, "Failed to find flag by ID."))
     }
 
-    fn save(&self, flag: &NewFlag) -> Result<(), Error> {
+    fn save(&self, flag: &NewFlag) {
         let conn = self.db_conn.master.deref();
         let flag = SavedFlag::from(flag);
-        let result = diesel::insert_into(flags_dsl)
+
+        match diesel::insert_into(flags_dsl)
             .values(flag)
             .execute(conn)
-            .unwrap();
-
-        match result {
-            1 => Ok(()),
-            0 => Err(Error::NotFound),
-            _ => Err(Error::__Nonexhaustive)
+        {
+            Ok(result) => {
+                println!("Flag saved successfully.");
+            }
+            Err(diesel::result::Error::NotFound) => {
+                println!("Failed to save flag in database.");
+            }
+            Err(_) => {
+                println!("Unknown error while flag saving.");
+            }
         }
     }
 
-    fn save_all(&self, flags: &[NewFlag]) -> Result<(), Error> {
-        let conn = self.db_conn.master.deref();
-        let flags: Vec<SavedFlag> = flags.into_iter().map(|item| SavedFlag::from(item)).collect();
-        let result = diesel::insert_into(flags_dsl)
-            .values(flags.deref())
-            .execute(conn)
-            .unwrap();
 
-        
-        if result == flags.len() { 
-            Ok(()) 
-        } else { 
-            Err(Error::NotFound) 
+    fn save_all(&self, flags: &[NewFlag]) {
+        let conn = self.db_conn.master.deref();
+        let flags: Vec<SavedFlag> = flags.iter().map(|item| SavedFlag::from(item)).collect();
+
+        match diesel::insert_into(flags_dsl)
+            .values(&flags)
+            .execute(conn)
+        {
+            Ok(result) => {
+                println!("{} flags saved successfully.", result);
+            }
+            Err(diesel::result::Error::NotFound) => {
+                println!("Failed to save flags in database.");
+            }
+            Err(_) => {
+                println!("Unknown error while flags saving.");
+            }
         }
     }
 
     fn delete_by_id(&self, id: i32) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-    
         let result = diesel::delete(flags_dsl.filter(flags::dsl::id.eq(id)))
-            .execute(conn)
-            .unwrap();
+            .execute(conn)?;
         
-        match result {
-            1 => Ok(()),
-            0 => Err(Error::NotFound),
-            _ => Err(Error::__Nonexhaustive)
+        if result == 1 {
+            Ok(())
+        } else {
+            Err(Error::new(ErrorKind::Other, "Failed to delete flag by ID."))
         }
     }
 
@@ -140,20 +148,29 @@ impl FlagRepo for PostgresFlagRepo {
         let conn = self.db_conn.master.deref();
 
         for flag in flags {
-            diesel::update(flags_dsl.find(flag.id))
+            if let Err(err) = diesel::update(flags_dsl.find(flag.id))
                 .set(flag)
                 .execute(conn)
-                .unwrap();
+            {
+                println!("Failed to update flag: {}", err);
+            }
         }
     }
 
     fn skip_duplicate(&self, mut flags: Vec<NewFlag>) -> Vec<NewFlag> {
         let conn = self.db_conn.master.deref();
 
-        let res = flags_dsl.select(flags::dsl::flag)
+        match flags_dsl.select(flags::dsl::flag)
             .load::<String>(conn)
-            .unwrap();
-        flags.retain(|x| !res.contains(&x.flag.to_string()));
-        flags
+        {
+            Ok(res) => {
+                flags.retain(|x| !res.contains(&x.flag.to_string()));
+                flags
+            }
+            Err(err) => {
+                println!("Failed to skip duplicates: {}", err);
+                Vec::new()
+            }
+        }
     }
 }
