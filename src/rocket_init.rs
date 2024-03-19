@@ -1,16 +1,16 @@
 extern crate diesel;
 extern crate serde_json;
 
-use rocket::{Rocket, Build};
-use rocket_okapi::{openapi, openapi_get_routes, swagger_ui::*, mount_endpoints_and_merged_docs};
+use rocket::{Build, Rocket};
 use rocket_okapi::openapi_get_routes_spec;
-use std::sync::Arc;
+use rocket_okapi::{mount_endpoints_and_merged_docs, openapi, openapi_get_routes, swagger_ui::*};
 use rocket_prometheus::PrometheusMetrics;
+use std::sync::Arc;
 
-
-use crate::db::connection::init_db;
-use crate::controllers::flag::*;
 use crate::controllers::config::*;
+use crate::controllers::flag::*;
+use crate::controllers::statistic::*;
+use crate::db::connection::init_db;
 use crate::middleware::cors::CORS;
 use crate::middleware::metrics::FLAG_COUNTER;
 use crate::settings::Config;
@@ -36,17 +36,21 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
         .manage(config)
         .mount("/", openapi_get_routes![hello])
         .mount("/metrics", prometheus)
-        .mount("/api", openapi_get_routes![
-            get_flags,
-            get_flag_by_id,
-            create_flag,
-            get_config,
-            post_flags,
-            post_simple,
-            check_auth,
-            set_config,
-            start_sploit,
-        ])
+        .mount(
+            "/api",
+            openapi_get_routes![
+                get_flags,
+                get_flag_by_id,
+                create_flag,
+                get_config,
+                post_flags,
+                post_simple,
+                check_auth,
+                set_config,
+                start_sploit,
+                get_status_statistic,
+            ],
+        )
         .mount(
             "/swagger-ui/",
             make_swagger_ui(&SwaggerUIConfig {
@@ -69,6 +73,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
             check_auth,
             set_config,
             start_sploit,
+            get_status_statistic,
         ]
     }
     rocket_app

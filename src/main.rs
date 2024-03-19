@@ -1,8 +1,8 @@
-use std::sync::Arc;
-use std::thread;
 use sibears_farm::config::get_config;
 use sibears_farm::handlers::flag_handler::flag_handler;
 use sibears_farm::rocket_init::rocket;
+use std::sync::Arc;
+use std::thread;
 
 #[tokio::main]
 async fn main() {
