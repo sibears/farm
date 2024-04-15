@@ -1,23 +1,22 @@
 use std::ops::Deref;
 
-use chrono::NaiveDateTime;
-use diesel::QueryDsl;
-use diesel::result::Error;
-use rocket::log::private::debug;
+use crate::db::connection::*;
+use crate::db::schema::flags;
 use crate::db::schema::flags::status;
 use crate::db::schema::flags::time;
-use crate::models::flag::Flag;
-use crate::db::schema::flags;
+use crate::diesel::ExpressionMethods;
 use crate::diesel::RunQueryDsl;
+use crate::middleware::metrics::FLAG_COUNTER;
+use crate::models::flag::Flag;
 use crate::models::flag::FlagStatus;
 use crate::models::flag::NewFlag;
 use crate::models::flag::SavedFlag;
 use crate::models::flag::UpdateFlag;
 use crate::repos::flag::flags::dsl::flags as flags_dsl;
-use crate::db::connection::*;
-use crate::diesel::ExpressionMethods;
-use crate::middleware::metrics::FLAG_COUNTER;
-
+use chrono::NaiveDateTime;
+use diesel::result::Error;
+use diesel::QueryDsl;
+use rocket::log::private::debug;
 
 pub trait FlagRepo {
     fn find_all(&self) -> Result<Vec<Flag>, Error>;
@@ -66,37 +65,39 @@ impl FlagRepo for PostgresFlagRepo {
         match result {
             1 => Ok(()),
             0 => Err(Error::NotFound),
-            _ => Err(Error::__Nonexhaustive)
+            _ => Err(Error::__Nonexhaustive),
         }
     }
 
     fn save_all(&self, flags: &[NewFlag]) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-        let flags: Vec<SavedFlag> = flags.into_iter().map(|item| SavedFlag::from(item)).collect();
+        let flags: Vec<SavedFlag> = flags
+            .into_iter()
+            .map(|item| SavedFlag::from(item))
+            .collect();
         let result = diesel::insert_into(flags_dsl)
             .values(flags.deref())
             .execute(conn)
             .unwrap();
 
-        
-        if result == flags.len() { 
-            Ok(()) 
-        } else { 
-            Err(Error::NotFound) 
+        if result == flags.len() {
+            Ok(())
+        } else {
+            Err(Error::NotFound)
         }
     }
 
     fn delete_by_id(&self, id: i32) -> Result<(), Error> {
         let conn = self.db_conn.master.deref();
-    
+
         let result = diesel::delete(flags_dsl.filter(flags::dsl::id.eq(id)))
             .execute(conn)
             .unwrap();
-        
+
         match result {
             1 => Ok(()),
             0 => Err(Error::NotFound),
-            _ => Err(Error::__Nonexhaustive)
+            _ => Err(Error::__Nonexhaustive),
         }
     }
 
@@ -110,26 +111,35 @@ impl FlagRepo for PostgresFlagRepo {
         match result {
             1 => Ok(()),
             0 => Err(Error::NotFound),
-            _ => Err(Error::__Nonexhaustive)
+            _ => Err(Error::__Nonexhaustive),
         }
     }
 
     fn skip_flags(&self, skip_time: NaiveDateTime) {
         let conn = self.db_conn.master.deref();
-        
-        let res = diesel::update(flags_dsl.filter(time.lt(skip_time)).filter(status.eq(FlagStatus::QUEUED.to_string())))
-            .set(status.eq(FlagStatus::SKIPPED.to_string()))
-            .execute(conn)
-            .unwrap();
-        FLAG_COUNTER.with_label_values(&[FlagStatus::SKIPPED.to_string().as_str()]).add(res as i64);
-        FLAG_COUNTER.with_label_values(&[FlagStatus::QUEUED.to_string().as_str()]).sub(res as i64);
+
+        let res = diesel::update(
+            flags_dsl
+                .filter(time.lt(skip_time))
+                .filter(status.eq(FlagStatus::QUEUED.to_string())),
+        )
+        .set(status.eq(FlagStatus::SKIPPED.to_string()))
+        .execute(conn)
+        .unwrap();
+        FLAG_COUNTER
+            .with_label_values(&[FlagStatus::SKIPPED.to_string().as_str()])
+            .add(res as i64);
+        FLAG_COUNTER
+            .with_label_values(&[FlagStatus::QUEUED.to_string().as_str()])
+            .sub(res as i64);
         debug!("Skipped: {} flags", res);
     }
 
     fn get_limit(&self, limit: i64) -> Vec<Flag> {
         let conn = self.db_conn.master.deref();
-        
-        let res = flags_dsl.filter(status.eq(FlagStatus::QUEUED.to_string()))
+
+        let res = flags_dsl
+            .filter(status.eq(FlagStatus::QUEUED.to_string()))
             .limit(limit)
             .load::<Flag>(conn)
             .unwrap();
@@ -150,7 +160,8 @@ impl FlagRepo for PostgresFlagRepo {
     fn skip_duplicate(&self, mut flags: Vec<NewFlag>) -> Vec<NewFlag> {
         let conn = self.db_conn.master.deref();
 
-        let res = flags_dsl.select(flags::dsl::flag)
+        let res = flags_dsl
+            .select(flags::dsl::flag)
             .load::<String>(conn)
             .unwrap();
         flags.retain(|x| !res.contains(&x.flag.to_string()));

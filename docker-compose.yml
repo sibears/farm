@@ -8,9 +8,8 @@ services:
       - "8777:8777"
     depends_on:
       - postgres
-    environment:
-      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
-      - ROCKET_LOG_LEVEL=normal
+    env_file:
+      - .env
     volumes:
       - ./config.json:/srv/config.json:ro
   postgres:
