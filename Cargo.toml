@@ -30,6 +30,9 @@ log = "0.4.19"
 config = { version = "0.13.3", features = [] }
 prometheus = "0.13.3"
 rocket_prometheus = "0.10.0-rc.3"
+thiserror = "1"
+strum = "0.24.1"
+strum_macros = "0.24.3"
 
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.1"

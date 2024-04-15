@@ -1,14 +1,14 @@
+use chrono::naive::NaiveDateTime;
+use chrono::Utc;
 use std::borrow::Cow;
 use std::fmt;
-use chrono::Utc;
-use chrono::naive::NaiveDateTime;
+use strum_macros::EnumIter;
 
-
+use crate::db::schema::flags;
 use regex::Regex;
 use schemars::JsonSchema;
-use serde::Serialize;
 use serde::Deserialize;
-use crate::db::schema::flags;
+use serde::Serialize;
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Eq)]
 pub struct NewFlag {
@@ -18,14 +18,15 @@ pub struct NewFlag {
 }
 
 impl NewFlag {
-    pub fn new<S>(flag: S) -> Self 
-        where S: Into<Cow<'static, str>> 
+    pub fn new<S>(flag: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
     {
-        NewFlag { 
-            flag: flag.into(), 
-            sploit: None, 
-            team: None 
-        } 
+        NewFlag {
+            flag: flag.into(),
+            sploit: None,
+            team: None,
+        }
     }
     pub fn match_regex(&self, regex: &Regex) -> bool {
         regex.is_match(&self.flag)
@@ -62,12 +63,12 @@ pub struct SavedFlag {
 
 impl From<&NewFlag> for SavedFlag {
     fn from(new_flag: &NewFlag) -> Self {
-        SavedFlag { 
-            flag: new_flag.flag.to_owned(), 
-            sploit: new_flag.sploit.to_owned(), 
-            team: new_flag.team.to_owned(), 
-            time: Utc::now().naive_local(), 
-            status: FlagStatus::QUEUED.to_string().into()
+        SavedFlag {
+            flag: new_flag.flag.to_owned(),
+            sploit: new_flag.sploit.to_owned(),
+            team: new_flag.team.to_owned(),
+            time: Utc::now().naive_local(),
+            status: FlagStatus::QUEUED.to_string().into(),
         }
     }
 }
@@ -80,10 +81,12 @@ pub struct UpdateFlag {
     pub sploit: Option<Cow<'static, str>>,
     pub team: Option<Cow<'static, str>>,
     pub status: Cow<'static, str>,
-    pub checksystem_response: Option<Cow<'static, str>>
+    pub checksystem_response: Option<Cow<'static, str>>,
 }
 
-#[derive(Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset, JsonSchema, Clone)]
+#[derive(
+    Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset, JsonSchema, Clone,
+)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = flags)]
 pub struct Flag {
@@ -94,7 +97,7 @@ pub struct Flag {
     team: Option<Cow<'static, str>>,
     time: NaiveDateTime,
     pub status: Cow<'static, str>,
-    pub checksystem_response: Option<Cow<'static, str>>
+    pub checksystem_response: Option<Cow<'static, str>>,
 }
 
 impl Flag {
@@ -107,14 +110,12 @@ impl Flag {
     }
 }
 
-
-
-#[derive(Debug)]
+#[derive(Debug, EnumIter)]
 pub enum FlagStatus {
     QUEUED,
     SKIPPED,
     ACCEPTED,
-    REJECTED
+    REJECTED,
 }
 
 impl fmt::Display for FlagStatus {

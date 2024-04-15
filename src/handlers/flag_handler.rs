@@ -1,10 +1,15 @@
-use std::thread;
-use std::sync::Arc;
-use chrono::{Utc, Duration};
-use crate::{settings::Config, db::connection::{init_db, DbConn}, repos::flag::FlagRepo, models::flag::Flag};
 use crate::config::DbFlagRepo;
-use crate::middleware::metrics::{FLAG_COUNTER, update_metrics};
+use crate::middleware::metrics::{update_metrics, FLAG_COUNTER};
 use crate::settings::ProtocolConfig;
+use crate::{
+    db::connection::{init_db, DbConn},
+    models::flag::Flag,
+    repos::flag::FlagRepo,
+    settings::Config,
+};
+use chrono::{Duration, Utc};
+use std::sync::Arc;
+use std::thread;
 
 pub fn flag_handler(config: Arc<Config>) {
     let database_url = config.database.lock().unwrap().database_url.to_string();
@@ -16,7 +21,9 @@ pub fn flag_handler(config: Arc<Config>) {
             panic!("DbError: {:?}", err);
         }
     }
-    let conn = DbConn { master:  master_conn};
+    let conn = DbConn {
+        master: master_conn,
+    };
     let flag_repo = DbFlagRepo::new(conn);
     let flags = flag_repo.find_all().unwrap();
     for item in flags {
@@ -28,10 +35,12 @@ pub fn flag_handler(config: Arc<Config>) {
             Ok(x) => master_conn = x,
             Err(err) => {
                 error!("DbError: {:?}", err);
-                continue
+                continue;
             }
         }
-        let conn = DbConn { master:  master_conn};
+        let conn = DbConn {
+            master: master_conn,
+        };
         let flag_repo = DbFlagRepo::new(conn);
         let lock_ctf_config = config.ctf.lock().unwrap();
         let flag_lifetime = lock_ctf_config.flag_lifetime;
@@ -41,7 +50,7 @@ pub fn flag_handler(config: Arc<Config>) {
             lock_ctf_config.protocol.protocol.to_owned(),
             lock_ctf_config.protocol.team_token.to_owned(),
             lock_ctf_config.protocol.checksys_host.to_owned(),
-            lock_ctf_config.protocol.checksys_port.to_owned()
+            lock_ctf_config.protocol.checksys_port.to_owned(),
         );
         drop(lock_ctf_config);
 
@@ -49,10 +58,10 @@ pub fn flag_handler(config: Arc<Config>) {
         let flag_lifetime = Duration::seconds(flag_lifetime as i64);
         let submit_period = Duration::seconds(submit_period as i64);
         let skip_time = submit_start_time.checked_sub_signed(flag_lifetime).unwrap();
-        
+
         flag_repo.skip_flags(skip_time);
-        
-        let queue_flags = flag_repo.get_limit(submit_flag_limit as i64);
+
+        let queue_flags = flag_repo.get_limit(submit_flag_limit as i64).unwrap();
         info!("Queue flags: {:?}", queue_flags);
         if queue_flags.len() > 0 {
             let updated_flags = submit_flags(queue_flags, protocol_config);
@@ -64,7 +73,7 @@ pub fn flag_handler(config: Arc<Config>) {
 
         let submit_spent = Utc::now().naive_local() - submit_start_time;
         if submit_period > submit_spent {
-            thread::sleep((submit_period-submit_spent).to_std().unwrap());
+            thread::sleep((submit_period - submit_spent).to_std().unwrap());
         }
     }
 }
