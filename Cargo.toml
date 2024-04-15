@@ -32,6 +32,7 @@ prometheus = "0.13.3"
 rocket_prometheus = "0.10.0-rc.3"
 strum = "0.26"
 strum_macros = "0.26"
+openssl = { version = "0.10", features = ["vendored"] }
 
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.1"
