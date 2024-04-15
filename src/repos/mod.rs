@@ -1,2 +1,2 @@
-pub mod flag;
 pub mod errors;
+pub mod flag;
