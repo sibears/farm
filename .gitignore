@@ -1,4 +1,6 @@
 /target
 /vol
+/.idea
+/.vscode
 
 .DS_Store
