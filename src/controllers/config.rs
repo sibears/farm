@@ -32,7 +32,6 @@ pub fn set_config(
     Json(config.deref())
 }
 
-// TODO: remove this
 #[openapi(tag = "Auth", ignore = "config")]
 #[post("/check_auth", data = "<passwd>")]
 pub fn check_auth(config: &State<Arc<Config>>, passwd: Json<HashMap<String, String>>) -> Value {

@@ -63,7 +63,7 @@ pub fn create_flag(
         .collect();
     matched_flags.sort_unstable();
     matched_flags.dedup();
-    let matched_flags = flag_repo.skip_duplicate(matched_flags);
+    let matched_flags = flag_repo.skip_duplicate(matched_flags).unwrap();
     debug!("{:?}", &matched_flags);
     FLAG_COUNTER
         .with_label_values(&[FlagStatus::QUEUED.to_string().as_str()])
@@ -97,7 +97,7 @@ pub fn post_simple(
     let mut new_flags: Vec<NewFlag> = new_flags.into_iter().map(|x| NewFlag::new(x)).collect();
     new_flags.sort_unstable();
     new_flags.dedup();
-    let new_flags = flag_repo.skip_duplicate(new_flags);
+    let new_flags = flag_repo.skip_duplicate(new_flags).unwrap();
     FLAG_COUNTER
         .with_label_values(&[FlagStatus::QUEUED.to_string().as_str()])
         .add(new_flags.len() as i64);
