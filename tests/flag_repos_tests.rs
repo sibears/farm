@@ -3,7 +3,7 @@ use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use crate::db::connection::DbConn;
 use crate::models::flag::{NewFlag, UpdateFlag, FlagStatus};
 use crate::repos::flag::{FlagRepo, PostgresFlagRepo};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, Utc};
 
 pub fn establish_connection() -> PgConnection {
     let database_url = "postgres://aboba:aboba@localhost/test_db";
