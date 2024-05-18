@@ -6,12 +6,12 @@ use crate::repos::flag::{FlagRepo, PostgresFlagRepo};
 use chrono::{NaiveDateTime, Utc};
 
 pub fn establish_connection() -> PgConnection {
-    let database_url = "postgres://USERNAME:PASS@localhost/test_db";
+    let database_url = "postgres://postgres:sibears1cool@postgres/flags";
     PgConnection::establish(&database_url).expect("Error connecting to test database")
 }
 
 pub fn create_test_db_conn() -> DbConn {
-    let manager = ConnectionManager::<PgConnection>::new("postgres://USERNAME:PASS@localhost/test_db");
+    let manager = ConnectionManager::<PgConnection>::new("postgres://postgres:sibears1cool@postgres/flags");
     let pool = Pool::builder().build(manager).expect("Failed to create pool.");
     DbConn { master: pool.clone(), replica: pool }
 }
