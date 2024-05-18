@@ -140,14 +140,12 @@ mod tests {
     
     #[test]
     fn skip_duplicate_with_duplicates() {
-        // Создаем новый флаг для теста
         let flag = NewFlag {
             flag: "FLAG{test_skip_duplicate}".to_string(),
             status: "QUEUED".to_string(),
             time: Utc::now().naive_utc(),
         };
     
-        // Создаем экземпляр хранилища флагов
         let repo = setup();
     
         // Добавляем флаг в базу данных дважды (создаем дубликаты)
