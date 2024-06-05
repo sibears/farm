@@ -1,17 +1,17 @@
 version: '3'
 
 services:
-  sibears_farm_back:
-    image: sibears_farm_back:1.0
-    build: .
-    ports:
-      - "8777:8777"
-    depends_on:
-      - postgres
-    env_file:
-      - .env
-    volumes:
-      - ./config.json:/srv/config.json:ro
+  # sibears_farm_back:
+  #   image: sibears_farm_back:1.0
+  #   build: .
+  #   ports:
+  #     - "8777:8777"
+  #   depends_on:
+  #     - postgres
+  #   env_file:
+  #     - .env_prod
+  #   volumes:
+  #     - ./config.json:/srv/config.json:ro
   postgres:
     image: postgres:14.1-alpine
     environment:

@@ -2,19 +2,17 @@ use crate::config::DbFlagRepo;
 use crate::db::connection::DbConn;
 
 use crate::models::auth::BasicAuth;
-use crate::models::flag::{FlagStatus};
+use crate::models::flag::FlagStatus;
 use crate::models::statistic::StatusStatistic;
 use crate::repos::flag::FlagRepo;
 
-use rocket::response::status::{BadRequest};
+use rocket::response::status::BadRequest;
 use rocket::serde::json::Json;
 
-use rocket_okapi::openapi;
 use std::collections::HashMap;
 
 use strum::IntoEnumIterator;
 
-#[openapi(tag = "Statistic", ignore = "db", ignore = "_auth")]
 #[get("/statistic/status")]
 pub fn get_status_statistic(
     db: DbConn,

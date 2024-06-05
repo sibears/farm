@@ -15,9 +15,8 @@ use crate::models::flag::UpdateFlag;
 use crate::repos::flag::flags_schema::dsl::flags as flags_dsl;
 use chrono::NaiveDateTime;
 use diesel::QueryDsl;
-use rocket::http::ext::IntoCollection;
+
 use rocket::log::private::debug;
-use strum::IntoEnumIterator;
 
 use crate::repos::errors::ReposError;
 

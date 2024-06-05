@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
-use crate::errors::BasicAuthError;
 use crate::models::auth::BasicAuth;
 use crate::settings::Config;
 use rocket::http::Status;
 use rocket::request::FromRequest;
 use rocket::{request::Outcome, Request, State};
+
+use super::errors::BasicAuthError;
 
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for BasicAuth {

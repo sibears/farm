@@ -2,8 +2,7 @@ extern crate diesel;
 extern crate serde_json;
 
 use rocket::{Build, Rocket};
-use rocket_okapi::openapi_get_routes_spec;
-use rocket_okapi::{mount_endpoints_and_merged_docs, openapi, openapi_get_routes, swagger_ui::*};
+use rocket_okapi::{openapi, openapi_get_routes};
 use rocket_prometheus::PrometheusMetrics;
 use std::sync::Arc;
 
@@ -29,7 +28,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
         .registry()
         .register(Box::new(FLAG_COUNTER.clone()))
         .unwrap();
-    let mut rocket_app = rocket::build()
+    let rocket_app = rocket::build()
         .attach(prometheus.clone())
         .attach(CORS)
         .manage(init_db(database_url))
@@ -38,7 +37,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
         .mount("/metrics", prometheus)
         .mount(
             "/api",
-            openapi_get_routes![
+            routes![
                 get_flags,
                 get_flag_by_id,
                 create_flag,
@@ -50,31 +49,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
                 start_sploit,
                 get_status_statistic,
             ],
-        )
-        .mount(
-            "/swagger-ui/",
-            make_swagger_ui(&SwaggerUIConfig {
-                url: "../v1/openapi.json".to_owned(),
-                ..Default::default()
-            }),
         );
 
-    let openapi_settings = rocket_okapi::settings::OpenApiSettings::default();
-    mount_endpoints_and_merged_docs! {
-        rocket_app, "/v1", openapi_settings,
-        "" => openapi_get_routes_spec![openapi_settings: hello],
-        "/api" => openapi_get_routes_spec![openapi_settings:
-            get_flags,
-            get_flag_by_id,
-            create_flag,
-            get_config,
-            post_flags,
-            post_simple,
-            check_auth,
-            set_config,
-            start_sploit,
-            get_status_statistic,
-        ]
-    }
     rocket_app
 }

@@ -2,7 +2,6 @@ use rocket::fs::NamedFile;
 use rocket::http::ContentType;
 use rocket::response::status::BadRequest;
 use rocket::{serde::json::Json, State};
-use rocket_okapi::openapi;
 use serde_json::Value;
 use std::{collections::HashMap, ops::Deref, sync::Arc};
 
@@ -11,13 +10,11 @@ use crate::{
     settings::{Config, RawConfig},
 };
 
-#[openapi(tag = "Config", ignore = "config", ignore = "_auth")]
 #[get("/get_config")]
 pub fn get_config(config: &State<Arc<Config>>, _auth: BasicAuth) -> Json<&Config> {
     Json(config.deref())
 }
 
-#[openapi(tag = "Config", ignore = "config", ignore = "_auth")]
 #[post("/set_config", data = "<new_config>")]
 pub fn set_config(
     config: &State<Arc<Config>>,
@@ -32,7 +29,6 @@ pub fn set_config(
     Json(config.deref())
 }
 
-#[openapi(tag = "Auth", ignore = "config")]
 #[post("/check_auth", data = "<passwd>")]
 pub fn check_auth(config: &State<Arc<Config>>, passwd: Json<HashMap<String, String>>) -> Value {
     let lock_auth = config.auth.lock().unwrap();
@@ -53,7 +49,6 @@ pub fn check_auth(config: &State<Arc<Config>>, passwd: Json<HashMap<String, Stri
     }
 }
 
-#[openapi(tag = "Config")]
 #[get("/start_sploit.py")]
 pub async fn start_sploit() -> Result<(ContentType, NamedFile), BadRequest<String>> {
     NamedFile::open("./start_sploit.py")

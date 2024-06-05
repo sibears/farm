@@ -59,14 +59,14 @@ pub fn flag_handler(config: Arc<Config>) {
         let submit_period = Duration::seconds(submit_period as i64);
         let skip_time = submit_start_time.checked_sub_signed(flag_lifetime).unwrap();
 
-        flag_repo.skip_flags(skip_time);
+        flag_repo.skip_flags(skip_time).unwrap();
 
         let queue_flags = flag_repo.get_limit(submit_flag_limit as i64).unwrap();
         info!("Queue flags: {:?}", queue_flags);
         if queue_flags.len() > 0 {
             let updated_flags = submit_flags(queue_flags, protocol_config);
             if updated_flags.len() > 0 {
-                flag_repo.update_status(updated_flags.as_slice());
+                flag_repo.update_status(updated_flags.as_slice()).unwrap();
             }
             update_metrics(updated_flags.as_slice());
         }

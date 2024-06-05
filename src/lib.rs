@@ -8,7 +8,6 @@ extern crate serde_json;
 pub mod config;
 pub mod controllers;
 pub mod db;
-pub mod errors;
 pub mod handlers;
 pub mod middleware;
 pub mod models;
