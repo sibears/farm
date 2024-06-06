@@ -3,7 +3,7 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 
 use r2d2::{Pool, PooledConnection};
-use r2d2_diesel::ConnectionManager;
+use diesel::r2d2::ConnectionManager;
 
 use crate::config::DieselConnection;
 
