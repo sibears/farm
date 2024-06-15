@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use crate::db::connection::*;
 use crate::db::schema::flags as flags_schema;
 use crate::db::schema::flags::status;
@@ -23,17 +21,17 @@ use crate::repos::errors::ReposError;
 pub trait FlagRepo {
     type ReposError;
 
-    fn find_all(&self) -> Result<Vec<Flag>, Self::ReposError>;
-    fn find_by_id(&self, id: i32) -> Result<Flag, Self::ReposError>;
-    fn save(&self, flag: &NewFlag) -> Result<usize, Self::ReposError>;
-    fn save_all(&self, flag: &[NewFlag]) -> Result<usize, Self::ReposError>;
-    fn delete_by_id(&self, id: i32) -> Result<usize, Self::ReposError>;
-    fn update(&self, flag: &UpdateFlag) -> Result<usize, Self::ReposError>;
-    fn skip_flags(&self, skip_time: NaiveDateTime) -> Result<usize, Self::ReposError>;
-    fn get_limit(&self, limit: i64) -> Result<Vec<Flag>, Self::ReposError>;
-    fn update_status(&self, flags: &[Flag]) -> Result<usize, Self::ReposError>;
-    fn skip_duplicate(&self, flags: Vec<NewFlag>) -> Result<Vec<NewFlag>, Self::ReposError>;
-    fn last_id(&self) -> Result<i32, Self::ReposError>;
+    fn find_all(&mut self) -> Result<Vec<Flag>, Self::ReposError>;
+    fn find_by_id(&mut self, id: i32) -> Result<Flag, Self::ReposError>;
+    fn save(&mut self, flag: &NewFlag) -> Result<usize, Self::ReposError>;
+    fn save_all(&mut self, flag: &[NewFlag]) -> Result<usize, Self::ReposError>;
+    fn delete_by_id(&mut self, id: i32) -> Result<usize, Self::ReposError>;
+    fn update(&mut self, flag: &UpdateFlag) -> Result<usize, Self::ReposError>;
+    fn skip_flags(&mut self, skip_time: NaiveDateTime) -> Result<usize, Self::ReposError>;
+    fn get_limit(&mut self, limit: i64) -> Result<Vec<Flag>, Self::ReposError>;
+    fn update_status(&mut self, flags: &[Flag]) -> Result<usize, Self::ReposError>;
+    fn skip_duplicate(&mut self, flags: Vec<NewFlag>) -> Result<Vec<NewFlag>, Self::ReposError>;
+    fn last_id(&mut self) -> Result<i32, Self::ReposError>;
 }
 
 pub struct PostgresFlagRepo {
@@ -49,20 +47,20 @@ impl PostgresFlagRepo {
 impl FlagRepo for PostgresFlagRepo {
     type ReposError = crate::repos::errors::ReposError;
 
-    fn find_all(&self) -> Result<Vec<Flag>, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn find_all(&mut self) -> Result<Vec<Flag>, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
         let all_flags = flags_schema::table.load::<Flag>(conn);
         all_flags.map_err(ReposError::NotFindFlagError)
     }
 
-    fn find_by_id(&self, id: i32) -> Result<Flag, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn find_by_id(&mut self, id: i32) -> Result<Flag, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
         let flag = flags_dsl.filter(flags_schema::dsl::id.eq(id)).first(conn);
         flag.map_err(ReposError::NotFindFlagError)
     }
 
-    fn save(&self, flag: &NewFlag) -> Result<usize, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn save(&mut self, flag: &NewFlag) -> Result<usize, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
         let flag = SavedFlag::from(flag);
 
         diesel::insert_into(flags_dsl)
@@ -71,8 +69,8 @@ impl FlagRepo for PostgresFlagRepo {
             .map_err(ReposError::FailSaveFlagError)
     }
 
-    fn save_all(&self, flags: &[NewFlag]) -> Result<usize, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn save_all(&mut self, flags: &[NewFlag]) -> Result<usize, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
         let flags: Vec<SavedFlag> = flags.iter().map(|item| SavedFlag::from(item)).collect();
 
         diesel::insert_into(flags_dsl)
@@ -81,16 +79,16 @@ impl FlagRepo for PostgresFlagRepo {
             .map_err(ReposError::FailSaveFlagError)
     }
 
-    fn delete_by_id(&self, id: i32) -> Result<usize, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn delete_by_id(&mut self, id: i32) -> Result<usize, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
 
         diesel::delete(flags_dsl.filter(flags_schema::dsl::id.eq(id)))
             .execute(conn)
             .map_err(ReposError::DeleteFlagError)
     }
 
-    fn update(&self, flag: &UpdateFlag) -> Result<usize, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn update(&mut self, flag: &UpdateFlag) -> Result<usize, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
 
         diesel::update(flags_dsl.find(flag.id))
             .set(flag)
@@ -98,8 +96,8 @@ impl FlagRepo for PostgresFlagRepo {
             .map_err(ReposError::UpdateFlagError)
     }
 
-    fn skip_flags(&self, skip_time: NaiveDateTime) -> Result<usize, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn skip_flags(&mut self, skip_time: NaiveDateTime) -> Result<usize, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
 
         let res = diesel::update(
             flags_dsl
@@ -120,8 +118,8 @@ impl FlagRepo for PostgresFlagRepo {
         Ok(res)
     }
 
-    fn get_limit(&self, limit: i64) -> Result<Vec<Flag>, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn get_limit(&mut self, limit: i64) -> Result<Vec<Flag>, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
 
         flags_dsl
             .filter(status.eq(FlagStatus::QUEUED.to_string()))
@@ -130,8 +128,8 @@ impl FlagRepo for PostgresFlagRepo {
             .map_err(ReposError::NotFindFlagError)
     }
 
-    fn update_status(&self, flags: &[Flag]) -> Result<usize, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn update_status(&mut self, flags: &[Flag]) -> Result<usize, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
 
         let mut final_res = 0;
         for flag in flags {
@@ -144,8 +142,8 @@ impl FlagRepo for PostgresFlagRepo {
         Ok(final_res)
     }
 
-    fn skip_duplicate(&self, mut flags: Vec<NewFlag>) -> Result<Vec<NewFlag>, ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn skip_duplicate(&mut self, mut flags: Vec<NewFlag>) -> Result<Vec<NewFlag>, ReposError> {
+        let conn = &mut self.db_conn.master;
 
         let res = flags_dsl
             .select(flags_schema::dsl::flag)
@@ -155,8 +153,8 @@ impl FlagRepo for PostgresFlagRepo {
         Ok(flags)
     }
 
-    fn last_id(&self) -> Result<i32, Self::ReposError> {
-        let conn = self.db_conn.master.deref();
+    fn last_id(&mut self) -> Result<i32, Self::ReposError> {
+        let conn = &mut self.db_conn.master;
 
         let res = flags_dsl
             .select(flags_schema::dsl::id)

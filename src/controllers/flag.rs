@@ -20,14 +20,14 @@ use crate::{
 
 #[get("/flag")]
 pub fn get_flags(db: DbConn, _auth: BasicAuth) -> Result<Json<Vec<Flag>>, ApiError> {
-    let flag_repo = DbFlagRepo::new(db);
+    let mut flag_repo = DbFlagRepo::new(db);
     let flags_result = flag_repo.find_all()?;
     Ok(Json(flags_result))
 }
 
 #[get("/flag/<id>")]
 pub fn get_flag_by_id(id: i32, db: DbConn, _auth: BasicAuth) -> Result<Json<Flag>, ApiError> {
-    let flag_repo = DbFlagRepo::new(db);
+    let mut flag_repo = DbFlagRepo::new(db);
     let flag_result = flag_repo.find_by_id(id)?;
     Ok(Json(flag_result))
 }
@@ -39,7 +39,7 @@ pub fn create_flag(
     config: &State<Arc<Config>>,
     _auth: BasicAuth,
 ) -> Result<Created<Json<Vec<Flag>>>, ApiError> {
-    let flag_repo = DbFlagRepo::new(db);
+    let mut flag_repo = DbFlagRepo::new(db);
     let re = Regex::new(&config.ctf.lock().unwrap().flag_format).unwrap();
     let mut matched_flags: Vec<NewFlag> = new_flags
         .into_inner()
@@ -73,7 +73,7 @@ pub fn post_simple(
     db: DbConn,
     _auth: BasicAuth,
 ) -> Result<Created<Json<Vec<String>>>, ApiError> {
-    let flag_repo = DbFlagRepo::new(db);
+    let mut flag_repo = DbFlagRepo::new(db);
     let new_flags = new_flags.to_vec();
     let mut new_flags: Vec<NewFlag> = new_flags.into_iter().map(|x| NewFlag::new(x)).collect();
     new_flags.sort_unstable();

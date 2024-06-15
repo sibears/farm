@@ -16,6 +16,7 @@ services:
     image: postgres:14.1-alpine
     environment:
       - POSTGRES_PASSWORD=sibears1cool
+      - POSTGRES_DB=flags
     ports:
       - "5432:5432"
 

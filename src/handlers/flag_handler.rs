@@ -24,7 +24,7 @@ pub fn flag_handler(config: Arc<Config>) {
     let conn = DbConn {
         master: master_conn,
     };
-    let flag_repo = DbFlagRepo::new(conn);
+    let mut flag_repo = DbFlagRepo::new(conn);
     let flags = flag_repo.find_all().unwrap();
     for item in flags {
         FLAG_COUNTER.with_label_values(&[&item.status]).inc();
@@ -41,7 +41,7 @@ pub fn flag_handler(config: Arc<Config>) {
         let conn = DbConn {
             master: master_conn,
         };
-        let flag_repo = DbFlagRepo::new(conn);
+        let mut flag_repo = DbFlagRepo::new(conn);
         let lock_ctf_config = config.ctf.lock().unwrap();
         let flag_lifetime = lock_ctf_config.flag_lifetime;
         let submit_period = lock_ctf_config.submit_period;

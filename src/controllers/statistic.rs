@@ -18,7 +18,7 @@ pub fn get_status_statistic(
     db: DbConn,
     _auth: BasicAuth,
 ) -> Result<Json<StatusStatistic>, BadRequest<String>> {
-    let flag_repo = DbFlagRepo::new(db);
+    let mut flag_repo = DbFlagRepo::new(db);
     let flags = flag_repo
         .find_all()
         .map_err(|e| BadRequest(Some(e.to_string())))?;

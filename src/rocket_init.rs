@@ -2,7 +2,6 @@ extern crate diesel;
 extern crate serde_json;
 
 use rocket::{Build, Rocket};
-use rocket_okapi::{openapi, openapi_get_routes};
 use rocket_prometheus::PrometheusMetrics;
 use std::sync::Arc;
 
@@ -14,7 +13,6 @@ use crate::middleware::cors::CORS;
 use crate::middleware::metrics::FLAG_COUNTER;
 use crate::settings::Config;
 
-#[openapi]
 #[get("/")]
 pub fn hello() -> &'static str {
     "Hello, SiBears Farm!"
@@ -33,7 +31,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
         .attach(CORS)
         .manage(init_db(database_url))
         .manage(config)
-        .mount("/", openapi_get_routes![hello])
+        .mount("/", routes![hello])
         .mount("/metrics", prometheus)
         .mount(
             "/api",

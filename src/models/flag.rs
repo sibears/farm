@@ -47,7 +47,7 @@ impl Ord for NewFlag {
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Insertable, Debug)]
-#[table_name = "flags"]
+#[diesel(table_name = flags)]
 pub struct SavedFlag {
     flag: String,
     sploit: Option<String>,
@@ -69,7 +69,7 @@ impl From<&NewFlag> for SavedFlag {
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, AsChangeset)]
-#[table_name = "flags"]
+#[diesel(table_name = flags)]
 pub struct UpdateFlag {
     pub id: i32,
     pub flag: String,
@@ -85,7 +85,6 @@ pub struct UpdateFlag {
 #[diesel(primary_key(id))]
 #[diesel(table_name = flags)]
 pub struct Flag {
-    #[diesel(deserialize_as = "i32")]
     pub id: i32,
     pub flag: String,
     sploit: Option<String>,
