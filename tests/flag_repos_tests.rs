@@ -3,17 +3,12 @@ use diesel::r2d2::{ConnectionManager, Pool};
 use sibears_farm::config::DieselConnection;
 use sibears_farm::db::connection::DbConn;
 
-pub fn create_test_db_conn(url: String) -> DbConn {
-    let manager = ConnectionManager::<DieselConnection>::new(url);
-    let pool = Pool::builder().build(manager).expect("Failed to create pool.");
-    DbConn { master: pool.get().unwrap() }
-}
-
 #[cfg(test)]
 mod tests {
     use chrono::NaiveDateTime;
 
     use sibears_farm::config::get_test_config;
+    use sibears_farm::db::connection::init_db;
     use sibears_farm::models::flag::{FlagStatus, NewFlag, UpdateFlag};
     use sibears_farm::repos::flag::{FlagRepo, PostgresFlagRepo};
 
@@ -24,13 +19,13 @@ mod tests {
     fn setup() -> PostgresFlagRepo {
         let config = get_test_config();
         let url = config.database.lock().unwrap().database_url.to_string();
-        let conn = create_test_db_conn(url);
+        let conn = init_db(url);
         PostgresFlagRepo::new(conn)
     }
 
     #[test]
     fn test_save() {
-        let repo = setup();
+        let mut repo = setup();
         let new_flag = NewFlag {
             flag: "FLAG{test_save}".to_string(),
             sploit: None,
@@ -44,7 +39,7 @@ mod tests {
 
     #[test]
     fn test_save_all() {
-        let repo = setup();
+        let mut repo = setup();
         let new_flags = vec![
             NewFlag {
                 flag: "FLAG{test_save_all_1}".to_string(),
@@ -64,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_find_all() {
-        let repo = setup();
+        let mut repo = setup();
         let result = repo.find_all();
         assert!(result.is_ok());
         let flags = result.unwrap();
@@ -73,7 +68,7 @@ mod tests {
 
     #[test]
     fn test_find_by_id() {
-        let repo = setup();
+        let mut repo = setup();
         // Предполагаем, что в базе данных существует флаг с id = 1
         let result = repo.find_by_id(1);
         assert!(result.is_ok());
@@ -83,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_delete_by_id() {
-        let repo = setup();
+        let mut repo = setup();
         // Предполагаем, что в базе данных существует флаг с id = 1
         let result = repo.delete_by_id(1);
         assert!(result.is_ok());
@@ -92,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_update() {
-        let repo = setup();
+        let mut repo = setup();
         // Предполагаем, что в базе данных существует флаг с id = 1
         let update_flag = UpdateFlag {
             id: 1,
@@ -109,7 +104,7 @@ mod tests {
     
     #[test]
     fn test_skip_flags() {
-        let repo = setup();
+        let mut repo = setup();
         let skip_time = NaiveDateTime::from_timestamp(chrono::Utc::now().timestamp(), 0);
         let result = repo.skip_flags(skip_time);
         assert!(result.is_ok());
@@ -118,7 +113,7 @@ mod tests {
 
     #[test]
     fn test_get_limit() {
-        let repo = setup();
+        let mut repo = setup();
         let result = repo.get_limit(5);
         assert!(result.is_ok());
         let flags = result.unwrap();

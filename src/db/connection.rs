@@ -14,19 +14,27 @@ pub struct DbCollection {
     pub db_conn_pool: Pool<ConnectionManager<DieselConnection>>,
 }
 
-pub fn init_db(database_url: String) -> DbCollection {
-    let manager = ConnectionManager::<DieselConnection>::new(database_url);
-    let pool = Pool::builder()
-        .build(manager)
-        .expect("Failed to create pool.");
-    let conn = &mut pool.get().unwrap();
+impl DbCollection {
+    const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
-    run_migrations(conn);
-    DbCollection { db_conn_pool: pool }
+    pub fn init_db(database_url: String) -> DbCollection {
+        let manager = ConnectionManager::<DieselConnection>::new(database_url);
+        let pool = Pool::builder()
+            .build(manager)
+            .expect("Failed to create pool.");
+        let conn = &mut pool.get().unwrap();
+
+        DbCollection::run_migrations(conn);
+        DbCollection { db_conn_pool: pool }
+    }
+    fn run_migrations(conn: &mut DieselConnection) {
+        conn.run_pending_migrations(DbCollection::MIGRATIONS).unwrap();
+    }
+
+    pub fn get_conn(&self) -> DbConn {
+        self.db_conn_pool.get().
+    }
 }
 
-const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
-pub fn run_migrations(conn: &mut DieselConnection) {
-    conn.run_pending_migrations(MIGRATIONS).unwrap();
-}
+
