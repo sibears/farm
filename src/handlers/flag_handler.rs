@@ -2,7 +2,7 @@ use crate::config::DbFlagRepo;
 use crate::middleware::metrics::{update_metrics, FLAG_COUNTER};
 use crate::settings::ProtocolConfig;
 use crate::{
-    db::connection::{init_db, DbConn},
+    db::connection::DbConn,
     models::flag::Flag,
     repos::flag::FlagRepo,
     settings::Config,
@@ -10,37 +10,19 @@ use crate::{
 use chrono::{Duration, Utc};
 use std::sync::Arc;
 use std::thread;
+use crate::db::connection::DbCollection;
 
 pub fn flag_handler(config: Arc<Config>) {
     let database_url = config.database.lock().unwrap().database_url.to_string();
-    let db_pool = init_db(database_url).db_conn_pool;
-    let master_conn;
-    match db_pool.get() {
-        Ok(x) => master_conn = x,
-        Err(err) => {
-            panic!("DbError: {:?}", err);
-        }
-    }
-    let conn = DbConn {
-        master: master_conn,
-    };
+    let db_pool = DbCollection::init_db(database_url);
+    let conn = db_pool.get_conn();
     let mut flag_repo = DbFlagRepo::new(conn);
     let flags = flag_repo.find_all().unwrap();
     for item in flags {
         FLAG_COUNTER.with_label_values(&[&item.status]).inc();
     }
     loop {
-        let master_conn;
-        match db_pool.get() {
-            Ok(x) => master_conn = x,
-            Err(err) => {
-                error!("DbError: {:?}", err);
-                continue;
-            }
-        }
-        let conn = DbConn {
-            master: master_conn,
-        };
+        let conn = db_pool.get_conn();
         let mut flag_repo = DbFlagRepo::new(conn);
         let lock_ctf_config = config.ctf.lock().unwrap();
         let flag_lifetime = lock_ctf_config.flag_lifetime;

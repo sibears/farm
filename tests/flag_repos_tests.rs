@@ -1,23 +1,15 @@
-use diesel::r2d2::{ConnectionManager, Pool};
-
-use sibears_farm::config::DieselConnection;
-use sibears_farm::db::connection::DbConn;
-
 #[cfg(test)]
 mod tests {
     use chrono::NaiveDateTime;
 
-    use sibears_farm::config::get_test_config;
-    use sibears_farm::db::connection::init_db;
+    use sibears_farm::config::{get_config};
     use sibears_farm::models::flag::{FlagStatus, NewFlag, UpdateFlag};
     use sibears_farm::repos::flag::{FlagRepo, PostgresFlagRepo};
-
-    use super::*;
 
     static mut LAST_ID: i32 = 0;
 
     fn setup() -> PostgresFlagRepo {
-        let config = get_test_config();
+        let config = get_config("./config_test.json");
         let url = config.database.lock().unwrap().database_url.to_string();
         let conn = init_db(url);
         PostgresFlagRepo::new(conn)

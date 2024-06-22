@@ -8,7 +8,7 @@ use std::sync::Arc;
 use crate::controllers::config::*;
 use crate::controllers::flag::*;
 use crate::controllers::statistic::*;
-use crate::db::connection::init_db;
+use crate::db::connection::{DbCollection};
 use crate::middleware::cors::CORS;
 use crate::middleware::metrics::FLAG_COUNTER;
 use crate::settings::Config;
@@ -21,6 +21,7 @@ pub fn hello() -> &'static str {
 pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
     let _ = dotenv::dotenv().map_err(|err| error!("Dotenv: {:?}", err));
     let database_url = config.database.lock().unwrap().database_url.to_string();
+    let db_collection = DbCollection::init_db(database_url);
     let prometheus = PrometheusMetrics::new();
     prometheus
         .registry()
@@ -29,7 +30,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
     let rocket_app = rocket::build()
         .attach(prometheus.clone())
         .attach(CORS)
-        .manage(init_db(database_url))
+        .manage(db_collection)
         .manage(config)
         .mount("/", routes![hello])
         .mount("/metrics", prometheus)

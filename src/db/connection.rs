@@ -24,15 +24,17 @@ impl DbCollection {
             .expect("Failed to create pool.");
         let conn = &mut pool.get().unwrap();
 
-        DbCollection::run_migrations(conn);
         DbCollection { db_conn_pool: pool }
     }
-    fn run_migrations(conn: &mut DieselConnection) {
+    fn migrations(conn: &mut DieselConnection) {
         conn.run_pending_migrations(DbCollection::MIGRATIONS).unwrap();
     }
-
     pub fn get_conn(&self) -> DbConn {
-        self.db_conn_pool.get().
+        DbConn { master: self.db_conn_pool.get().unwrap() }
+    }
+
+    pub fn run_migrations(&self) {
+        DbCollection::migrations(&mut self.get_conn().master);
     }
 }
 
