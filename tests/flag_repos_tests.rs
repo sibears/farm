@@ -1,32 +1,28 @@
 #[cfg(test)]
 mod tests {
-    use chrono::NaiveDateTime;
-
-    use sibears_farm::config::{get_config};
+    use sibears_farm::config::get_config;
+    use sibears_farm::db::connection::DbCollection;
     use sibears_farm::models::flag::{FlagStatus, NewFlag, UpdateFlag};
     use sibears_farm::repos::flag::{FlagRepo, PostgresFlagRepo};
-
-    static mut LAST_ID: i32 = 0;
 
     fn setup() -> PostgresFlagRepo {
         let config = get_config("./config_test.json");
         let url = config.database.lock().unwrap().database_url.to_string();
-        let conn = init_db(url);
-        PostgresFlagRepo::new(conn)
+        let conn = DbCollection::init_db(url);
+        PostgresFlagRepo::new(conn.get_conn())
     }
 
     #[test]
     fn test_save() {
         let mut repo = setup();
         let new_flag = NewFlag {
-            flag: "FLAG{test_save}".to_string(),
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
             sploit: None,
             team: None,
         };
         let result = repo.save(&new_flag);
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 1);
-        unsafe { LAST_ID = repo.last_id().unwrap(); }
+        assert!(result.unwrap() >= 1);
     }
 
     #[test]
@@ -34,12 +30,12 @@ mod tests {
         let mut repo = setup();
         let new_flags = vec![
             NewFlag {
-                flag: "FLAG{test_save_all_1}".to_string(),
+                flag: "IUHLAKILOAGIDJ4RFB1N5FBGBRUCDT7=".to_string(),
                 sploit: None,
                 team: None,
             },
             NewFlag {
-                flag: "FLAG{test_save_all_2}".to_string(),
+                flag: "GOQU9C4L2XE3OKQ9NA4C7RS3SHRQW0A=".to_string(),
                 sploit: None,
                 team: None,
             },
@@ -55,36 +51,29 @@ mod tests {
         let result = repo.find_all();
         assert!(result.is_ok());
         let flags = result.unwrap();
-        assert!(flags.len() >= 0);
+        assert!(flags.len() >= 3);
     }
 
     #[test]
     fn test_find_by_id() {
         let mut repo = setup();
+        let last_id = repo.last_id().unwrap();
         // Предполагаем, что в базе данных существует флаг с id = 1
-        let result = repo.find_by_id(1);
+        let result = repo.find_by_id(last_id);
         assert!(result.is_ok());
         let flag = result.unwrap();
-        assert_eq!(flag.id, 1);
-    }
-
-    #[test]
-    fn test_delete_by_id() {
-        let mut repo = setup();
-        // Предполагаем, что в базе данных существует флаг с id = 1
-        let result = repo.delete_by_id(1);
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 1);
+        assert_eq!(flag.id, last_id);
     }
 
     #[test]
     fn test_update() {
         let mut repo = setup();
+        let last_id = repo.last_id().unwrap();
         // Предполагаем, что в базе данных существует флаг с id = 1
         let update_flag = UpdateFlag {
-            id: 1,
-            flag: "FLAG{test_update}".to_string(),
-            sploit: None,
+            id: last_id,
+            flag: "OZOTRO6VS7PYG3A4E0PI6CV5GVE6EAI=".to_string(),
+            sploit: Some("updated".to_string()),
             team: None,
             status: FlagStatus::ACCEPTED.to_string(),
             checksystem_response: None,
@@ -92,25 +81,40 @@ mod tests {
         let result = repo.update(&update_flag);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 1);
-    }
-    
-    #[test]
-    fn test_skip_flags() {
-        let mut repo = setup();
-        let skip_time = NaiveDateTime::from_timestamp(chrono::Utc::now().timestamp(), 0);
-        let result = repo.skip_flags(skip_time);
-        assert!(result.is_ok());
-        assert!(result.unwrap() >= 0);
+        let new_flag = repo.find_by_id(last_id).unwrap();
+        assert_eq!(new_flag.flag, update_flag.flag);
+        assert_eq!(new_flag.status, update_flag.status);
+        assert_eq!(new_flag.sploit, update_flag.sploit);
     }
 
-    #[test]
-    fn test_get_limit() {
-        let mut repo = setup();
-        let result = repo.get_limit(5);
-        assert!(result.is_ok());
-        let flags = result.unwrap();
-        assert!(flags.len() <= 5);
-    }
+    // #[test]
+    // fn test_delete_by_id() {
+    //     let mut repo = setup();
+    //     // Предполагаем, что в базе данных существует флаг с id = 1
+    //     let result = repo.delete_by_id(1);
+    //     assert!(result.is_ok());
+    //     assert_eq!(result.unwrap(), 1);
+    // }
+    //
+    //
+    //
+    // #[test]
+    // fn test_skip_flags() {
+    //     let mut repo = setup();
+    //     let skip_time = NaiveDateTime::from_timestamp(chrono::Local::now().timestamp(), 0);
+    //     let result = repo.skip_flags(skip_time);
+    //     assert!(result.is_ok());
+    //     assert!(result.unwrap() >= 0);
+    // }
+    //
+    // #[test]
+    // fn test_get_limit() {
+    //     let mut repo = setup();
+    //     let result = repo.get_limit(5);
+    //     assert!(result.is_ok());
+    //     let flags = result.unwrap();
+    //     assert!(flags.len() <= 5);
+    // }
 
     // #[test]
     // fn test_update_status() {

@@ -2,7 +2,6 @@ use crate::config::DbFlagRepo;
 use crate::middleware::metrics::{update_metrics, FLAG_COUNTER};
 use crate::settings::ProtocolConfig;
 use crate::{
-    db::connection::DbConn,
     models::flag::Flag,
     repos::flag::FlagRepo,
     settings::Config,

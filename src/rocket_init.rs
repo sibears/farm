@@ -30,6 +30,7 @@ pub fn rocket(config: Arc<Config>) -> Rocket<Build> {
     let rocket_app = rocket::build()
         .attach(prometheus.clone())
         .attach(CORS)
+        .manage(CORS)
         .manage(db_collection)
         .manage(config)
         .mount("/", routes![hello])

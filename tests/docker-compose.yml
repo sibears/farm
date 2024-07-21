@@ -9,6 +9,11 @@ services:
     ports:
       - "5432:5432"
 
+  farm_front:
+    image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
+    ports:
+      - "8776:80"
+
   external_redis:
     image: redis:7.2-alpine
     ports:

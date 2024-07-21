@@ -22,7 +22,6 @@ impl DbCollection {
         let pool = Pool::builder()
             .build(manager)
             .expect("Failed to create pool.");
-        let conn = &mut pool.get().unwrap();
 
         DbCollection { db_conn_pool: pool }
     }

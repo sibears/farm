@@ -25,7 +25,7 @@ impl ProtocolHandler for RuCtfTcp {
             ),
             (
                 FlagStatus::ACCEPTED.to_string(),
-                vec!["accepted", "congrat"],
+                vec!["accepted", "congrat", "ok"],
             ),
             (
                 FlagStatus::REJECTED.to_string(),
@@ -39,6 +39,8 @@ impl ProtocolHandler for RuCtfTcp {
                     "not in database",
                     "already submitted",
                     "invalid flag",
+                    "old",
+                    "dup",
                 ],
             ),
         ]);
@@ -48,12 +50,12 @@ impl ProtocolHandler for RuCtfTcp {
                 match stream.read(&mut buf) {
                     Ok(_) => {
                         let welcome_msg = std::str::from_utf8(&buf).unwrap().to_lowercase();
-                        if !welcome_msg.contains("enter your flags") {
+                        if !welcome_msg.contains("enter your flags") && !welcome_msg.contains("submit one flag") {
                             return Vec::new();
                         }
                         let mut updated_flags: Vec<Flag> = Vec::new();
                         for mut flag in queue_flags {
-                            stream.write((flag.flag).as_bytes()).unwrap();
+                            stream.write((flag.flag.clone() + "\n").as_bytes()).unwrap();
                             buf.fill(0);
                             match stream.read(&mut buf) {
                                 Ok(_) => {
