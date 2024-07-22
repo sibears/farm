@@ -9,6 +9,7 @@ mod tests {
         let config = get_config("./config.json");
         let url = config.database.lock().unwrap().database_url.to_string();
         let conn = DbCollection::init_db(url);
+        conn.run_migrations();
         PostgresFlagRepo::new(conn.get_conn())
     }
 
