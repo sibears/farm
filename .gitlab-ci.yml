@@ -13,8 +13,11 @@ test:
     POSTGRES_DB: flags
     POSTGRES_PASSWORD: sibears1cool
     POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: 5432
   script:
-    - cargo test
+    - cargo test -- --test-threads=1 
 
 build:
   stage: build

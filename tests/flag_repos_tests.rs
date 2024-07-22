@@ -6,7 +6,7 @@ mod tests {
     use sibears_farm::repos::flag::{FlagRepo, PostgresFlagRepo};
 
     fn setup() -> PostgresFlagRepo {
-        let config = get_config("./config_test.json");
+        let config = get_config("./config.json");
         let url = config.database.lock().unwrap().database_url.to_string();
         let conn = DbCollection::init_db(url);
         PostgresFlagRepo::new(conn.get_conn())
@@ -87,79 +87,22 @@ mod tests {
         assert_eq!(new_flag.sploit, update_flag.sploit);
     }
 
-    // #[test]
-    // fn test_delete_by_id() {
-    //     let mut repo = setup();
-    //     // Предполагаем, что в базе данных существует флаг с id = 1
-    //     let result = repo.delete_by_id(1);
-    //     assert!(result.is_ok());
-    //     assert_eq!(result.unwrap(), 1);
-    // }
-    //
-    //
-    //
-    // #[test]
-    // fn test_skip_flags() {
-    //     let mut repo = setup();
-    //     let skip_time = NaiveDateTime::from_timestamp(chrono::Local::now().timestamp(), 0);
-    //     let result = repo.skip_flags(skip_time);
-    //     assert!(result.is_ok());
-    //     assert!(result.unwrap() >= 0);
-    // }
-    //
-    // #[test]
-    // fn test_get_limit() {
-    //     let mut repo = setup();
-    //     let result = repo.get_limit(5);
-    //     assert!(result.is_ok());
-    //     let flags = result.unwrap();
-    //     assert!(flags.len() <= 5);
-    // }
+    #[test]
+    fn test_delete_by_id() {
+        let mut repo = setup();
+        let last_id = repo.last_id().unwrap();
 
-    // #[test]
-    // fn test_update_status() {
-    //     let repo = setup();
-    //     // Предполагаем, что в базе данных существует флаг с id = 1
-    //     let flags = vec![
-    //         Flag {
-    //             id: 1,
-    //             flag: "FLAG{test_update_status}".to_string(),
-    //             status: FlagStatus::SUBMITTED,
-    //             created_at: NaiveDateTime::from_timestamp(chrono::Utc::now().timestamp(), 0),
-    //         },
-    //     ];
-    //     let result = repo.update_status(&flags);
-    //     assert!(result.is_ok());
-    //     assert_eq!(result.unwrap(), 1);
-    // }
-    
-    // #[test]
-    // fn skip_duplicate_with_duplicates() {
-    //     let flag = NewFlag {
-    //         flag: "FLAG{test_skip_duplicate}".to_string(),
-    //         status: "QUEUED".to_string(),
-    //         time: Utc::now().naive_utc(),
-    //     };
-    //
-    //     let repo = setup();
-    //
-    //     // Добавляем флаг в базу данных дважды (создаем дубликаты)
-    //     let _ = repo.save(&flag);
-    //     let _ = repo.save(&flag);
-    //
-    //     // Получаем все флаги из базы данных
-    //     let all_flags_before = repo.find_all().unwrap();
-    //
-    //     // Пропускаем дубликаты
-    //     let unique_flags = repo.skip_duplicate(vec![flag]).unwrap();
-    //
-    //     // Проверяем, что количество уникальных флагов равно 1 (только один флаг добавлен)
-    //     assert_eq!(unique_flags.len(), 1);
-    //
-    //     // Получаем все флаги из базы данных после пропуска дубликатов
-    //     let all_flags_after = repo.find_all().unwrap();
-    //
-    //     // Проверяем, что количество флагов в базе данных осталось неизменным после пропуска дубликатов
-    //     assert_eq!(all_flags_before.len(), all_flags_after.len());
-    // }
+        let result = repo.delete_by_id(last_id);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 1);
+    }
+
+    #[test]
+    fn test_get_limit() {
+        let mut repo = setup();
+        let result = repo.get_limit(2);
+        assert!(result.is_ok());
+        let flags = result.unwrap();
+        assert!(flags.len() == 2);
+    }
 }

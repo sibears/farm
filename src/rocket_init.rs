@@ -8,7 +8,7 @@ use std::sync::Arc;
 use crate::controllers::config::*;
 use crate::controllers::flag::*;
 use crate::controllers::statistic::*;
-use crate::db::connection::{DbCollection};
+use crate::db::connection::DbCollection;
 use crate::middleware::cors::CORS;
 use crate::middleware::metrics::FLAG_COUNTER;
 use crate::settings::Config;
