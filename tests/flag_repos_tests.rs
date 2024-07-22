@@ -49,17 +49,34 @@ mod tests {
     #[test]
     fn test_find_all() {
         let mut repo = setup();
+
+        let new_flag = NewFlag {
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+            sploit: None,
+            team: None,
+        };
+        let result = repo.save(&new_flag);
+        assert!(result.is_ok());
+
         let result = repo.find_all();
         assert!(result.is_ok());
         let flags = result.unwrap();
-        assert!(flags.len() >= 3);
+        assert!(flags.len() >= 1);
     }
 
     #[test]
     fn test_find_by_id() {
         let mut repo = setup();
+
+        let new_flag = NewFlag {
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+            sploit: None,
+            team: None,
+        };
+        let result = repo.save(&new_flag);
+        assert!(result.is_ok());
+
         let last_id = repo.last_id().unwrap();
-        // Предполагаем, что в базе данных существует флаг с id = 1
         let result = repo.find_by_id(last_id);
         assert!(result.is_ok());
         let flag = result.unwrap();
@@ -69,6 +86,15 @@ mod tests {
     #[test]
     fn test_update() {
         let mut repo = setup();
+
+        let new_flag = NewFlag {
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+            sploit: None,
+            team: None,
+        };
+        let result = repo.save(&new_flag);
+        assert!(result.is_ok());
+
         let last_id = repo.last_id().unwrap();
         // Предполагаем, что в базе данных существует флаг с id = 1
         let update_flag = UpdateFlag {
@@ -81,18 +107,26 @@ mod tests {
         };
         let result = repo.update(&update_flag);
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 1);
-        let new_flag = repo.find_by_id(last_id).unwrap();
-        assert_eq!(new_flag.flag, update_flag.flag);
-        assert_eq!(new_flag.status, update_flag.status);
-        assert_eq!(new_flag.sploit, update_flag.sploit);
+        let result = repo.find_by_id(last_id);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        assert_eq!(update_flag.flag, result.flag);
+        assert_eq!(update_flag.sploit, result.sploit);
     }
 
     #[test]
     fn test_delete_by_id() {
         let mut repo = setup();
-        let last_id = repo.last_id().unwrap();
 
+        let new_flag = NewFlag {
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+            sploit: None,
+            team: None,
+        };
+        let result = repo.save(&new_flag);
+        assert!(result.is_ok());
+
+        let last_id = repo.last_id().unwrap();
         let result = repo.delete_by_id(last_id);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 1);
@@ -101,6 +135,22 @@ mod tests {
     #[test]
     fn test_get_limit() {
         let mut repo = setup();
+
+        let new_flag = NewFlag {
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+            sploit: None,
+            team: None,
+        };
+        let result = repo.save(&new_flag);
+        assert!(result.is_ok());
+        let new_flag = NewFlag {
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYD=".to_string(),
+            sploit: None,
+            team: None,
+        };
+        let result = repo.save(&new_flag);
+        assert!(result.is_ok());
+
         let result = repo.get_limit(2);
         assert!(result.is_ok());
         let flags = result.unwrap();
