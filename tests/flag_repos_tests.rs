@@ -13,7 +13,8 @@ mod tests {
     use std::sync::Arc;
     use std::sync::RwLock;
 
-    fn setup() -> PostgresFlagRepo {
+
+    fn setup() -> (PostgresFlagRepo, DbPool) {
         let config = get_config("./config.json");
         let url = config.database.lock().unwrap().database_url.to_string();
         let db_pool = init_db(url);
