@@ -1,4 +1,6 @@
 -- Your SQL goes here
+set enable_parallel_hash=on;
+
 CREATE TABLE IF NOT EXISTS flags (
     id SERIAL PRIMARY KEY NOT NULL,
     flag TEXT NOT NULL,
