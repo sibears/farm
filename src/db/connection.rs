@@ -1,41 +1,22 @@
 extern crate diesel;
 
+use std::borrow::BorrowMut;
+
 use diesel::r2d2::{Pool, PooledConnection};
 use diesel::r2d2::ConnectionManager;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
-use crate::config::DieselConnection;
+use crate::config::DbPool;
 
-pub struct DbConn {
-    pub master: PooledConnection<ConnectionManager<DieselConnection>>,
+
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
+
+pub fn init_db(database_url: String) -> DbPool {
+    let manager = ConnectionManager::<diesel::pg::PgConnection>::new(database_url);
+    let pool = Pool::builder()
+        .build(manager)
+        .expect("Failed to create pool.");
+    pool
 }
-
-pub struct DbCollection {
-    pub db_conn_pool: Pool<ConnectionManager<DieselConnection>>,
-}
-
-impl DbCollection {
-    const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
-
-    pub fn init_db(database_url: String) -> DbCollection {
-        let manager = ConnectionManager::<DieselConnection>::new(database_url);
-        let pool = Pool::builder()
-            .build(manager)
-            .expect("Failed to create pool.");
-
-        DbCollection { db_conn_pool: pool }
-    }
-    fn migrations(conn: &mut DieselConnection) {
-        conn.run_pending_migrations(DbCollection::MIGRATIONS).unwrap();
-    }
-    pub fn get_conn(&self) -> DbConn {
-        DbConn { master: self.db_conn_pool.get().unwrap() }
-    }
-
-    pub fn run_migrations(&self) {
-        DbCollection::migrations(&mut self.get_conn().master);
-    }
-}
-
 
 
