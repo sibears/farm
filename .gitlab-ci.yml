@@ -17,7 +17,7 @@ test:
     POSTGRES_HOST: postgres
     POSTGRES_PORT: 5432
   script:
-    - cargo test -- --test-threads=1
+    - cargo test
 
 build:
   stage: build
