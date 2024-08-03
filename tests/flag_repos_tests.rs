@@ -1,25 +1,42 @@
+#![feature(custom_test_frameworks)]
+#![feature(test)]
+#![test_runner(custom_test_runner)]
+
+
+extern crate test;
+
+use sibears_farm::config::get_config;
+use sibears_farm::db::connection::init_db;
+use sibears_farm::db::connection::MIGRATIONS;
+use diesel_migrations::MigrationHarness;
+use test::{test_main_static, TestDescAndFn};
+
+
+
+pub fn custom_test_runner(tests: &[&TestDescAndFn]) {
+    let config = get_config("./config_test.json");
+    let url = config.database.lock().unwrap().database_url.to_string();
+    let db_pool = init_db(url);
+    let mut conn = db_pool.get().unwrap();
+    conn.run_pending_migrations(MIGRATIONS).unwrap();
+    test_main_static(tests);
+
+}
+
 #[cfg(test)]
 mod tests {
-    use rocket::http::uri::Reference;
-    use sibears_farm::config::{get_config, DbConnection, DbPool, DbPooled};
+    use sibears_farm::config::{get_config, DbPool, DbPooled};
     use sibears_farm::db::connection::init_db;
     use sibears_farm::models::flag::{FlagStatus, NewFlag, UpdateFlag};
     use sibears_farm::repos::errors::ReposError;
     use sibears_farm::repos::flag::{FlagRepo, PostgresFlagRepo};
-    use sibears_farm::db::connection::MIGRATIONS;
-    use diesel::{pg, prelude::*};
     use diesel::connection::Connection;
-    use diesel_migrations::MigrationHarness;
-    use std::sync::Arc;
-    use std::sync::RwLock;
 
 
     fn setup() -> (PostgresFlagRepo, DbPool) {
         let config = get_config("./config.json");
         let url = config.database.lock().unwrap().database_url.to_string();
         let db_pool = init_db(url);
-        let mut conn = db_pool.get().unwrap();
-        conn.run_pending_migrations(MIGRATIONS).unwrap();
         (PostgresFlagRepo::new(), db_pool)
     }
 
@@ -28,8 +45,8 @@ mod tests {
     where
         F: FnOnce(&mut DbPooled) -> Result<(), ReposError>,
     {
-        conn.transaction::<(), diesel::result::Error, _>(|conn| {
-            let result = f(conn).unwrap();
+        let _ = conn.transaction::<(), diesel::result::Error, _>(|conn| {
+            let _ = f(conn).unwrap();
             Err(diesel::result::Error::RollbackTransaction)
         });
     }
@@ -39,7 +56,7 @@ mod tests {
         let (repo, db_pool) = setup();
         let mut db_conn = db_pool.get().unwrap();
         let new_flag = NewFlag {
-            flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+            flag: "USHIRTI010N54GII784SB4TQ2JHUJYZ=".to_string(),
             sploit: None,
             team: None,
         };
@@ -53,7 +70,7 @@ mod tests {
     
     #[test]
     fn test_save_all() {
-        let (repo, mut db_pool) = setup();
+        let (repo, db_pool) = setup();
         let mut db_conn = db_pool.get().unwrap();
         test_transaction(&mut db_conn, |db_conn| {
             let new_flags = vec![
@@ -77,11 +94,11 @@ mod tests {
 
     #[test]
     fn test_find_by_id() {
-        let (repo, mut db_pool) = setup();
+        let (repo, db_pool) = setup();
         let mut db_conn = db_pool.get().unwrap();
         test_transaction(&mut db_conn, |db_conn| {
             let new_flag = NewFlag {
-                flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+                flag: "USHIRTI010N54GII784SB4TQ2JHUJYA=".to_string(),
                 sploit: None,
                 team: None,
             };
@@ -99,7 +116,7 @@ mod tests {
 
     #[test]
     fn test_find_all() {
-        let (repo, mut db_pool) = setup();
+        let (repo, db_pool) = setup();
         let mut db_conn = db_pool.get().unwrap();
         test_transaction(&mut db_conn, |db_conn| {
             let new_flag = NewFlag {
@@ -128,11 +145,11 @@ mod tests {
     
     #[test]
     fn test_update() {
-        let (repo, mut db_pool) = setup();
+        let (repo, db_pool) = setup();
         let mut db_conn = db_pool.get().unwrap();
         test_transaction(&mut db_conn, |db_conn| {
             let new_flag = NewFlag {
-                flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+                flag: "USHIRTI010N54GII784SB4TQ2JHUJYX=".to_string(),
                 sploit: None,
                 team: None,
             };
@@ -157,11 +174,11 @@ mod tests {
     
     #[test]
     fn test_delete_by_id() {
-        let (repo, mut db_pool) = setup();
+        let (repo, db_pool) = setup();
         let mut db_conn = db_pool.get().unwrap();
         test_transaction(&mut db_conn, |db_conn| {
             let new_flag = NewFlag {
-                flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+                flag: "USHIRTI010N54GII784SB4TQ2JHUJYY=".to_string(),
                 sploit: None,
                 team: None,
             };
@@ -178,18 +195,18 @@ mod tests {
     
     #[test]
     fn test_get_limit() {
-        let (repo, mut db_pool) = setup();
+        let (repo, db_pool) = setup();
         let mut db_conn = db_pool.get().unwrap();
         test_transaction(&mut db_conn, |db_conn| {
             let new_flag = NewFlag {
-                flag: "USHIRTI010N54GII784SB4TQ2JHUJYC=".to_string(),
+                flag: "USHIRTI010N54GII784SB4TQ2JHUJYG=".to_string(),
                 sploit: None,
                 team: None,
             };
             let result = repo.save(db_conn, &new_flag);
             assert!(result.is_ok());
             let new_flag = NewFlag {
-                flag: "USHIRTI010N54GII784SB4TQ2JHUJYD=".to_string(),
+                flag: "USHIRTI010N54GII784SB4TQ2JHUJYS=".to_string(),
                 sploit: None,
                 team: None,
             };
