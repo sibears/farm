@@ -1,11 +1,8 @@
 extern crate diesel;
 
-use std::borrow::BorrowMut;
-
-use diesel::r2d2::{Pool, PooledConnection};
+use diesel::r2d2::Pool;
 use diesel::r2d2::ConnectionManager;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
-
+use diesel_migrations::{embed_migrations, EmbeddedMigrations};
 use crate::config::DbPool;
 
 

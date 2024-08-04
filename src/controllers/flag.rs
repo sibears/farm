@@ -1,11 +1,8 @@
 use std::sync::Arc;
-
 use regex::Regex;
 use rocket::{log::private::debug, response::status::Created, serde::json::Json, State};
-
 use crate::config::{DbFlagRepo, DbPool};
 use crate::controllers::errors::ApiError;
-use crate::db;
 use crate::middleware::metrics::FLAG_COUNTER;
 use crate::models::flag::FlagStatus;
 

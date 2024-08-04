@@ -1,6 +1,4 @@
-use crate::config::DbPool;
 use crate::config::DbPooled;
-use crate::db::connection::*;
 use crate::db::schema::flags as flags_schema;
 use crate::db::schema::flags::status;
 use crate::db::schema::flags::time;
