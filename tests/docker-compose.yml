@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:16.3-alpine
+    environment:
+      - POSTGRES_PASSWORD=sibears1cool
+      - POSTGRES_DB=flags
+    ports:
+      - "5432:5432"
+
+  farm_front:
+    image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
+    ports:
+      - "8776:80"
+
+  external_redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6378:6379"
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
+    volumes:
+      - ./vol/external_redis:/data
+
+  check_system:
+    build: ./check_system
+    ports:
+      - "8778:8778"
+    restart: always

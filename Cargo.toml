@@ -7,17 +7,14 @@ edition = "2018"
 
 [dependencies]
 rocket = {version = "=0.5.0-rc.3", features = ["json"]}
-diesel = { version = "1.4.4", features = ["uuidv07", "chrono", "postgres"] }
+diesel = { version = "2.2.0", features = ["chrono", "postgres", "r2d2"] }
 chrono = { version = "0.4.11", features = ["serde"] }
 dotenv = "0.15.0"
 serde = { version = "1.0", features = ["derive"] } 
 serde_json = { version = "1.0", features = ["preserve_order"] }
 uuid = { version = "0.8", features = ["serde", "v4"] }
-diesel_migrations = "1.4.0"
-r2d2 = "0.8.10"
-r2d2-diesel = "1.0.0"
+diesel_migrations = "2.2.0"
 rand = "0.8.5"
-rocket_okapi = { version = "=0.8.0-rc.3", features = ["swagger", "rapidoc"] }
 schemars = { version = "0.8.12", features = ["chrono"] }
 reqwest = { version = "0.11", features = ["json", "blocking"] } # reqwest with JSON parsing support
 tokio = { version = "1.31", features = ["full"] }
@@ -35,9 +32,9 @@ strum_macros = "0.26"
 openssl = { version = "0.10", features = ["vendored"] }
 thiserror = "1"
 
-[dependencies.rocket_sync_db_pools]
-version = "0.1.0-rc.1"
-features = ["diesel_postgres_pool"]
+#[dependencies.rocket_sync_db_pools]
+#version = "0.1.0-rc.1"
+#features = ["diesel_postgres_pool"]
 
 [profile.release]
 strip = true

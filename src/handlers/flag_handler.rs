@@ -2,7 +2,6 @@ use crate::config::DbFlagRepo;
 use crate::middleware::metrics::{update_metrics, FLAG_COUNTER};
 use crate::settings::ProtocolConfig;
 use crate::{
-    db::connection::{init_db, DbConn},
     models::flag::Flag,
     repos::flag::FlagRepo,
     settings::Config,
@@ -10,38 +9,18 @@ use crate::{
 use chrono::{Duration, Utc};
 use std::sync::Arc;
 use std::thread;
+use crate::db::connection::init_db;
 
 pub fn flag_handler(config: Arc<Config>) {
     let database_url = config.database.lock().unwrap().database_url.to_string();
-    let db_pool = init_db(database_url).db_conn_pool;
-    let master_conn;
-    match db_pool.get() {
-        Ok(x) => master_conn = x,
-        Err(err) => {
-            panic!("DbError: {:?}", err);
-        }
-    }
-    let conn = DbConn {
-        master: master_conn,
-    };
-    let flag_repo = DbFlagRepo::new(conn);
-    let flags = flag_repo.find_all().unwrap();
+    let db_pool = init_db(database_url);
+    let flag_repo = DbFlagRepo::new();
+    let mut db_conn = db_pool.get().unwrap();
+    let flags = flag_repo.find_all(&mut db_conn).unwrap();
     for item in flags {
         FLAG_COUNTER.with_label_values(&[&item.status]).inc();
     }
     loop {
-        let master_conn;
-        match db_pool.get() {
-            Ok(x) => master_conn = x,
-            Err(err) => {
-                error!("DbError: {:?}", err);
-                continue;
-            }
-        }
-        let conn = DbConn {
-            master: master_conn,
-        };
-        let flag_repo = DbFlagRepo::new(conn);
         let lock_ctf_config = config.ctf.lock().unwrap();
         let flag_lifetime = lock_ctf_config.flag_lifetime;
         let submit_period = lock_ctf_config.submit_period;
@@ -59,14 +38,14 @@ pub fn flag_handler(config: Arc<Config>) {
         let submit_period = Duration::seconds(submit_period as i64);
         let skip_time = submit_start_time.checked_sub_signed(flag_lifetime).unwrap();
 
-        flag_repo.skip_flags(skip_time).unwrap();
+        flag_repo.skip_flags(&mut db_conn, skip_time).unwrap();
 
-        let queue_flags = flag_repo.get_limit(submit_flag_limit as i64).unwrap();
+        let queue_flags = flag_repo.get_limit(&mut db_conn, submit_flag_limit as i64).unwrap();
         info!("Queue flags: {:?}", queue_flags);
         if queue_flags.len() > 0 {
             let updated_flags = submit_flags(queue_flags, protocol_config);
             if updated_flags.len() > 0 {
-                flag_repo.update_status(updated_flags.as_slice()).unwrap();
+                flag_repo.update_status(&mut db_conn, updated_flags.as_slice()).unwrap();
             }
             update_metrics(updated_flags.as_slice());
         }

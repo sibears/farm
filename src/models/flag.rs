@@ -1,5 +1,5 @@
 use chrono::naive::NaiveDateTime;
-use chrono::Utc;
+use chrono::{Local};
 
 use crate::db::schema::flags;
 use regex::Regex;
@@ -47,7 +47,7 @@ impl Ord for NewFlag {
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Insertable, Debug)]
-#[table_name = "flags"]
+#[diesel(table_name = flags)]
 pub struct SavedFlag {
     flag: String,
     sploit: Option<String>,
@@ -62,14 +62,14 @@ impl From<&NewFlag> for SavedFlag {
             flag: new_flag.flag.clone(),
             sploit: new_flag.sploit.clone(),
             team: new_flag.team.clone(),
-            time: Utc::now().naive_local(),
+            time: Local::now().naive_local(),
             status: FlagStatus::QUEUED.to_string().into(),
         }
     }
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, AsChangeset)]
-#[table_name = "flags"]
+#[diesel(table_name = flags)]
 pub struct UpdateFlag {
     pub id: i32,
     pub flag: String,
@@ -85,19 +85,18 @@ pub struct UpdateFlag {
 #[diesel(primary_key(id))]
 #[diesel(table_name = flags)]
 pub struct Flag {
-    #[diesel(deserialize_as = "i32")]
     pub id: i32,
     pub flag: String,
-    sploit: Option<String>,
-    team: Option<String>,
-    time: NaiveDateTime,
+    pub sploit: Option<String>,
+    pub team: Option<String>,
+    pub time: NaiveDateTime,
     pub status: String,
     pub checksystem_response: Option<String>,
 }
 
 impl Flag {
     pub fn update_time(&mut self) {
-        self.time = Utc::now().naive_local();
+        self.time = Local::now().naive_local();
     }
 
     pub fn match_regex(&self, regex: &Regex) -> bool {
