@@ -22,6 +22,6 @@ async fn main() {
     thread::spawn(move || {
         flag_handler(config_handler);
     });
-    watch_config_file(config.clone(), "./config.json");
+    // watch_config_file(config.clone(), "./config.json");
     let _ = rocket(config).launch().await;
 }

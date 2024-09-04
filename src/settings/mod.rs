@@ -1,22 +1,22 @@
 use dotenv::dotenv;
-use std::{collections::HashMap, env, sync::Mutex};
+use std::{clone, collections::HashMap, env, sync::Mutex};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::protocols::{ProtocolHandler, PROTOCOLS};
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
 pub struct DatabaseConfig {
     pub database_url: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
 pub struct AuthConfig {
     pub password: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
 pub struct ProtocolConfig {
     pub protocol: String,
     pub team_token: String,
@@ -30,7 +30,7 @@ impl ProtocolConfig {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
 pub struct CtfConfig {
     pub protocol: ProtocolConfig,
     pub flag_format: String,

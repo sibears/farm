@@ -16,9 +16,6 @@ pub type DbPooled = PooledConnection<ConnectionManager<DbConnection>>;
 
 pub fn get_config(path: &str) -> Config {
     let config = fs::read_to_string(path);
-    let config: Config = match config {
-        Ok(conf) => serde_json::from_str(&conf).unwrap(),
-        Err(_) => serde_json::from_str(&std::env::var("FARM_CONFIG").unwrap()).unwrap(),
-    };
+    let config: Config = serde_json::from_str(&config.unwrap()).unwrap();
     config
 }
