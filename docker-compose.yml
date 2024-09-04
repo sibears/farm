@@ -17,10 +17,10 @@ services:
       - ./config.json:/srv/config.json:ro
       - ./start_sploit.py:/srv/start_sploit.py:ro
 
-  sibears_farm_front:
-    image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
-    ports:
-      - "8776:80"
+  # sibears_farm_front:
+  #   image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
+  #   ports:
+  #     - "8776:80"
 
   postgres:
     image: postgres:16.3-alpine

@@ -1,3 +1,4 @@
+use futures::lock;
 use rocket::fs::NamedFile;
 use rocket::http::ContentType;
 use rocket::response::status::BadRequest;
@@ -19,13 +20,9 @@ pub fn get_config(config: &State<Arc<Config>>, _auth: BasicAuth) -> Json<&Config
 pub fn set_config(
     config: &State<Arc<Config>>,
     _auth: BasicAuth,
-    new_config: Json<RawConfig>,
+    new_config: Json<Config>,
 ) -> Json<&Config> {
-    let mut lock_auth = config.auth.lock().unwrap();
-    let mut lock_ctf = config.ctf.lock().unwrap();
 
-    lock_auth.copy(&new_config.auth);
-    lock_ctf.copy(&new_config.ctf);
     Json(config.deref())
 }
 

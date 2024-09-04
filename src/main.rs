@@ -1,4 +1,5 @@
 use sibears_farm::config::get_config;
+use sibears_farm::handlers::config_handler::watch_config_file;
 use sibears_farm::handlers::flag_handler::flag_handler;
 use sibears_farm::rocket_init::rocket;
 use std::sync::Arc;
@@ -21,5 +22,6 @@ async fn main() {
     thread::spawn(move || {
         flag_handler(config_handler);
     });
+    // watch_config_file(config.clone(), "./config.json");
     let _ = rocket(config).launch().await;
 }
