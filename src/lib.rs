@@ -15,3 +15,4 @@ pub mod protocols;
 pub mod repos;
 pub mod rocket_init;
 pub mod settings;
+pub mod domain;

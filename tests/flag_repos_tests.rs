@@ -12,7 +12,7 @@ use diesel_migrations::MigrationHarness;
 use test::{test_main_static, TestDescAndFn};
 
 pub fn custom_test_runner(tests: &[&TestDescAndFn]) {
-    let config = get_config("./config.json");
+    let config = get_config("./config_test.json");
     let url = config.database.lock().unwrap().database_url.to_string();
     let db_pool = init_db(url);
     let mut conn = db_pool.get().unwrap();
@@ -32,7 +32,7 @@ mod tests {
 
 
     fn setup() -> (PostgresFlagRepo, DbPool) {
-        let config = get_config("./config.json");
+        let config = get_config("./config_test.json");
         let url = config.database.lock().unwrap().database_url.to_string();
         let db_pool = init_db(url);
         (PostgresFlagRepo::new(), db_pool)
