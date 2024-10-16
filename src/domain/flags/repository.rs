@@ -1,7 +1,6 @@
-use chrono::NaiveDateTime;
 use crate::domain::flags::entities::{Flag, NewFlag};
 
-pub trait FlagRepo {
+pub trait FlagRepo: Send + Sync {
     type FlagRepoError;
 
     fn get(&self, id: i32) -> Result<Flag, Self::FlagRepoError>;

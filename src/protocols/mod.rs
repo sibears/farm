@@ -1,6 +1,6 @@
 use phf::phf_map;
 
-use crate::{models::flag::Flag, settings::ProtocolConfig};
+use crate::{domain::flags::entities::Flag, settings::ProtocolConfig};
 
 use self::ctf01d_http::Ctf01dHttp;
 use self::forcad_http::ForcAdHttp;

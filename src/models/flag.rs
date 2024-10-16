@@ -1,7 +1,6 @@
 use chrono::naive::NaiveDateTime;
 use chrono::{Local};
 
-use crate::db::schema::flags;
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::Deserialize;

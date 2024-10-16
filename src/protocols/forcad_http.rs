@@ -1,8 +1,8 @@
 use reqwest::header::HeaderMap;
-use std::{collections::HashMap, vec};
+use std::{collections::HashMap, str::FromStr, vec};
 
 use crate::{
-    models::flag::{Flag, FlagStatus},
+    domain::flags::entities::{Flag, FlagStatus},
     settings::ProtocolConfig,
 };
 use serde_json::Value;
@@ -99,7 +99,7 @@ impl ProtocolHandler for ForcAdHttp {
                     .iter()
                     .any(|word| lowercase_response.contains(word))
                 {
-                    old_flag.status = status.clone().into();
+                    old_flag.status = FlagStatus::from_str(status).unwrap();
                     break;
                 }
             }

@@ -32,6 +32,7 @@ strum_macros = "0.26"
 openssl = { version = "0.10", features = ["vendored"] }
 thiserror = "1"
 notify = "6.1.1"
+diesel-derive-enum = { version = "2.1.0", features = ["postgres"] }
 
 #[dependencies.rocket_sync_db_pools]
 #version = "0.1.0-rc.1"

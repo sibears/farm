@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::repos::flag::PostgresFlagRepo;
+use crate::infrastructure::flags::postgres_repository::PostgresFlagRepo;
 use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
 use diesel::pg;

@@ -1,11 +1,12 @@
 use super::ProtocolHandler;
-use crate::models::flag::{Flag, FlagStatus};
+use crate::domain::flags::entities::{Flag, FlagStatus};
 use crate::settings::ProtocolConfig;
 use log::info;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::io::{Read, Write};
 use std::net::TcpStream;
+use std::str::FromStr;
 
 pub struct RuCtfTcp;
 
@@ -69,7 +70,7 @@ impl ProtocolHandler for RuCtfTcp {
                                             .iter()
                                             .any(|word| msg.to_lowercase().contains(word))
                                         {
-                                            flag.status = status.clone().into();
+                                            flag.status = FlagStatus::from_str(&status.clone()).unwrap();
                                             break;
                                         }
                                     }
