@@ -14,3 +14,19 @@ pub enum FlagRepoError {
     #[error("Unknown error: {0}")]
     OtherError(String)
 }
+
+#[derive(Debug, thiserror::Error)]
+#[error("CustomError: {msg}, {status}")]
+pub struct FlagStatusError {
+    msg: String,
+    status: u16,
+}
+
+impl FlagStatusError {
+    pub fn not_found(msg: String) -> Self {
+        Self {
+            msg,
+            status: 404,
+        }
+    }
+}

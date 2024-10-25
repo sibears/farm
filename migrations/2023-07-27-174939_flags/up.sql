@@ -1,7 +1,7 @@
 -- Your SQL goes here
 set enable_parallel_hash=on;
 
-CREATE TYPE flag_status AS ENUM ('QUEUED', 'SKIPPED', 'ACCEPTED', 'REJECTED');
+CREATE TYPE flag_status AS ENUM ('queued', 'skipped', 'accepted', 'rejected');
 
 CREATE TABLE IF NOT EXISTS flags (
     id SERIAL PRIMARY KEY NOT NULL,
@@ -9,6 +9,6 @@ CREATE TABLE IF NOT EXISTS flags (
     sploit TEXT,
     team TEXT,
     time TIMESTAMP NOT NULL,
-    status flag_status NOT NULL,
+    status TEXT NOT NULL,
     checksystem_response TEXT
 );

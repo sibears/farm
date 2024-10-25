@@ -1,6 +1,6 @@
 use super::entities::Config;
 
-pub trait ConfigRepo {
+pub trait ConfigRepo: Send + Sync {
     type ConfigRepoError;
 
     fn get_config(&self) -> Result<Config, Self::ConfigRepoError>;
