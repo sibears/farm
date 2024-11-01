@@ -68,6 +68,7 @@ impl From<&NewFlag> for SaveFlag {
 #[diesel_enum(error_type = FlagStatusError)]
 pub enum FlagStatus {
     QUEUED,
+    WAITING,
     SKIPPED,
     ACCEPTED,
     REJECTED,

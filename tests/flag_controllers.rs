@@ -2,8 +2,6 @@
 mod tests {
     use rocket::local::asynchronous::Client;
     use rocket::uri;
-    use sibears_farm::config::get_config;
-    use sibears_farm::rocket_init::rocket;
     use std::sync::Arc;
     #[rocket::async_test]
     async fn ping() {

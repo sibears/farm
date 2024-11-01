@@ -7,7 +7,6 @@ use sibears_farm::presentation::config::controllers::get_config;
 use sibears_farm::{application::flags::service::FlagService, infrastructure::flags::postgres_repository::PostgresFlagRepo};
 use sibears_farm::presentation::flags::controllers::{get_flags, post_flag, post_flags}; 
 
-
 #[tokio::main]
 async fn main() {
     let config_repo = Arc::new(Mutex::new(FileConfigRepo::new("./config_test.json")));
