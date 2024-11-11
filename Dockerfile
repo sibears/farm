@@ -4,15 +4,18 @@ RUN apt-get update &&  \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /srv
 COPY . .
-RUN cargo build --release
+RUN --mount=type=cache,target=/var/cache/buildkit \
+    CARGO_HOME=/var/cache/buildkit/cargo \
+    CARGO_TARGET_DIR=/var/cache/buildkit/target \
+    cargo build --release --locked && \
+    cp /var/cache/buildkit/target/release/sibears_farm /sibears_farm
 
 FROM rust:1.78-slim-bullseye
 RUN apt-get update &&  \
     apt-get install -y openssl libsqlite3-dev libpq-dev &&  \
-    rm -rf /var/lib/apt/lists/* &&  \
-    cargo install diesel_cli --no-default-features --features postgres
+    rm -rf /var/lib/apt/lists/* 
 WORKDIR /srv
-COPY --from=builder /srv/target/release/sibears_farm ./
+COPY --from=builder /sibears_farm ./
 COPY ./entrypoint.sh ./entrypoint.sh
 COPY ./wait-for-it.sh ./wait-for-it.sh
 COPY ./migrations ./migrations

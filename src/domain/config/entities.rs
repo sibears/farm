@@ -26,6 +26,7 @@ pub struct CtfConfig {
     pub flag_format: String,
     pub flag_lifetime: u32,
     pub submit_period: u32,
+    pub waiting_period: u32,
     pub submit_flag_limit: u32,
     pub teams: HashMap<String, String>,
 }

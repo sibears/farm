@@ -9,12 +9,13 @@
 		"protocol": {
 			"protocol": "ructf_tcp",
 			"team_token": "team1",
-			"checksys_host": "10.0.13.37",
-			"checksys_port": 1337
+			"checksys_host": "localhost",
+			"checksys_port": 8778
 		},
 		"flag_format": "ENO[A-Za-z0-9+\/=]{48}",
 		"flag_lifetime": 300,
 		"submit_period": 5,
+		"waiting_period": 60,
 		"submit_flag_limit": 100,
 		"teams": {
 			"10.1.1.1": "10.1.1.1",

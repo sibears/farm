@@ -1,12 +1,11 @@
 use crate::domain::flags::entities::{Flag, FlagStatus, SaveFlag};
 use crate::domain::flags::repository::FlagRepo;
-use diesel::prelude::*;
+use crate::schema::flags::dsl::*;
 use diesel::pg::PgConnection;
+use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 use diesel_migrations::MigrationHarness;
 use std::sync::Mutex;
-use crate::schema::flags::dsl::*;
-
 
 use super::MIGRATIONS;
 
@@ -16,9 +15,10 @@ pub struct PostgresFlagRepo {
 
 impl PostgresFlagRepo {
     pub fn new(database_url: &str) -> Self {
-        let mut conn = PgConnection::establish(database_url)
-            .expect("Error connecting to the database");
-        conn.run_pending_migrations(MIGRATIONS).expect("Failed to run migrations");
+        let mut conn =
+            PgConnection::establish(database_url).expect("Error connecting to the database");
+        conn.run_pending_migrations(MIGRATIONS)
+            .expect("Failed to run migrations");
         PostgresFlagRepo {
             conn: Mutex::new(conn),
         }
@@ -38,14 +38,25 @@ impl FlagRepo for PostgresFlagRepo {
         flags.load::<Flag>(&mut *conn)
     }
 
+    fn get_all_by_status(&self, flag_status: FlagStatus) -> Result<Vec<Flag>, Self::FlagRepoError> {
+        let mut conn = self.conn.lock().unwrap();
+        flags
+            .filter(status.eq(flag_status))
+            .load::<Flag>(&mut *conn)
+    }
+
     fn save(&self, flag_arg: &SaveFlag) -> Result<usize, Self::FlagRepoError> {
         let mut conn = self.conn.lock().unwrap();
-        diesel::insert_into(flags).values(flag_arg).execute(&mut *conn)
+        diesel::insert_into(flags)
+            .values(flag_arg)
+            .execute(&mut *conn)
     }
 
     fn save_all(&self, flags_arg: &[SaveFlag]) -> Result<usize, Self::FlagRepoError> {
         let mut conn = self.conn.lock().unwrap();
-        diesel::insert_into(flags).values(flags_arg).execute(&mut *conn)
+        diesel::insert_into(flags)
+            .values(flags_arg)
+            .execute(&mut *conn)
     }
 
     fn delete(&self, id_arg: i32) -> Result<usize, Self::FlagRepoError> {
@@ -70,9 +81,12 @@ impl FlagRepo for PostgresFlagRepo {
         let mut conn = self.conn.lock().unwrap();
         let mut total_updated = 0;
         for next_flag in flags_arg {
-            total_updated += diesel::update(crate::schema::flags::dsl::flags.filter(crate::schema::flags::dsl::id.eq(next_flag.id)))
-                .set(next_flag)
-                .execute(&mut *conn)?;
+            total_updated += diesel::update(
+                crate::schema::flags::dsl::flags
+                    .filter(crate::schema::flags::dsl::id.eq(next_flag.id)),
+            )
+            .set(next_flag)
+            .execute(&mut *conn)?;
         }
         Ok(total_updated)
     }
@@ -87,9 +101,15 @@ impl FlagRepo for PostgresFlagRepo {
         flags.select(id).order(id.desc()).first::<i32>(&mut *conn)
     }
 
-    fn get_limit_by_status(&self, flag_status: FlagStatus, limit: u32) -> Result<Vec<Flag>, Self::FlagRepoError> {
+    fn get_limit_by_status(
+        &self,
+        flag_status: FlagStatus,
+        limit: u32,
+    ) -> Result<Vec<Flag>, Self::FlagRepoError> {
         let mut conn = self.conn.lock().unwrap();
-        flags.filter(status.eq(flag_status)).limit(limit.into()).load::<Flag>(&mut *conn)
+        flags
+            .filter(status.eq(flag_status))
+            .limit(limit.into())
+            .load::<Flag>(&mut *conn)
     }
-
 }

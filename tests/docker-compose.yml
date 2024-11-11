@@ -19,12 +19,27 @@ services:
     ports:
       - "6378:6379"
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
-    volumes:
-      - ./vol/external_redis:/data
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool" ]
+    # volumes:
+    #   - ./vol/external_redis:/data
 
   check_system:
     build: ./check_system
     ports:
       - "8778:8778"
     restart: always
+  # sibears_farm_back:
+  #   image: sibears_farm_back:1.0
+  #   build:
+  #     context: ../
+  #     args:
+  #       - DOCKER_BUILDKIT=1
+  #   ports:
+  #     - "8777:8777"
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   depends_on:
+  #     - postgres
+  #   volumes:
+  #     - ../config.json:/srv/config.json:ro
+  #     - ../start_sploit.py:/srv/start_sploit.py:ro

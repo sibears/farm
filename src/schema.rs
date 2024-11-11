@@ -6,7 +6,6 @@
 //     pub struct FlagStatus;
 // }
 
-
 diesel::table! {
     use diesel::sql_types::*;
 
@@ -17,7 +16,8 @@ diesel::table! {
         flag -> Text,
         sploit -> Nullable<Text>,
         team -> Nullable<Text>,
-        time -> Timestamp,
+        created_time -> Timestamp,
+        start_waiting_time -> Nullable<Timestamp>,
         status -> Text,
         checksystem_response -> Nullable<Text>,
     }

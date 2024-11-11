@@ -7,13 +7,19 @@ use std::sync::{Arc, Mutex};
 
 pub struct FlagService {
     repo: Arc<Mutex<dyn FlagRepo<FlagRepoError = diesel::result::Error>>>,
-    config_service: Arc<ConfigService>
+    config_service: Arc<ConfigService>,
 }
 
-// TODO: Заменить diesel::result::Error на свои ошибки 
+// TODO: Заменить diesel::result::Error на свои ошибки
 impl FlagService {
-    pub fn new(repo: Arc<Mutex<dyn FlagRepo<FlagRepoError = diesel::result::Error>>>, config_service: Arc<ConfigService>) -> Self {
-        FlagService { repo, config_service }
+    pub fn new(
+        repo: Arc<Mutex<dyn FlagRepo<FlagRepoError = diesel::result::Error>>>,
+        config_service: Arc<ConfigService>,
+    ) -> Self {
+        FlagService {
+            repo,
+            config_service,
+        }
     }
 
     pub fn get_flag(&self, id: i32) -> Result<Flag, diesel::result::Error> {
@@ -32,6 +38,11 @@ impl FlagService {
         repo.get_limit_by_status(FlagStatus::QUEUED, config.ctf.submit_flag_limit)
     }
 
+    pub fn get_waiting_flags(&self) -> Result<Vec<Flag>, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        repo.get_all_by_status(FlagStatus::WAITING)
+    }
+
     pub fn save_flag(&self, new_flag: &NewFlag) -> Result<usize, diesel::result::Error> {
         let repo = self.repo.lock().unwrap();
         let flag_regex = self.config_service.get_config().unwrap().ctf.flag_format;
@@ -48,7 +59,11 @@ impl FlagService {
         let repo = self.repo.lock().unwrap();
         let flag_regex = self.config_service.get_config().unwrap().ctf.flag_format;
         let re = Regex::new(&flag_regex).unwrap();
-        let save_flags: Vec<SaveFlag> = new_flags.iter().filter(|next_flag| next_flag.match_regex(&re)).map(SaveFlag::from).collect();
+        let save_flags: Vec<SaveFlag> = new_flags
+            .iter()
+            .filter(|next_flag| next_flag.match_regex(&re))
+            .map(SaveFlag::from)
+            .collect();
         repo.save_all(&save_flags)
     }
 
@@ -60,5 +75,10 @@ impl FlagService {
     pub fn update_flag(&self, flag: &Flag) -> Result<usize, diesel::result::Error> {
         let repo = self.repo.lock().unwrap();
         repo.update(flag)
+    }
+
+    pub fn update_all_flags(&self, flags: &[Flag]) -> Result<usize, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        repo.update_all(flags)
     }
 }

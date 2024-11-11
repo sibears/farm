@@ -3,24 +3,24 @@ version: '3'
 services:
   sibears_farm_back:
     image: sibears_farm_back:1.0
-    build: .
+    build:
+      context: ./
+      args:
+        - DOCKER_BUILDKIT=1
     ports:
       - "8777:8777"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
-    environment:
-      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
-      - ROCKET_LOG_LEVEL=normal
     volumes:
       - ./config.json:/srv/config.json:ro
       - ./start_sploit.py:/srv/start_sploit.py:ro
 
-  # sibears_farm_front:
-  #   image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
-  #   ports:
-  #     - "8776:80"
+  sibears_farm_front:
+    image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
+    ports:
+      - "8776:80"
 
   postgres:
     image: postgres:16.3-alpine
@@ -33,6 +33,6 @@ services:
     ports:
       - "6378:6379"
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool" ]
     volumes:
       - ./vol/external_redis:/data

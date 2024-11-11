@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS flags (
     flag TEXT NOT NULL,
     sploit TEXT,
     team TEXT,
-    time TIMESTAMP NOT NULL,
+    created_time TIMESTAMP NOT NULL,
+    start_waiting_time TIMESTAMP,
     status TEXT NOT NULL,
     checksystem_response TEXT
 );

@@ -1,14 +1,13 @@
 use chrono::NaiveDateTime;
+use diesel::sql_types::Text;
 use diesel_enum::DbEnum;
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
-use diesel::sql_types::Text;
 
-
-use crate::schema::flags;
 use crate::domain::flags::errors::FlagStatusError;
+use crate::schema::flags;
 
 #[derive(
     Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset, JsonSchema, Clone,
@@ -20,7 +19,8 @@ pub struct Flag {
     pub flag: String,
     pub sploit: Option<String>,
     pub team: Option<String>,
-    pub time: NaiveDateTime,
+    pub created_time: NaiveDateTime,
+    pub start_waiting_time: Option<NaiveDateTime>,
     pub status: FlagStatus,
     pub checksystem_response: Option<String>,
 }
@@ -44,7 +44,7 @@ pub struct SaveFlag {
     pub flag: String,
     pub sploit: Option<String>,
     pub team: Option<String>,
-    pub time: NaiveDateTime,
+    pub created_time: NaiveDateTime,
     pub status: FlagStatus,
     pub checksystem_response: Option<String>,
 }
@@ -55,14 +55,27 @@ impl From<&NewFlag> for SaveFlag {
             flag: new_flag.flag.clone(),
             sploit: new_flag.sploit.clone(),
             team: new_flag.team.clone(),
-            time: chrono::Utc::now().naive_utc(),
-            status: FlagStatus::default_status(), 
-            checksystem_response: None, 
+            created_time: chrono::Utc::now().naive_utc(),
+            status: FlagStatus::default_status(),
+            checksystem_response: None,
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, JsonSchema, Clone, Display, EnumIter, EnumString, AsExpression, FromSqlRow, DbEnum)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    JsonSchema,
+    Clone,
+    Display,
+    EnumIter,
+    EnumString,
+    AsExpression,
+    FromSqlRow,
+    DbEnum,
+)]
 #[diesel(sql_type = Text)]
 #[diesel_enum(error_fn = FlagStatusError::not_found)]
 #[diesel_enum(error_type = FlagStatusError)]
