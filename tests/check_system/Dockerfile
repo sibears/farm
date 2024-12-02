@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.13
 LABEL authors="x5113nc3x"
 
 WORKDIR /app
