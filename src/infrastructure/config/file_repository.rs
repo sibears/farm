@@ -34,7 +34,7 @@ impl ConfigRepo for FileConfigRepo {
         Ok(file_config)
     }
 
-    fn save_config(&self, config: &Config) -> Result<(), Self::ConfigRepoError> {
+    fn save_config(&mut self, config: &Config) -> Result<(), Self::ConfigRepoError> {
         let file_config = config.clone();
         self.write_config(&file_config)
     }

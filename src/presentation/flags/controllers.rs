@@ -6,7 +6,6 @@ use crate::{
     domain::flags::entities::{Flag, NewFlag},
 };
 
-/// Get all flags
 #[utoipa::path(
     get,
     path = "/api/flags",
@@ -20,7 +19,6 @@ pub fn get_flags(flag_service: &State<Arc<FlagService>>) -> Json<Vec<Flag>> {
     Json(res)
 }
 
-/// Add new flag
 #[utoipa::path(
     post,
     path = "/api/flag",
@@ -36,7 +34,6 @@ pub fn post_flag(flag_service: &State<Arc<FlagService>>, new_flag: Json<NewFlag>
     Json(res)
 }
 
-/// Add multiple flags
 #[utoipa::path(
     post,
     path = "/api/flags",
