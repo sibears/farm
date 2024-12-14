@@ -35,9 +35,37 @@ impl SendingService {
                 < chrono::Utc::now().naive_utc()
             {
                 item.status = FlagStatus::QUEUED;
+                item.start_waiting_time = None;
+                info!("Flag with id {} status changed to QUEUED", item.id);
             }
         });
+
         self.flag_service.update_all_flags(&flags)?;
+        Ok(())
+    }
+
+    pub fn update_flags_from_sending(&self, flags: &[Flag]) -> Result<(), diesel::result::Error> {
+        let original_flags = self.flag_service.get_full_flags(flags)?;
+
+        // Создаем вектор для обновленных флагов
+        let flags_to_update: Vec<Flag> = original_flags
+            .into_iter()
+            .filter(|f| f.status == FlagStatus::WAITING)
+            .map(|mut flag| {
+                if let Some(sending_flag) = flags.iter().find(|f| f.id == flag.id) {
+                    flag.status = sending_flag.status.clone();
+                    flag.checksystem_response = sending_flag.checksystem_response.clone();
+                    flag.start_waiting_time = None;
+                }
+                flag
+            })
+            .collect();
+
+        // Обновляем только если есть флаги для обновления
+        if !flags_to_update.is_empty() {
+            self.flag_service.update_all_flags(&flags_to_update)?;
+        }
+
         Ok(())
     }
 }

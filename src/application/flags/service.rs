@@ -67,6 +67,12 @@ impl FlagService {
         repo.save_all(&save_flags)
     }
 
+    pub fn get_full_flags(&self, flags: &[Flag]) -> Result<Vec<Flag>, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        let ids = flags.iter().map(|flag| flag.id).collect::<Vec<i32>>();
+        repo.get_all_by_id(&ids)
+    }
+
     pub fn delete_flag(&self, id: i32) -> Result<usize, diesel::result::Error> {
         let repo = self.repo.lock().unwrap();
         repo.delete(id)

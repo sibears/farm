@@ -112,4 +112,9 @@ impl FlagRepo for PostgresFlagRepo {
             .limit(limit.into())
             .load::<Flag>(&mut *conn)
     }
+
+    fn get_all_by_id(&self, ids: &[i32]) -> Result<Vec<Flag>, Self::FlagRepoError> {
+        let mut conn = self.conn.lock().unwrap();
+        flags.filter(id.eq_any(ids)).load::<Flag>(&mut *conn)
+    }
 }

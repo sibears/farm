@@ -5,12 +5,22 @@ use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
+use utoipa::ToSchema;
 
 use crate::domain::flags::errors::FlagStatusError;
 use crate::schema::flags;
 
 #[derive(
-    Queryable, Insertable, Serialize, Deserialize, PartialEq, Debug, AsChangeset, JsonSchema, Clone,
+    Queryable,
+    Insertable,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Debug,
+    AsChangeset,
+    JsonSchema,
+    Clone,
+    ToSchema,
 )]
 #[diesel(primary_key(id))]
 #[diesel(table_name = flags)]
@@ -19,13 +29,15 @@ pub struct Flag {
     pub flag: String,
     pub sploit: Option<String>,
     pub team: Option<String>,
+    #[schema(value_type = String, format = "date-time")]
     pub created_time: NaiveDateTime,
+    #[schema(value_type = Option<String>, format = "date-time")]
     pub start_waiting_time: Option<NaiveDateTime>,
     pub status: FlagStatus,
     pub checksystem_response: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone, ToSchema)]
 pub struct NewFlag {
     pub flag: String,
     pub sploit: Option<String>,
@@ -75,6 +87,7 @@ impl From<&NewFlag> for SaveFlag {
     AsExpression,
     FromSqlRow,
     DbEnum,
+    ToSchema,
 )]
 #[diesel(sql_type = Text)]
 #[diesel_enum(error_fn = FlagStatusError::not_found)]

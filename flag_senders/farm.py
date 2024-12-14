@@ -1,16 +1,16 @@
 from enum import Enum
+import logging
 import requests
-import sys
 
 from pydantic import BaseModel
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 
 
 def parse_datetime(date_string: str) -> datetime:
     if "." in date_string:
         main_part, microseconds = date_string.split(".")
-        microseconds = microseconds[:6]  # Усукаем до 6 цифр
+        microseconds = microseconds[:6]  # Усекаем до 6 цифр
         date_string = f"{main_part}.{microseconds}"
     return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%f")
 
@@ -68,20 +68,63 @@ class Config(BaseModel):
 class BackendClient:
     def __init__(self, host: str):
         self.host = host.rstrip("/")
+        self.protocol = self._determine_protocol()
+
+    def _determine_protocol(self) -> str:
+        if self.host.startswith("grpc://"):
+            return "grpc"
+        return "http"
 
     def get_config(self) -> Config:
-        url = f"{self.host}/api/config"
-        response = requests.get(url)
-        response.raise_for_status()
-        return Config(**response.json())
+        """
+        Получает конфигурацию из бэкенда.
 
-    def get_sending_flags(self):
-        url = f"{self.host}/api/get_sending_flags"
-        headers = {"Content-Type": "application/json"}
-        try:
-            response = requests.get(url, headers=headers)
+        @return: Конфигурация
+        """
+        if self.protocol == "http":
+            url = f"{self.host}/api/config"
+            response = requests.get(url)
             response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            print(f"Error sending flags: {e}", file=sys.stderr)
-            return None
+            return Config(**response.json())
+        else:
+            raise ValueError(f"Unsupported protocol: {self.protocol}")
+
+    def get_sending_flags(self) -> Optional[List[Flag]]:
+        """
+        Получает флаги для отправки в журейный сервер.
+
+        @return: Список флагов для отправки
+        """
+        if self.protocol == "http":
+            url = f"{self.host}/api/get_sending_flags"
+            headers = {"Content-Type": "application/json"}
+            try:
+                response = requests.get(url, headers=headers)
+                response.raise_for_status()
+                flags_data: List[Dict[str, Any]] = response.json()
+                return [Flag(**flag_data) for flag_data in flags_data]
+            except requests.RequestException as e:
+                logging.error(f"Ошибка отправки флагов: {e}")
+                return None
+        else:
+            raise ValueError(f"Unsupported protocol: {self.protocol}")
+
+    def update_all_flags(self, flags: List[Flag]) -> None:
+        """
+        Обновляет статусы нескольких флагов в бэкенде.
+
+        @param flags: Список флагов для обновления
+        """
+        if self.protocol == "http":
+            url = f"{self.host}/api/update_flags_from_sending"
+            headers = {"Content-Type": "application/json"}
+
+            try:
+                flags_data = [flag.model_dump(mode="json") for flag in flags]
+                response = requests.post(url, json=flags_data, headers=headers)
+                response.raise_for_status()
+            except requests.RequestException as e:
+                logging.error(f"Ошибка обновления флагов: {e}")
+                raise
+        else:
+            raise ValueError(f"Unsupported protocol: {self.protocol}")
