@@ -17,4 +17,3 @@ impl ConfigService {
         Ok(config)
     }
 }
-

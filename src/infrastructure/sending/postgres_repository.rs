@@ -10,6 +10,4 @@ pub struct PostgresSendingRepo {
 
 impl SendingDomain for PostgresSendingRepo {
     type SendingError = DieselError;
-
-    // pub fn get_flags(&self, limit: i32) -> Result<Vec<Flag>, Self::SendingError> {}
 }
