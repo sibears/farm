@@ -17,10 +17,10 @@ services:
       - ./config.json:/srv/config.json:ro
       - ./start_sploit.py:/srv/start_sploit.py:ro
 
-  sibears_farm_front:
-    image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
-    ports:
-      - "8776:80"
+  # sibears_farm_front:
+  #   image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
+  #   ports:
+  #     - "8776:80"
 
   postgres:
     image: postgres:16.3-alpine
@@ -36,3 +36,24 @@ services:
     command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool" ]
     volumes:
       - ./vol/external_redis:/data
+
+  save-swagger:
+    image: busybox
+    depends_on:
+      - sibears_farm_back
+    volumes:
+      - swagger-json:/spec
+    command: >
+      /bin/sh -c "sleep 15 && mkdir -p /spec && wget -O /spec/swagger.json http://sibears_farm_back:8777/openapi.json"
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    ports:
+      - 8780:8080
+    environment:
+      SWAGGER_JSON: /spec/swagger.json
+    volumes:
+      - swagger-json:/spec
+
+volumes:
+  swagger-json:

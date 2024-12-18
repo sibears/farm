@@ -6,6 +6,7 @@ extern crate diesel_enum;
 extern crate serde_json;
 
 pub mod application;
+pub mod cors;
 pub mod domain;
 pub mod infrastructure;
 pub mod presentation;
