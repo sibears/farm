@@ -1,9 +1,10 @@
+use chrono::offset;
 use rocket::{serde::json::Json, State};
 use std::sync::Arc;
 
 use crate::{
     application::flags::service::FlagService,
-    domain::flags::entities::{Flag, NewFlag},
+    domain::flags::entities::{Flag, FlagsQuery, NewFlag},
 };
 
 #[utoipa::path(
@@ -16,6 +17,12 @@ use crate::{
 #[get("/flags")]
 pub fn get_flags(flag_service: &State<Arc<FlagService>>) -> Json<Vec<Flag>> {
     let res = flag_service.get_all_flags().unwrap();
+    Json(res)
+}
+
+#[get("/flags?<flags_query..>")]
+pub fn get_flags_per_page(flag_service: &State<Arc<FlagService>>, flags_query: FlagsQuery) -> Json<Vec<Flag>> {
+    let res = flag_service.get_flags_per_page(flags_query.limit, flags_query.offset).unwrap();
     Json(res)
 }
 

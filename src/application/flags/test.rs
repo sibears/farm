@@ -132,6 +132,14 @@ impl FlagRepo for MockFlagRepo {
     ) -> Result<Vec<crate::domain::flags::entities::Flag>, Self::FlagRepoError> {
         todo!()
     }
+    
+    fn get_limit_with_offset(
+        &self,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<Flag>, Self::FlagRepoError> {
+        todo!()
+    }
 }
 
 #[cfg(test)]

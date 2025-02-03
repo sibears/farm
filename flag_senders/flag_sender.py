@@ -34,6 +34,7 @@ class FlagSender(ABC):
                 logging.debug("Получение флагов для отправки.")
 
                 if flags := self.backend_client.get_sending_flags():
+                    time.sleep(3) 
                     updated_flags = self.send_flags(flags)
                     self.backend_client.update_all_flags(updated_flags)
 

@@ -15,6 +15,11 @@ pub trait FlagRepo: Send + Sync {
     fn update(&self, flag: &Flag) -> Result<usize, Self::FlagRepoError>;
     fn update_all(&self, flags: &[Flag]) -> Result<usize, Self::FlagRepoError>;
     fn get_limit(&self, limit: u32) -> Result<Vec<Flag>, Self::FlagRepoError>;
+    fn get_limit_with_offset(
+        &self,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<Flag>, Self::FlagRepoError>;
     fn get_last_id(&self) -> Result<i32, Self::FlagRepoError>;
     fn get_limit_by_status(
         &self,

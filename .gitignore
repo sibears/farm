@@ -21,3 +21,7 @@ env/
 *.swo
 
 .DS_Store
+
+/front/.DS_Store
+/front/build
+/front/node_modules

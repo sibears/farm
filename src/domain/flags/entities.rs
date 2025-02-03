@@ -6,9 +6,19 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
 use utoipa::ToSchema;
+use rocket::form::FromForm;
+
 
 use crate::domain::flags::errors::FlagStatusError;
 use crate::schema::flags;
+
+#[derive(FromForm)]
+pub struct FlagsQuery {
+    #[field(default = 20)]
+    pub limit: u32,
+    #[field(default = 0)]
+    pub offset: u32,
+}
 
 #[derive(
     Queryable,

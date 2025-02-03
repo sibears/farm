@@ -32,6 +32,15 @@ impl FlagService {
         repo.get_all()
     }
 
+    pub fn get_flags_per_page(
+        &self,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<Flag>, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        repo.get_limit_with_offset(limit, offset)
+    }
+
     pub fn next_send_flags(&self) -> Result<Vec<Flag>, diesel::result::Error> {
         let repo = self.repo.lock().unwrap();
         let config = self.config_service.get_config().unwrap();
