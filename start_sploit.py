@@ -293,7 +293,7 @@ def get_config(args):
     req = Request(urljoin(args.server_url, "/api/config"))
     logging.info(f"url = {req.full_url}")
     if args.token is not None:
-        req.add_header("Authorization", args.token)
+        req.add_header("X-Authorization", args.token)
     with urlopen(req, timeout=SERVER_TIMEOUT) as conn:
         if conn.status != 200:
             raise APIException(conn.read())
@@ -315,7 +315,7 @@ def post_flags(args, flags):
     req = Request(urljoin(args.server_url, "/api/flags"))
     req.add_header("Content-Type", "application/json")
     if args.token is not None:
-        req.add_header("Authorization", args.token)
+        req.add_header("X-Authorization", args.token)
     with urlopen(req, data=json.dumps(data).encode(), timeout=SERVER_TIMEOUT) as conn:
         if conn.status != 201:
             raise APIException(conn.read())

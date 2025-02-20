@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use rocket::{serde::json::Json, State};
 
-use crate::{application::config::service::ConfigService, domain::config::entities::Config};
+use crate::{application::config::service::ConfigService, domain::config::entities::Config, presentation::auth::guard::AuthGuard};
 
 /// Get config
 #[utoipa::path(
@@ -13,7 +13,7 @@ use crate::{application::config::service::ConfigService, domain::config::entitie
     )
 )]
 #[get("/config")]
-pub fn get_config(config_service: &State<Arc<ConfigService>>) -> Json<Config> {
+pub fn get_config(_auth: AuthGuard, config_service: &State<Arc<ConfigService>>) -> Json<Config> {
     let config = config_service.get_config().unwrap();
     Json(config)
 }

@@ -13,7 +13,7 @@ def main():
     args = parse_args()
 
     if args.protocol == "ructf_tcp":
-        sender = RuCtfTcpFlagSender(args.host)
+        sender = RuCtfTcpFlagSender(args.host, args.token)
     else:
         raise ValueError(f"Unsupported farm protocol: {args.protocol}")
 

@@ -66,14 +66,36 @@ class Config(BaseModel):
 
 
 class BackendClient:
-    def __init__(self, host: str):
+    def __init__(self, host: str, token: str):
         self.host = host.rstrip("/")
         self.protocol = self._determine_protocol()
+        if self._check_auth(token):
+            self.auth_token = token
+        else:
+            raise ValueError("Неверный токен")
 
     def _determine_protocol(self) -> str:
         if self.host.startswith("grpc://"):
             return "grpc"
         return "http"
+    
+    def _check_auth(self, password: str) -> bool:
+        if self.protocol == "http":
+            url = f"{self.host}/api/check_auth"
+            headers = {"Content-Type": "application/json", "Accept": "*/*"}
+            try:
+                payload = {"passwd": password}
+                response = requests.post(url, json=payload, headers=headers)
+                response.raise_for_status()
+                if response.json() == "ok":
+                    return True
+                else:
+                    return False
+            except requests.RequestException as e:
+                logging.error(f"Ошибка аутентификации: {e}")
+                raise
+        else:
+            raise ValueError(f"Unsupported protocol: {self.protocol}")
 
     def get_config(self) -> Config:
         """
@@ -83,7 +105,10 @@ class BackendClient:
         """
         if self.protocol == "http":
             url = f"{self.host}/api/config"
-            response = requests.get(url)
+            headers = {}
+            if self.auth_token:
+                headers["X-Authorization"] = self.auth_token
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             return Config(**response.json())
         else:
@@ -98,6 +123,8 @@ class BackendClient:
         if self.protocol == "http":
             url = f"{self.host}/api/get_sending_flags"
             headers = {"Content-Type": "application/json"}
+            if self.auth_token:
+                headers["X-Authorization"] = self.auth_token
             try:
                 response = requests.get(url, headers=headers)
                 response.raise_for_status()
@@ -118,6 +145,8 @@ class BackendClient:
         if self.protocol == "http":
             url = f"{self.host}/api/update_flags_from_sending"
             headers = {"Content-Type": "application/json"}
+            if self.auth_token:
+                headers["X-Authorization"] = self.auth_token
 
             try:
                 flags_data = [flag.model_dump(mode="json") for flag in flags]

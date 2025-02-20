@@ -29,22 +29,23 @@ const Statistic = ({ auth, setAuth }) => {
         }
   
         try {
-          const res = await fetchWithAuth(`http://${config.api_url}/api/statistic/status`, {}, cookie);
+          const res = await fetchWithAuth(`http://${config.api_url}/api/flags/stats`, {}, cookie);
           const data = await res.json();
-          setFlagsData(data);
+  
+          // Если data уже массив, оставляем его, иначе преобразуем в массив пар [ключ, значение]
+          const statsArray = Array.isArray(data) ? data : Object.entries(data);
+          setFlagsData(statsArray);
         } catch (error) {
-          console.error('Error fetching flags data:', error);
+          console.error("Error fetching flags data:", error);
         }
       };
   
       fetchData();
     }, [auth, cookie, navigate]);
   
-    const data = flagsData;
-    const statusCount = data;
-    console.log(statusCount);
-  
-    const chartData = Object.entries(statusCount).map(([status, count]) => ({
+    // Преобразуем flagsData в массив, если вдруг он не массив
+    const statsArray = Array.isArray(flagsData) ? flagsData : Object.entries(flagsData);
+    const chartData = statsArray.map(([status, count]) => ({
       id: status,
       label: status,
       value: count,

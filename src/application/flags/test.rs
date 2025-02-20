@@ -133,11 +133,27 @@ impl FlagRepo for MockFlagRepo {
         todo!()
     }
     
-    fn get_limit_with_offset(
+    fn get_limit_with_offset_from_start(
         &self,
         limit: u32,
         offset: u32,
     ) -> Result<Vec<Flag>, Self::FlagRepoError> {
+        todo!()
+    }
+        
+    fn get_limit_with_offset_from_end(
+        &self,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<Flag>, Self::FlagRepoError> {
+        todo!()
+    }
+    
+    fn get_total_flags(&self) -> Result<i64, Self::FlagRepoError> {
+        todo!()
+    }
+    
+    fn get_total_flags_by_status(&self, flag_status: FlagStatus) -> Result<i64, Self::FlagRepoError> {
         todo!()
     }
 }

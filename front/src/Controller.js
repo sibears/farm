@@ -8,15 +8,12 @@ import {
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import themes from "./theme";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import NavBar from "./NavBar";
 import { Route, Routes, BrowserRouter as Router} from "react-router-dom";
 import { useCookies } from 'react-cookie'
 import { useEffect } from "react";
 import config from "./config";
 import LoadingPage from "./LoadingPage";
-import ConfigPage from "./ConfigPage";
-import JsonConfigPage from "./JsonConfigPage";
 import Auth from "./Auth";
 
 
@@ -78,8 +75,6 @@ const Controller = () => {
             <Routes>
               <Route path="/" exact element={<App  auth={auth} setAuth={setAuth} />} />
               <Route path="/stat" element={<Statistic auth={auth} setAuth={setAuth}/>} />
-              {/* <Route path="/config" element={<ConfigPage auth={auth} setAuth={setAuth}/>} />
-              <Route path="/json-config" element={<JsonConfigPage auth={auth} setAuth={setAuth} />} /> */}
               <Route path="/auth" element={<Auth setAuth={setAuth} />} />
             </Routes>
             )

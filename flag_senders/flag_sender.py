@@ -7,8 +7,8 @@ from typing import List
 
 
 class FlagSender(ABC):
-    def __init__(self, backend_url: str):
-        self.backend_client = BackendClient(backend_url)
+    def __init__(self, backend_url: str, token: str):
+        self.backend_client = BackendClient(backend_url, token)
         self.config = self.backend_client.get_config()
         self.submit_period = self.config.ctf.submit_period
 
@@ -57,6 +57,8 @@ def parse_args():
         required=True,
         help="Backend server host URL (e.g., http://localhost:8000)",
     )
+    parser.add_argument("--token", required=True, help="Пароль от фермы")
+
     parser.add_argument(
         "--protocol",
         required=True,

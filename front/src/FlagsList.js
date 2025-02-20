@@ -42,50 +42,56 @@ const FlagsList = ({ auth, setAuth }) => {
         setLoading(true);
         try {
             const offset = page * pageSize;
-            const response = await fetchWithAuth(
-                `http://${config.api_url}/api/flags?limit=${pageSize}&offset=${offset}`,
-                {},
-                cookie
+            
+            // Получить флаги для текущей страницы
+            const flagsResponse = await fetchWithAuth(
+              `http://${config.api_url}/api/flags?limit=${pageSize}&offset=${offset}`,
+              {},
+              cookie
             );
-
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status} ${response.statusText}`);
+            if (!flagsResponse.ok) {
+              throw new Error(
+                `Error fetching flags: ${flagsResponse.status} ${flagsResponse.statusText}`
+              );
             }
-            const data = await response.json();
-            console.log("data: ", data);
-            // data.forEach(flag => {
-            //     let tmp = new Date(flag.time);
-            //     flag.time = tmp.toLocaleTimeString('it-IT');
-            // });
-            if (data && data.length !== undefined) {
-                setFlagsData(data);
-                setTotalRows(data.length);
-              } else {
-                // fallback, если структура не соответствует
-                setFlagsData(Array.isArray(data) ? data : []);
-                setTotalRows(Array.isArray(data) ? data.length : 0);
-              }
-        } catch (error) {
-            console.error('Error fetching flags data:', error);
-        } finally {
+            const flags = await flagsResponse.json();
+            setFlagsData(flags);
+        
+            // Получить общее число флагов
+            const totalResponse = await fetchWithAuth(
+              `http://${config.api_url}/api/flags/total`,
+              {},
+              cookie
+            );
+            if (!totalResponse.ok) {
+              throw new Error(
+                `Error fetching total flags count: ${totalResponse.status} ${totalResponse.statusText}`
+              );
+            }
+            // Предполагается, что /api/flags/total возвращает объект вида { total: число }
+            const totalData = await totalResponse.json();
+            setTotalRows(totalData);
+          } catch (error) {
+            console.error("Error fetching flags data:", error);
+          } finally {
             setLoading(false);
-        }
+          }
     };
 
     useEffect(() => {
         fetchFlags(paginationModel.page, paginationModel.pageSize);
-    }, [paginationModel]);
+    }, [paginationModel, auth]);
 
-    useInterval(async () => {
-        if (loading) return;
-        fetchFlags(paginationModel.page, paginationModel.pageSize);
-    }, 5000);
+    // useInterval(async () => {
+    //     if (loading) return;
+    //     fetchFlags(paginationModel.page, paginationModel.pageSize);
+    // }, 5000);
 
     return (
         <DataGrid
             rows={flagsData}
+            rowCount={totalRows ?? 0} // если totalRows undefined, то используется 0
             columns={columns}
-            rowCount={totalRows}
             loading={loading}
             pageSizeOptions={[10, 20, 50]}
             paginationModel={paginationModel}

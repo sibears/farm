@@ -32,13 +32,22 @@ impl FlagService {
         repo.get_all()
     }
 
-    pub fn get_flags_per_page(
+    pub fn get_flags_per_page_from_start(
         &self,
         limit: u32,
         offset: u32,
     ) -> Result<Vec<Flag>, diesel::result::Error> {
         let repo = self.repo.lock().unwrap();
-        repo.get_limit_with_offset(limit, offset)
+        repo.get_limit_with_offset_from_start(limit, offset)
+    }
+
+    pub fn get_flags_per_page_from_end(
+        &self,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<Flag>, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        repo.get_limit_with_offset_from_end(limit, offset)
     }
 
     pub fn next_send_flags(&self) -> Result<Vec<Flag>, diesel::result::Error> {
@@ -95,5 +104,18 @@ impl FlagService {
     pub fn update_all_flags(&self, flags: &[Flag]) -> Result<usize, diesel::result::Error> {
         let repo = self.repo.lock().unwrap();
         repo.update_all(flags)
+    }
+
+    pub fn get_total_flags(&self) -> Result<i64, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        repo.get_total_flags()
+    }
+
+    pub fn get_total_flags_by_status(
+        &self,
+        flag_status: FlagStatus,
+    ) -> Result<i64, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        repo.get_total_flags_by_status(flag_status)
     }
 }

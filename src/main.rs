@@ -2,13 +2,15 @@ use std::sync::{Arc, Mutex};
 
 use rocket::serde::json::Json;
 use rocket::{get, routes};
+use sibears_farm::application::auth::service::AuthService;
 use sibears_farm::application::config::service::ConfigService;
 use sibears_farm::application::sending::service::SendingService;
 use sibears_farm::cors::CORS;
+use sibears_farm::domain::auth::entities::AuthEntity;
 use sibears_farm::infrastructure::config::file_repository::FileConfigRepo;
 use sibears_farm::presentation::api_docs::ApiDoc;
 use sibears_farm::presentation::config::controllers::get_config;
-use sibears_farm::presentation::flags::controllers::{get_flags, get_flags_per_page, post_flag, post_flags};
+use sibears_farm::presentation::flags::controllers::{get_flags, get_flags_per_page, get_stats_flags_by_status, get_total_flags, post_flag, post_flags};
 use sibears_farm::presentation::auth::controllers::check_auth;
 use sibears_farm::presentation::sending::controllers::{
     force_update_waiting_flags, get_flags_for_senders, update_flags_from_sending,
@@ -32,11 +34,15 @@ async fn main() {
 
     let sending_service = SendingService::new(flag_service.clone(), config_service.clone());
 
+    let auth_entity = AuthEntity::new(config.auth.password.clone());
+    let auth_service = Arc::new(AuthService::new(auth_entity));
+
     rocket::build()
         .attach(CORS)
         .manage(config_service)
         .manage(flag_service)
         .manage(sending_service)
+        .manage(auth_service)
         .mount(
             "/api",
             routes![
@@ -49,6 +55,8 @@ async fn main() {
                 update_flags_from_sending,
                 check_auth,
                 get_flags_per_page,
+                get_total_flags,
+                get_stats_flags_by_status,
             ],
         )
         .mount("/api-docs", routes![serve_api_docs])

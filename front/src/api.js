@@ -16,7 +16,7 @@ export const useApi = () => {
       ...options,
       headers: {
         ...options.headers,
-        'Authorization': cookie.creds,
+        'X-Authorization': cookie.creds,
       },
     };
 
