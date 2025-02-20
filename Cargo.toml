@@ -19,7 +19,6 @@ regex = "1.9.3"
 log = "0.4.19"
 config = { version = "0.13.3", features = [] }
 prometheus = "0.13.3"
-rocket_prometheus = "0.10.0-rc.3"
 strum = "0.26"
 strum_macros = "0.26"
 openssl = { version = "0.10", features = ["vendored"] }
@@ -31,6 +30,7 @@ diesel-enum = "0.2.1"
 schemars = { version = "0.8.21", features = ["chrono"] }
 utoipa = { version = "5.2.0" }
 rocket_cors = "0.6.0"
+rocket_prometheus = "=0.10.1"
 
 
 [profile.release]

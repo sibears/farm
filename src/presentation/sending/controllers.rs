@@ -1,5 +1,10 @@
-use crate::{application::sending::service::SendingService, presentation::auth::guard::AuthGuard};
+use std::sync::Arc;
+
+use crate::application::flags::service::FlagService;
+use crate::application::metrics;
+use crate::application::metrics::service::FlagMetricsService;
 use crate::domain::flags::entities::Flag;
+use crate::{application::sending::service::SendingService, presentation::auth::guard::AuthGuard};
 use rocket::{serde::json::Json, State};
 
 /// Get flags for senders
@@ -11,7 +16,10 @@ use rocket::{serde::json::Json, State};
     )
 )]
 #[get("/get_sending_flags")]
-pub fn get_flags_for_senders(_auth: AuthGuard, sending_service: &State<SendingService>) -> Json<Vec<Flag>> {
+pub fn get_flags_for_senders(
+    _auth: AuthGuard,
+    sending_service: &State<SendingService>,
+) -> Json<Vec<Flag>> {
     sending_service.update_waiting_flags().unwrap();
     let res = sending_service.get_flags_for_senders().unwrap();
     debug!("Sending flags: {:?}", res);
@@ -27,9 +35,15 @@ pub fn get_flags_for_senders(_auth: AuthGuard, sending_service: &State<SendingSe
     )
 )]
 #[post("/force_update_waiting_flags")]
-pub fn force_update_waiting_flags(_auth: AuthGuard, sending_service: &State<SendingService>) {
+pub fn force_update_waiting_flags(
+    _auth: AuthGuard,
+    sending_service: &State<SendingService>,
+    flag_service: &State<Arc<FlagService>>,
+    metrics_service: &State<FlagMetricsService>,
+) {
     debug!("Force updating waiting flags");
     sending_service.update_waiting_flags().unwrap();
+    metrics_service.update_flags_count(&flag_service);
 }
 
 /// Update flags from sending
@@ -42,7 +56,14 @@ pub fn force_update_waiting_flags(_auth: AuthGuard, sending_service: &State<Send
     )
 )]
 #[post("/update_flags_from_sending", data = "<flags>")]
-pub fn update_flags_from_sending(_auth: AuthGuard, sending_service: &State<SendingService>, flags: Json<Vec<Flag>>) {
+pub fn update_flags_from_sending(
+    _auth: AuthGuard,
+    sending_service: &State<SendingService>,
+    flag_service: &State<Arc<FlagService>>,
+    metrics_service: &State<FlagMetricsService>,
+    flags: Json<Vec<Flag>>,
+) {
     debug!("Updating flags from sending: {:?}", flags);
     sending_service.update_flags_from_sending(&flags).unwrap();
+    metrics_service.update_flags_count(&flag_service);
 }

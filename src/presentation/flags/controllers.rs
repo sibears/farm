@@ -1,11 +1,15 @@
 use chrono::offset;
 use rocket::{serde::json::Json, State};
-use strum::IntoEnumIterator;
 use std::sync::Arc;
+use strum::IntoEnumIterator;
 
 use crate::{
-    application::flags::service::FlagService,
-    domain::flags::entities::{Flag, FlagStatus, FlagsQuery, NewFlag}, presentation::auth::guard::AuthGuard,
+    application::{
+        flags::service::FlagService,
+        metrics::{self, service::FlagMetricsService},
+    },
+    domain::flags::entities::{Flag, FlagStatus, FlagsQuery, NewFlag},
+    presentation::auth::guard::AuthGuard,
 };
 
 #[utoipa::path(
@@ -22,8 +26,14 @@ pub fn get_flags(_auth: AuthGuard, flag_service: &State<Arc<FlagService>>) -> Js
 }
 
 #[get("/flags?<flags_query..>")]
-pub fn get_flags_per_page(_auth: AuthGuard, flag_service: &State<Arc<FlagService>>, flags_query: FlagsQuery) -> Json<Vec<Flag>> {
-    let res = flag_service.get_flags_per_page_from_end(flags_query.limit, flags_query.offset).unwrap();
+pub fn get_flags_per_page(
+    _auth: AuthGuard,
+    flag_service: &State<Arc<FlagService>>,
+    flags_query: FlagsQuery,
+) -> Json<Vec<Flag>> {
+    let res = flag_service
+        .get_flags_per_page_from_end(flags_query.limit, flags_query.offset)
+        .unwrap();
     Json(res)
 }
 
@@ -42,9 +52,15 @@ pub fn get_total_flags(_auth: AuthGuard, flag_service: &State<Arc<FlagService>>)
     )
 )]
 #[post("/flag", data = "<new_flag>")]
-pub fn post_flag(_auth: AuthGuard, flag_service: &State<Arc<FlagService>>, new_flag: Json<NewFlag>) -> Json<usize> {
+pub fn post_flag(
+    _auth: AuthGuard,
+    flag_service: &State<Arc<FlagService>>,
+    metrics_service: &State<FlagMetricsService>,
+    new_flag: Json<NewFlag>,
+) -> Json<usize> {
     info!("post_flag: {:?}", &new_flag);
     let res = flag_service.save_flag(&new_flag.into_inner()).unwrap();
+    metrics_service.update_flags_count(flag_service);
     Json(res)
 }
 
@@ -60,10 +76,12 @@ pub fn post_flag(_auth: AuthGuard, flag_service: &State<Arc<FlagService>>, new_f
 pub fn post_flags(
     _auth: AuthGuard,
     flag_service: &State<Arc<FlagService>>,
+    metrics_service: &State<FlagMetricsService>,
     new_flags: Json<Vec<NewFlag>>,
 ) -> Json<usize> {
     info!("post_flags: {:?}", &new_flags);
     let res = flag_service.save_all_flags(&new_flags).unwrap();
+    metrics_service.update_flags_count(flag_service);
     Json(res)
 }
 
@@ -84,7 +102,9 @@ pub fn get_stats_flags_by_status(
     // Iterate through all possible flag statuses.
     for status in FlagStatus::iter() {
         // Query the total flags for the given status. If query fails, use 0.
-        let count = flag_service.get_total_flags_by_status(status.clone()).unwrap_or(0);
+        let count = flag_service
+            .get_total_flags_by_status(status.clone())
+            .unwrap_or(0);
         stats.push((status.to_string(), count));
     }
 

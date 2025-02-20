@@ -2,8 +2,10 @@ use std::sync::{Arc, Mutex};
 
 use rocket::serde::json::Json;
 use rocket::{get, routes};
+use rocket_prometheus::PrometheusMetrics;
 use sibears_farm::application::auth::service::AuthService;
 use sibears_farm::application::config::service::ConfigService;
+use sibears_farm::application::metrics::service::FlagMetricsService;
 use sibears_farm::application::sending::service::SendingService;
 use sibears_farm::cors::CORS;
 use sibears_farm::domain::auth::entities::AuthEntity;
@@ -37,8 +39,14 @@ async fn main() {
     let auth_entity = AuthEntity::new(config.auth.password.clone());
     let auth_service = Arc::new(AuthService::new(auth_entity));
 
+    let prometheus = PrometheusMetrics::new();
+    let metrics_service = FlagMetricsService::new(&prometheus);
+    metrics_service.update_flags_count(&flag_service);
+
     rocket::build()
         .attach(CORS)
+        .attach(prometheus.clone())
+        .manage(metrics_service)
         .manage(config_service)
         .manage(flag_service)
         .manage(sending_service)
@@ -60,6 +68,7 @@ async fn main() {
             ],
         )
         .mount("/api-docs", routes![serve_api_docs])
+        .mount("/metrics", prometheus)
         .launch()
         .await
         .unwrap();
