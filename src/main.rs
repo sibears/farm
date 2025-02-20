@@ -8,7 +8,7 @@ use sibears_farm::cors::CORS;
 use sibears_farm::infrastructure::config::file_repository::FileConfigRepo;
 use sibears_farm::presentation::api_docs::ApiDoc;
 use sibears_farm::presentation::config::controllers::get_config;
-use sibears_farm::presentation::flags::controllers::{get_flags, get_flags_per_page, post_flag, post_flags};
+use sibears_farm::presentation::flags::controllers::{get_flags, get_flags_count, post_flag, post_flags};
 use sibears_farm::presentation::auth::controllers::check_auth;
 use sibears_farm::presentation::sending::controllers::{
     force_update_waiting_flags, get_flags_for_senders, update_flags_from_sending,
@@ -21,7 +21,7 @@ use utoipa::OpenApi;
 
 #[tokio::main]
 async fn main() {
-    let config_repo = Arc::new(Mutex::new(FileConfigRepo::new("./config_test.json")));
+    let config_repo = Arc::new(Mutex::new(FileConfigRepo::new("./config.json")));
     let config_service = Arc::new(ConfigService::new(config_repo));
 
     let config = config_service.get_config().unwrap();
@@ -48,7 +48,7 @@ async fn main() {
                 force_update_waiting_flags,
                 update_flags_from_sending,
                 check_auth,
-                get_flags_per_page,
+                get_flags_count,
             ],
         )
         .mount("/api-docs", routes![serve_api_docs])

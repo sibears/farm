@@ -27,4 +27,5 @@ pub trait FlagRepo: Send + Sync {
         limit: u32,
     ) -> Result<Vec<Flag>, Self::FlagRepoError>;
     fn get_all_by_id(&self, ids: &[i32]) -> Result<Vec<Flag>, Self::FlagRepoError>;
+    fn count_all(&self) -> Result<i64, Self::FlagRepoError>;
 }

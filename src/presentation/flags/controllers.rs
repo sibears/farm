@@ -1,11 +1,18 @@
 use chrono::offset;
 use rocket::{serde::json::Json, State};
 use std::sync::Arc;
+use serde::{Serialize, Deserialize};
 
 use crate::{
     application::flags::service::FlagService,
     domain::flags::entities::{Flag, FlagsQuery, NewFlag},
 };
+
+#[derive(Serialize)]
+pub struct FlagsResponse {
+    pub total: i64,
+    pub flags: Vec<Flag>,
+}
 
 #[utoipa::path(
     get,
@@ -14,16 +21,30 @@ use crate::{
         (status = 200, description = "List all flags", body = Vec<Flag>)
     )
 )]
-#[get("/flags")]
-pub fn get_flags(flag_service: &State<Arc<FlagService>>) -> Json<Vec<Flag>> {
-    let res = flag_service.get_all_flags().unwrap();
-    Json(res)
-}
 
 #[get("/flags?<flags_query..>")]
-pub fn get_flags_per_page(flag_service: &State<Arc<FlagService>>, flags_query: FlagsQuery) -> Json<Vec<Flag>> {
-    let res = flag_service.get_flags_per_page(flags_query.limit, flags_query.offset).unwrap();
-    Json(res)
+pub fn get_flags(flag_service: &State<Arc<FlagService>>, flags_query: Option<FlagsQuery>) -> Json<FlagsResponse> {
+    let flags = match flags_query {
+        Some(query) => {
+            flag_service.get_flags_per_page(query.limit, query.offset).unwrap()
+        }
+        None => {
+            flag_service.get_all_flags().unwrap()
+        }
+    };
+    
+    let total = flag_service.get_total_flags_count().unwrap();
+    
+    Json(FlagsResponse {
+        total,
+        flags,
+    })
+}
+
+#[get("/flags/count")]
+pub fn get_flags_count(flag_service: &State<Arc<FlagService>>) -> Json<i64> {
+    let count = flag_service.get_total_flags_count().unwrap();
+    Json(count)
 }
 
 #[utoipa::path(

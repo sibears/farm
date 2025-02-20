@@ -103,6 +103,7 @@ impl FlagRepo for PostgresFlagRepo {
     ) -> Result<Vec<Flag>, Self::FlagRepoError> {
         let mut conn = self.conn.lock().unwrap();
         flags
+            .order(id.desc())
             .limit(limit.into())
             .offset(offset.into())
             .load::<Flag>(&mut *conn)
@@ -129,4 +130,12 @@ impl FlagRepo for PostgresFlagRepo {
         let mut conn = self.conn.lock().unwrap();
         flags.filter(id.eq_any(ids)).load::<Flag>(&mut *conn)
     }
+
+    fn count_all(&self) -> Result<i64, Self::FlagRepoError> {
+        use diesel::dsl::count;
+        let mut conn = self.conn.lock().unwrap();
+        
+        flags.select(count(id)).first::<i64>(&mut *conn)
+    }
+    
 }

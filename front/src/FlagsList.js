@@ -1,14 +1,11 @@
 import { DataGrid } from '@mui/x-data-grid'
-import React, { useState, useEffect, useRef} from 'react'
+import React, { useState, useEffect } from 'react'
 import { renderStatus } from './Status';
-import { minWidth } from '@mui/system';
 import { useCookies } from 'react-cookie';
 import config from "./config";
 import { useApi } from './api';
 import { useNavigate } from 'react-router-dom';
 import useInterval from './useInterval';
-
-
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 80},
@@ -17,7 +14,6 @@ const columns = [
   { field: 'sploit', headerName: 'Sploit', minWidth: 150, flex: 1, },
   { field: 'team', headerName: 'Team', minWidth: 100, flex: 1 },
   { field: 'created_time', headerName: 'Time', minWidth: 100, flex: 1},
-//   { field: 'start_waiting_time', headerName: 'Start Waiting Time', minWidth: 100, flex: 1},
   { field: 'checksystem_response', headerName: "Response", minWidth: 600, flex: 1 }
 ]
 
@@ -51,20 +47,17 @@ const FlagsList = ({ auth, setAuth }) => {
             if (!response.ok) {
                 throw new Error(`Error: ${response.status} ${response.statusText}`);
             }
+            
             const data = await response.json();
-            console.log("data: ", data);
-            // data.forEach(flag => {
-            //     let tmp = new Date(flag.time);
-            //     flag.time = tmp.toLocaleTimeString('it-IT');
-            // });
-            if (data && data.length !== undefined) {
-                setFlagsData(data);
-                setTotalRows(data.length);
-              } else {
-                // fallback, если структура не соответствует
-                setFlagsData(Array.isArray(data) ? data : []);
-                setTotalRows(Array.isArray(data) ? data.length : 0);
-              }
+            
+            // Handle the new response format
+            if (data && typeof data.total === 'number' && Array.isArray(data.flags)) {
+                setTotalRows(data.total);
+                setFlagsData(data.flags);
+            } else {
+                console.error('Unexpected response format:', data);
+                setFlagsData([]);
+            }
         } catch (error) {
             console.error('Error fetching flags data:', error);
         } finally {

@@ -96,4 +96,9 @@ impl FlagService {
         let repo = self.repo.lock().unwrap();
         repo.update_all(flags)
     }
+
+    pub fn get_total_flags_count(&self) -> Result<i64, diesel::result::Error> {
+        let repo = self.repo.lock().unwrap();
+        repo.count_all()
+    }
 }

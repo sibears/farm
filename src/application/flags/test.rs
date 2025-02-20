@@ -140,6 +140,10 @@ impl FlagRepo for MockFlagRepo {
     ) -> Result<Vec<Flag>, Self::FlagRepoError> {
         todo!()
     }
+
+    fn count_all(&self) -> Result<i64, Self::FlagRepoError> {
+        todo!()
+    }
 }
 
 #[cfg(test)]
