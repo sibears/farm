@@ -1,4 +1,6 @@
 use chrono::offset;
+use rocket::http::Status;
+use rocket::response::status;
 use rocket::{serde::json::Json, State};
 use std::sync::Arc;
 use strum::IntoEnumIterator;
@@ -69,7 +71,7 @@ pub fn post_flag(
     path = "/api/flags",
     request_body = Vec<NewFlag>,
     responses(
-        (status = 200, description = "Flags added successfully", body = usize)
+        (status = 201, description = "Flags added successfully", body = usize)
     )
 )]
 #[post("/flags", data = "<new_flags>")]
@@ -78,11 +80,11 @@ pub fn post_flags(
     flag_service: &State<Arc<FlagService>>,
     metrics_service: &State<FlagMetricsService>,
     new_flags: Json<Vec<NewFlag>>,
-) -> Json<usize> {
+) -> status::Created<Json<usize>> {
     info!("post_flags: {:?}", &new_flags);
     let res = flag_service.save_all_flags(&new_flags).unwrap();
     metrics_service.update_flags_count(flag_service);
-    Json(res)
+    status::Created::new("/api/flags").body(Json(res))
 }
 
 #[utoipa::path(

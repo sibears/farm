@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 import ThemeSwitcherComponent from './ThemeSwitcher';
 import Box from '@mui/material/Box';
+import config from "./config";
 
 const NavBar = ({ prefersDarkMode, changeTheme }) => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -18,6 +19,10 @@ const NavBar = ({ prefersDarkMode, changeTheme }) => {
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
+  };
+
+  const handleDownload = () => {
+    window.location.href = `http://${config.api_url}/api/start_sploit`;
   };
 
   return (
@@ -44,8 +49,7 @@ const NavBar = ({ prefersDarkMode, changeTheme }) => {
           </Typography>
           <Button color="inherit" component={Link} to="/">Home</Button>
           <Button color="inherit" component={Link} to="/stat">Statistics</Button>
-          {/* <Button color="inherit" component={Link} to="/config">Config</Button>
-          <Button color="inherit" component={Link} to="/json-config">JSON Config</Button> */}
+          <Button color="inherit" onClick={handleDownload}>Start Sploit</Button>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ flexGrow: 0 }}>
             <ThemeSwitcherComponent useDark={prefersDarkMode} themeChanger={changeTheme} />

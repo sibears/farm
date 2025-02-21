@@ -1,4 +1,5 @@
 use std::sync::{Arc, Mutex};
+use std::env;
 
 use rocket::serde::json::Json;
 use rocket::{get, routes};
@@ -11,7 +12,7 @@ use sibears_farm::cors::CORS;
 use sibears_farm::domain::auth::entities::AuthEntity;
 use sibears_farm::infrastructure::config::file_repository::FileConfigRepo;
 use sibears_farm::presentation::api_docs::ApiDoc;
-use sibears_farm::presentation::config::controllers::get_config;
+use sibears_farm::presentation::config::controllers::{get_config, start_sploit};
 use sibears_farm::presentation::flags::controllers::{get_flags, get_flags_per_page, get_stats_flags_by_status, get_total_flags, post_flag, post_flags};
 use sibears_farm::presentation::auth::controllers::check_auth;
 use sibears_farm::presentation::sending::controllers::{
@@ -25,7 +26,8 @@ use utoipa::OpenApi;
 
 #[tokio::main]
 async fn main() {
-    let config_repo = Arc::new(Mutex::new(FileConfigRepo::new("./config_test.json")));
+    let config_repo_path = env::var("CONFIG_REPO").unwrap_or_else(|_| "./config_test.json".to_string());
+    let config_repo = Arc::new(Mutex::new(FileConfigRepo::new(&config_repo_path)));
     let config_service = Arc::new(ConfigService::new(config_repo));
 
     let config = config_service.get_config().unwrap();
@@ -58,6 +60,7 @@ async fn main() {
                 post_flag,
                 post_flags,
                 get_config,
+                start_sploit,
                 get_flags_for_senders,
                 force_update_waiting_flags,
                 update_flags_from_sending,
