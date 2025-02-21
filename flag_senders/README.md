@@ -1,0 +1,1 @@
+uv run ./cli.py --host=http://localhost:8777 --token=sibears1cool --protocol=ructf_http
