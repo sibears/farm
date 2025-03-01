@@ -4,7 +4,7 @@ services:
   sibears_farm_back:
     image: sibears_farm_back:1.0
     build:
-      context: ./
+      context: ./back/
       args:
         - DOCKER_BUILDKIT=1
     environment:

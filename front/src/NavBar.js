@@ -22,7 +22,7 @@ const NavBar = ({ prefersDarkMode, changeTheme }) => {
   };
 
   const handleDownload = () => {
-    window.location.href = `http://${config.api_url}/api/start_sploit`;
+    window.location.href = `http://${config.api_url}/api/start_sploit.py`;
   };
 
   return (
