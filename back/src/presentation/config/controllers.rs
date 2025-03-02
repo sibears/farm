@@ -23,12 +23,12 @@ pub fn get_config(_auth: AuthGuard, config_service: &State<Arc<ConfigService>>) 
 
 #[utoipa::path(
     get,
-    path = "/api/start_sploit",
+    path = "/api/start_sploit.py",
     responses(
         (status = 200, description = "Get start_sploit.py")
     )
 )]
-#[get("/start_sploit")]
+#[get("/start_sploit.py")]
 pub async fn start_sploit() -> Result<(ContentType, NamedFile), BadRequest<String>> {
     NamedFile::open("./start_sploit.py")
         .await
