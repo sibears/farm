@@ -18,8 +18,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./config.json:/srv/config.json:ro
-      - ./start_sploit.py:/srv/start_sploit.py:ro
+      - ./back/config.json:/srv/config.json:ro
+      - ./back/start_sploit.py:/srv/start_sploit.py:ro
 
   sibears_farm_front:
     image: sibears_farm_front:1.0

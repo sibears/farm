@@ -25,3 +25,5 @@ env/
 /front/.DS_Store
 /front/build
 /front/node_modules
+
+/back/target
