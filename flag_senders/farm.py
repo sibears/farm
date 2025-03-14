@@ -1,10 +1,10 @@
-from enum import Enum
 import logging
-import requests
-
-from pydantic import BaseModel
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+import requests
+from pydantic import BaseModel
 
 
 def parse_datetime(date_string: str) -> datetime:
@@ -78,7 +78,7 @@ class BackendClient:
         if self.host.startswith("grpc://"):
             return "grpc"
         return "http"
-    
+
     def _check_auth(self, password: str) -> bool:
         if self.protocol == "http":
             url = f"{self.host}/api/check_auth"
@@ -105,7 +105,7 @@ class BackendClient:
         """
         if self.protocol == "http":
             url = f"{self.host}/api/config"
-            headers = {}
+            headers: dict[str, str] = {}
             if self.auth_token:
                 headers["X-Authorization"] = self.auth_token
             response = requests.get(url, headers=headers)

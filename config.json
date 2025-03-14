@@ -7,10 +7,10 @@
 	},
 	"ctf": {
 	  "protocol": {
-		"protocol": "ructf_tcp",
+		"protocol": "ructf_http",
 		"team_token": "team1",
-		"checksys_host": "localhost",
-		"checksys_port": 8778
+		"checksys_host": "check_system_ructf_http",
+		"checksys_port": 8779
 	  },
 	  "flag_format": "[A-Z0-9]{31}=",
 	  "flag_lifetime": 300,

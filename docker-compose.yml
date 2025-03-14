@@ -2,7 +2,7 @@ version: '3'
 
 services:
   sibears_farm_back:
-    image: sibears_farm_back:1.0
+    image: sibears_farm_back:latest
     build:
       context: ./back/
       args:
@@ -18,11 +18,11 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./back/config.json:/srv/config.json:ro
+      - ./config.json:/srv/config.json:ro
       - ./back/start_sploit.py:/srv/start_sploit.py:ro
 
   sibears_farm_front:
-    image: sibears_farm_front:1.0
+    image: sibears_farm_front:latest
     build:
       context: ./front/
       args:
@@ -42,7 +42,7 @@ services:
     ports:
       - "6378:6379"
     restart: unless-stopped
-    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool" ]
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
     volumes:
       - ./vol/external_redis:/data
 

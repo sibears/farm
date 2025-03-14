@@ -1,5 +1,4 @@
-FROM node:21-alpine as builder
-LABEL authors="x5113nc3x"
+FROM node:23-alpine AS builder
 
 WORKDIR /srv
 
@@ -17,7 +16,8 @@ COPY ./public ./public
 RUN --mount=type=cache,target=/root/.npm \
     npm run build
 
-FROM nginx:1.24.0-alpine
+FROM nginx:1.27.4-alpine AS runner
+LABEL authors="sibears"
 COPY --from=builder /srv/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80

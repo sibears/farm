@@ -66,6 +66,6 @@ def test_send_flags(client: BackendClient) -> None:
 
     assert len(responses) >= 2, "Недостаточно полученных ответов"
     for response in responses[:2]:
-        assert (
-            "Accepted" in response or "Denied" in response
-        ), f"Неожиданный ответ: {response}"
+        assert "Accepted" in response or "Denied" in response, (
+            f"Неожиданный ответ: {response}"
+        )

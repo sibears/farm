@@ -1,9 +1,9 @@
-import socket
 import logging
-
-from flag_sender import FlagSender
-from farm import Flag, FlagStatus
+import socket
 from typing import List
+
+from farm import Config, Flag, FlagStatus
+from flag_sender import FlagSender
 
 
 class RuCtfTcpFlagSender(FlagSender):
@@ -20,8 +20,8 @@ class RuCtfTcpFlagSender(FlagSender):
 
         return sock
 
-    def send_flags(self, flags: List[Flag]) -> List[Flag]:
-        protocol_config = self.config.ctf.protocol
+    def send_flags(self, config: Config, flags: List[Flag]) -> List[Flag]:
+        protocol_config = config.ctf.protocol
 
         if not flags:
             logging.debug("Нет флагов для отправки.")

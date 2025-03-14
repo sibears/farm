@@ -1,19 +1,18 @@
-from abc import ABC, abstractmethod
 import argparse
-import time
 import logging
-from farm import BackendClient, Flag
+import time
+from abc import ABC, abstractmethod
 from typing import List
+
+from farm import BackendClient, Config, Flag
 
 
 class FlagSender(ABC):
-    def __init__(self, backend_url: str, token: str):
-        self.backend_client = BackendClient(backend_url, token)
-        self.config = self.backend_client.get_config()
-        self.submit_period = self.config.ctf.submit_period
+    def __init__(self, backend_client: BackendClient):
+        self.backend_client = backend_client
 
     @abstractmethod
-    def send_flags(self, flags: List[Flag]) -> List[Flag]:
+    def send_flags(self, config: Config, flags: List[Flag]) -> List[Flag]:
         """
         Метод, который должен быть реализован в подклассах.
         Отправляет флаги в журейную систему и возвращает ответы.
@@ -27,21 +26,22 @@ class FlagSender(ABC):
         """
         Запускает периодический процесс отправки флагов.
         """
-        logging.info(f"Запуск отправки флагов каждые {self.submit_period} секунд.")
+        logging.info("Запуск отправки флагов.")
         try:
             while True:
                 start_time = time.time()
-                logging.debug("Получение флагов для отправки.")
+                config = self.backend_client.get_config()
+                submit_period = config.ctf.submit_period
 
                 if flags := self.backend_client.get_sending_flags():
-                    time.sleep(3) 
-                    updated_flags = self.send_flags(flags)
+                    time.sleep(3)
+                    updated_flags = self.send_flags(config, flags)
                     self.backend_client.update_all_flags(updated_flags)
 
                 elapsed = time.time() - start_time
-                sleep_time = max(0, self.submit_period - elapsed)
+                sleep_time = max(0, submit_period - elapsed)
                 logging.info(
-                    f"Ожидание {sleep_time:.2f} секунд перед следующей отправкой."
+                    f"Ожидание {sleep_time:.2f} секунд перед следующей отправкой [период отправки {submit_period} секунд]."
                 )
                 time.sleep(sleep_time)
         except KeyboardInterrupt:

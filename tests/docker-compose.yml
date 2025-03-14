@@ -21,6 +21,7 @@ services:
     ports:
       - "8778:8778"
     restart: always
+
   flag_sender:
     build: ../flag_senders
     restart: always
@@ -31,9 +32,8 @@ services:
       - TOKEN=sibears1cool
       - PROTOCOL=ructf_tcp
 
-
   # check_system:
-  #   build: ./check_system/ructf_tcp
+  #   build: ./check_system/ructf_http
   #   ports:
   #     - "80:80"
   #   restart: always

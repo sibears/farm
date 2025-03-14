@@ -5,5 +5,5 @@ WORKDIR /app
 RUN pip install flask
 COPY ./pseudo_http.py ./main.py
 
-EXPOSE 80
+EXPOSE 8779
 CMD ["python3", "main.py"]

@@ -1,7 +1,9 @@
-from flag_sender import parse_args
-from protocols.ructf_tcp import RuCtfTcpFlagSender
-from protocols.ructf_http import RuCtfHttpFlagSender
 import logging
+
+from farm import BackendClient
+from flag_sender import parse_args
+from protocols.ructf_http import RuCtfHttpFlagSender
+from protocols.ructf_tcp import RuCtfTcpFlagSender
 
 
 def main():
@@ -12,11 +14,15 @@ def main():
     )
 
     args = parse_args()
+    backend_client = BackendClient(args.host, args.token)
+    config = backend_client.get_config()
 
-    if args.protocol == "ructf_tcp":
-        sender = RuCtfTcpFlagSender(args.host, args.token)
-    elif args.protocol == "ructf_http":
-        sender = RuCtfHttpFlagSender(args.host, args.token)
+    protocol = config.ctf.protocol.protocol
+
+    if protocol == "ructf_tcp":
+        sender = RuCtfTcpFlagSender(backend_client)
+    elif protocol == "ructf_http":
+        sender = RuCtfHttpFlagSender(backend_client)
     else:
         raise ValueError(f"Unsupported farm protocol: {args.protocol}")
 

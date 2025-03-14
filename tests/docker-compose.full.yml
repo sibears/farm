@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:17.4-alpine
+    environment:
+      - POSTGRES_PASSWORD=sibears1cool
+      - POSTGRES_DB=flags
+    ports:
+      - "5432:5432"
+
+  external_redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6378:6379"
+    restart: unless-stopped
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool" ]
+
+  check_system_ructf_tcp:
+    build: ./check_system/ructf_tcp
+    ports:
+      - "8778:8778"
+    restart: always
+
+  flag_sender:
+    build: ../flag_senders
+    restart: always
+    environment:
+      - HOST=http://sibears_farm_back:8777
+      - TOKEN=sibears1cool
+      - PROTOCOL=ructf_tcp
+
+  sibears_farm_back:
+    image: sibears_farm_back:latest
+    build:
+      context: ../back/
+      args:
+        - DOCKER_BUILDKIT=1
+    environment:
+      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
+      - ROCKET_LOG_LEVEL=normal
+      - CONFIG_REPO=config.json
+    ports:
+      - "8777:8777"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+    volumes:
+      - ../config.json:/srv/config.json:ro
+      - ../back/start_sploit.py:/srv/start_sploit.py:ro
+
+  sibears_farm_front:
+    image: sibears_farm_front:latest
+    build:
+      context: ../front/
+      args:
+        - DOCKER_BUILDKIT=1
+    ports:
+      - "8776:80"
+
+  check_system_ructf_http:
+    build: ./check_system/ructf_http
+    ports:
+      - "8779:8779"
+    restart: always
