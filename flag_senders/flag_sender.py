@@ -59,10 +59,4 @@ def parse_args():
     )
     parser.add_argument("--token", required=True, help="Пароль от фермы")
 
-    parser.add_argument(
-        "--protocol",
-        required=True,
-        choices=["ructf_tcp", "ructf_http"],
-        help="Protocol to use for sending flags",
-    )
     return parser.parse_args()
