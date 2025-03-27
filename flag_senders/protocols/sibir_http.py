@@ -22,8 +22,8 @@ class SibirCtfHttpFlagSender(FlagSender):
             }
             url = f"http://{protocol_config.checksys_host}:{protocol_config.checksys_port}/flag"            
             try:
-                response = requests.get(url, params=params)
-                
+                response = requests.get(url, params=params, timeout=config.ctf.submit_period)
+
                 if response.status_code == 200:
                     flag.status = FlagStatus.ACCEPTED
                     logging.info(f"Флаг принят: {flag.flag} - {response.text}")
