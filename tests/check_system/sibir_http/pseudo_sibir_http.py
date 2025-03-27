@@ -26,4 +26,4 @@ def get_flag():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8779)
+    app.run(host="0.0.0.0", port=8780)

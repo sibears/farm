@@ -16,19 +16,12 @@ services:
     restart: unless-stopped
     command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool" ]
 
-  check_system_ructf_tcp:
-    build: ./check_system/ructf_tcp
-    ports:
-      - "8778:8778"
-    restart: always
-
   flag_sender:
     build: ../flag_senders
     restart: always
     environment:
       - HOST=http://sibears_farm_back:8777
       - TOKEN=sibears1cool
-      - PROTOCOL=ructf_tcp
 
   sibears_farm_back:
     image: sibears_farm_back:latest
@@ -63,4 +56,16 @@ services:
     build: ./check_system/ructf_http
     ports:
       - "8779:8779"
+    restart: always
+
+  check_system_ructf_tcp:
+    build: ./check_system/ructf_tcp
+    ports:
+      - "8778:8778"
+    restart: always
+
+  check_system_sibir_http:
+    build: ./check_system/sibir_http
+    ports:
+      - "8780:8780"
     restart: always

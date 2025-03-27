@@ -24,6 +24,5 @@ WORKDIR /app
 ENV PATH="/app/.venv/bin:$PATH"
 ENV HOST="http://sibears_farm_back:8777"
 ENV TOKEN="sibears1cool"
-ENV PROTOCOL="ructf_tcp"
 
-CMD python3 cli.py --host=$HOST --token=$TOKEN --protocol=$PROTOCOL
+CMD python3 cli.py --host=$HOST --token=$TOKEN

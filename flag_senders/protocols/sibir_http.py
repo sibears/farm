@@ -17,7 +17,7 @@ class SibirCtfHttpFlagSender(FlagSender):
         flags_to_update: List[Flag] = []
         for flag in flags:
             params = {
-                "teamid": protocol_config.team_id,
+                "teamid": protocol_config.team_token,
                 "flag": flag.flag
             }
             url = f"http://{protocol_config.checksys_host}:{protocol_config.checksys_port}/flag"            
