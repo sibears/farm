@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Обновления для npm зависимостей в фронтенд части
+  - package-ecosystem: "npm"
+    directory: "/front"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Обновления для Cargo зависимостей в бэкенд части
+  - package-ecosystem: "cargo"
+    directory: "/back"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    
+  # Обновления для GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

@@ -2,29 +2,38 @@ version: '3'
 
 services:
   postgres:
-    image: postgres:16.3-alpine
+    image: postgres:16.4-alpine
     environment:
       - POSTGRES_PASSWORD=sibears1cool
-      - POSTGRES_DB=flags
     ports:
       - "5432:5432"
 
-  farm_front:
-    image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
-    ports:
-      - "8776:80"
 
   external_redis:
     image: redis:7.2-alpine
     ports:
       - "6378:6379"
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
-    volumes:
-      - ./vol/external_redis:/data
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool" ]
 
   check_system:
-    build: ./check_system
+    build: ./check_system/ructf_tcp
     ports:
       - "8778:8778"
     restart: always
+
+  flag_sender:
+    build: ../flag_senders
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - HOST=http://host.docker.internal:8777
+      - TOKEN=sibears1cool
+      - PROTOCOL=ructf_tcp
+
+  # check_system:
+  #   build: ./check_system/ructf_http
+  #   ports:
+  #     - "80:80"
+  #   restart: always

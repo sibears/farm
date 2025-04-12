@@ -2,30 +2,39 @@ version: '3'
 
 services:
   sibears_farm_back:
-    image: sibears_farm_back:1.0
-    build: .
+    image: sibears_farm_back:latest
+    build:
+      context: ./back/
+      args:
+        - DOCKER_BUILDKIT=1
+    environment:
+      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
+      - ROCKET_LOG_LEVEL=normal
+      - CONFIG_REPO=config.json
     ports:
       - "8777:8777"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
-    environment:
-      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
-      - ROCKET_LOG_LEVEL=normal
     volumes:
       - ./config.json:/srv/config.json:ro
-      - ./start_sploit.py:/srv/start_sploit.py:ro
+      - ./back/start_sploit.py:/srv/start_sploit.py:ro
 
-  # sibears_farm_front:
-  #   image: registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
-  #   ports:
-  #     - "8776:80"
+  sibears_farm_front:
+    image: sibears_farm_front:latest
+    build:
+      context: ./front/
+      args:
+        - DOCKER_BUILDKIT=1
+    ports:
+      - "8776:80"
 
   postgres:
     image: postgres:16.3-alpine
     environment:
       - POSTGRES_PASSWORD=sibears1cool
+      - POSTGRES_DB=flags
     ports:
       - "5432:5432"
   external_redis:
@@ -33,6 +42,27 @@ services:
     ports:
       - "6378:6379"
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
     volumes:
       - ./vol/external_redis:/data
+
+  save-swagger:
+    image: busybox
+    depends_on:
+      - sibears_farm_back
+    volumes:
+      - swagger-json:/spec
+    command: >
+      /bin/sh -c "sleep 15 && mkdir -p /spec && wget -O /spec/swagger.json http://sibears_farm_back:8777/openapi.json"
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    ports:
+      - 8780:8080
+    environment:
+      SWAGGER_JSON: /spec/swagger.json
+    volumes:
+      - swagger-json:/spec
+
+volumes:
+  swagger-json:

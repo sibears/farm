@@ -4,4 +4,25 @@
 /.vscode
 /tests/vol
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
 .DS_Store
+
+/front/.DS_Store
+/front/build
+/front/node_modules
+
+/back/target

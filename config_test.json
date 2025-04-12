@@ -1,24 +1,25 @@
 {
-	"database": {
-		"database_url": "postgres://postgres:sibears1cool@localhost:5432/flags"
-	},
-	"auth": {
-		"password": "sibears1cool"
-	},
-	"ctf": {
-		"protocol": {
-			"protocol": "ructf_tcp",
-			"team_token": "team1",
-			"checksys_host": "localhost",
-			"checksys_port": 8778
-		},
-		"flag_format": "[A-Z0-9]{31}=",
-		"flag_lifetime": 300,
-		"submit_period": 5,
-		"submit_flag_limit": 100,
-		"teams": {
-			"First": "10.10.12.1",
-			"Second": "10.10.13.1"
-		}
-	}
+  "database": {
+    "database_url": "postgres://postgres:sibears1cool@localhost:5432/flags"
+  },
+  "auth": {
+    "password": "sibears1cool"
+  },
+  "ctf": {
+    "protocol": {
+      "protocol": "ructf_tcp",
+      "team_token": "test_token",
+      "checksys_host": "localhost",
+      "checksys_port": 8778
+    },
+	  "flag_format": "[A-Z0-9]{31}=",
+    "flag_lifetime": 300,
+    "submit_period": 5,
+    "waiting_period": 30,
+    "submit_flag_limit": 5,
+    "teams": {
+      "First": "10.10.12.1",
+      "Second": "10.10.13.1"
+    }
+  }
 }
