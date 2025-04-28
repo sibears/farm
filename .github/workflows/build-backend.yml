@@ -30,13 +30,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Логинимся в регистр только если это не PR или если PR от авторизованного пользователя
       - name: Log in to the Container registry
+        # Выполняем только для push в main, не для PR
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -58,7 +60,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./back
-          push: true
+          # Публикуем образ только если это не PR
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
