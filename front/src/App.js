@@ -1,7 +1,5 @@
 import React from "react";
 import FlagsList from "./FlagsList";
-import Auth from "./Auth";
-import config from "./config";
 import {
   Box,
   Container,

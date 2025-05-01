@@ -5,9 +5,9 @@ services:
     image: postgres:16.4-alpine
     environment:
       - POSTGRES_PASSWORD=sibears1cool
+      - POSTGRES_DB=flags
     ports:
       - "5432:5432"
-
 
   external_redis:
     image: redis:7.2-alpine
