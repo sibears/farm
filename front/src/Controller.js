@@ -20,13 +20,10 @@ import Auth from "./Auth";
 
 const Controller = () => {
   const [isDarkTheme, setIsDarkTheme] = useState(() => {
-    // Получаем значение из локального хранилища
     const localData = localStorage.getItem('isDarkTheme');
-    // Если в локальном хранилище значение есть, то возвращаем его
     if (localData) {
       return JSON.parse(localData);
     }
-    // Иначе возвращаем false
     return false;
   })
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +57,6 @@ const Controller = () => {
 
   const changeTheme = (isDarkMode) => {
     setIsDarkTheme(isDarkMode)
-    // Сохраняем тип темы в локальное хранилище
     localStorage.setItem('isDarkTheme', JSON.stringify(isDarkMode));
   }
 
@@ -70,7 +66,7 @@ const Controller = () => {
           <NavBar prefersDarkMode={isDarkTheme} changeTheme={changeTheme} />
           <CssBaseline />
           { isLoading ? (
-            <LoadingPage /> // Используем компонент загрузки
+            <LoadingPage /> 
           ) : (
             <Routes>
               <Route path="/" exact element={<App  auth={auth} setAuth={setAuth} />} />

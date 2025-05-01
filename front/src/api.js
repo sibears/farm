@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import config from './config';
 
 export const useApi = () => {
   const navigate = useNavigate();
