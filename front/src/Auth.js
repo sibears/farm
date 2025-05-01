@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Alert } from "@mui/material";
 import { useCookies } from 'react-cookie'
 import { useNavigate } from 'react-router-dom';

@@ -91,9 +91,8 @@ class BackendClient:
                     return True
                 else:
                     return False
-            except requests.RequestException as e:
+            except Exception as e:
                 logging.error(f"Ошибка аутентификации: {e}")
-                raise
         else:
             raise ValueError(f"Unsupported protocol: {self.protocol}")
 

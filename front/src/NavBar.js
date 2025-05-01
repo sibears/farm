@@ -7,20 +7,6 @@ import Box from '@mui/material/Box';
 import config from "./config";
 
 const NavBar = ({ prefersDarkMode, changeTheme }) => {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
   const handleDownload = () => {
     window.location.href = `http://${config.api_url}/api/start_sploit.py`;
   };

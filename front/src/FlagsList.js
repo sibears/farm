@@ -1,14 +1,10 @@
 import { DataGrid } from '@mui/x-data-grid'
-import React, { useState, useEffect, useRef} from 'react'
+import React, { useState, useEffect} from 'react'
 import { renderStatus } from './Status';
-import { minWidth } from '@mui/system';
 import { useCookies } from 'react-cookie';
 import config from "./config";
 import { useApi } from './api';
 import { useNavigate } from 'react-router-dom';
-import useInterval from './useInterval';
-
-
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 80},
