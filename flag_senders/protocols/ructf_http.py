@@ -1,4 +1,4 @@
-import logging
+import logging, json 
 from typing import List
 
 import requests
@@ -78,13 +78,21 @@ class RuCtfHttpFlagSender(FlagSender):
                 status, message = self.determine_flag_status(response_msg)
                 flag.status = status
                 flag.checksystem_response = message
+                
+                extra = f"(sploit={flag.sploit or 'N/A'}, team={flag.team or 'N/A'})"
 
-                if status == FlagStatus.ACCEPTED:
-                    logging.info(f"Флаг принят: {flag.flag} - {message}")
-                elif status == FlagStatus.REJECTED:
-                    logging.info(f"Флаг отклонен: {flag.flag} - {message}")
-                else:
-                    logging.info(f"Флаг в очереди: {flag.flag} - {message}")
+                logging.info(
+                    json.dumps(
+                        {
+                            "flag": flag.flag,
+                            "status": status.name.lower(),  # accepted / rejected / queued
+                            "msg": message,
+                            "sploit": flag.sploit or "",
+                            "team": flag.team or "",
+                        },
+                        ensure_ascii=False,
+                    )
+                )
 
                 flags_to_update.append(flag)
 
