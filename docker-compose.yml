@@ -21,15 +21,6 @@ services:
       - ./config.json:/srv/config.json:ro
       - ./back/start_sploit.py:/srv/start_sploit.py:ro
 
-  sibears_farm_front:
-    image: sibears_farm_front:latest
-    build:
-      context: ./front/
-      args:
-        - DOCKER_BUILDKIT=1
-    ports:
-      - "8776:80"
-
   postgres:
     image: postgres:16.3-alpine
     environment:
