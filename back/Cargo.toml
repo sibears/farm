@@ -25,7 +25,7 @@ openssl = { version = "0.10.71", features = ["vendored"] }
 thiserror = "2.0.12"
 notify = "8.0.0"
 env_logger = "0.11.7"
-chrono = { version = "0.4.40", features = ["serde"] }
+chrono = { version = "0.4.41", features = ["serde"] }
 diesel-enum = "0.2.1"
 schemars = { version = "0.8.22", features = ["chrono"] }
 utoipa = { version = "5.3.1" }
