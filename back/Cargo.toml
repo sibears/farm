@@ -12,7 +12,7 @@ serde_json = { version = "1.0.140", features = ["preserve_order"] }
 uuid = { version = "1.16.0", features = ["serde", "v4"] }
 diesel_migrations = "2.2.0"
 rand = "0.9.0"
-reqwest = { version = "0.12.14", features = ["json", "blocking"] }
+reqwest = { version = "0.12.14", default-features = false, features = ["json", "blocking", "rustls-tls"] }
 tokio = { version = "1.44.1", features = ["full"] }
 futures = "0.3.31"
 regex = "1.11.1"
@@ -21,7 +21,6 @@ config = { version = "0.15.11", features = [] }
 prometheus = "0.14.0"
 strum = "0.27.1"
 strum_macros = "0.27.1"
-openssl = { version = "0.10.71", features = ["vendored"] }
 thiserror = "2.0.12"
 notify = "8.0.0"
 env_logger = "0.11.7"
@@ -32,6 +31,7 @@ utoipa = { version = "5.3.1" }
 rocket_cors = "0.6.0"
 rocket_prometheus = "0.10.1"
 
+pq-sys = { version = "0.7", default-features = false, features = ["bundled_without_openssl"] }
 
 [profile.release]
 strip = true
