@@ -1,15 +1,10 @@
-use chrono::offset;
-use rocket::http::Status;
 use rocket::response::status;
 use rocket::{serde::json::Json, State};
 use std::sync::Arc;
 use strum::IntoEnumIterator;
 
 use crate::{
-    application::{
-        flags::service::FlagService,
-        metrics::{self, service::FlagMetricsService},
-    },
+    application::{flags::service::FlagService, metrics::service::FlagMetricsService},
     domain::flags::entities::{Flag, FlagStatus, FlagsQuery, NewFlag},
     presentation::auth::guard::AuthGuard,
 };
