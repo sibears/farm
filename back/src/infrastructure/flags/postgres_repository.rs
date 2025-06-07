@@ -108,7 +108,11 @@ impl FlagRepo for PostgresFlagRepo {
             .load::<Flag>(&mut *conn)
     }
 
-    fn get_limit_with_offset_from_end(&self, limit: u32, offset: u32) -> Result<Vec<Flag>, Self::FlagRepoError> {
+    fn get_limit_with_offset_from_end(
+        &self,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Vec<Flag>, Self::FlagRepoError> {
         let mut conn = self.conn.lock().unwrap();
         flags
             .limit(limit.into())
@@ -144,8 +148,14 @@ impl FlagRepo for PostgresFlagRepo {
         flags.count().get_result(&mut *conn)
     }
 
-    fn get_total_flags_by_status(&self, flag_status: FlagStatus) -> Result<i64, Self::FlagRepoError> {
+    fn get_total_flags_by_status(
+        &self,
+        flag_status: FlagStatus,
+    ) -> Result<i64, Self::FlagRepoError> {
         let mut conn = self.conn.lock().unwrap();
-        flags.filter(status.eq(flag_status)).count().get_result(&mut *conn)
+        flags
+            .filter(status.eq(flag_status))
+            .count()
+            .get_result(&mut *conn)
     }
 }

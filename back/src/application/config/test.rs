@@ -20,7 +20,7 @@ impl ConfigRepo for MockConfigRepo {
 
     fn get_config(&self) -> Result<Config, Self::ConfigRepoError> {
         if self.should_fail {
-            Err(std::io::Error::new(std::io::ErrorKind::Other, "Mock error"))
+            Err(std::io::Error::other("Mock error"))
         } else {
             Ok(self.config.clone())
         }
@@ -28,7 +28,7 @@ impl ConfigRepo for MockConfigRepo {
 
     fn save_config(&mut self, config: &Config) -> Result<(), Self::ConfigRepoError> {
         if self.should_fail {
-            Err(std::io::Error::new(std::io::ErrorKind::Other, "Mock error"))
+            Err(std::io::Error::other("Mock error"))
         } else {
             self.config = config.clone();
             Ok(())

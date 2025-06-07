@@ -1,11 +1,14 @@
-use std::sync::Arc;
 use rocket::fs::NamedFile;
 use rocket::http::ContentType;
 use rocket::response::status::BadRequest;
+use std::sync::Arc;
 
 use rocket::{serde::json::Json, State};
 
-use crate::{application::config::service::ConfigService, domain::config::entities::Config, presentation::auth::guard::AuthGuard};
+use crate::{
+    application::config::service::ConfigService, domain::config::entities::Config,
+    presentation::auth::guard::AuthGuard,
+};
 
 /// Get config
 #[utoipa::path(

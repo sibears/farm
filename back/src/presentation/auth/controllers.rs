@@ -15,7 +15,10 @@ use crate::application::config::service::ConfigService;
     )
 )]
 #[post("/check_auth", data = "<passwd>")]
-pub fn check_auth(config_service: &State<Arc<ConfigService>>, passwd: Json<HashMap<String, String>>) -> Json<String> {
+pub fn check_auth(
+    config_service: &State<Arc<ConfigService>>,
+    passwd: Json<HashMap<String, String>>,
+) -> Json<String> {
     let config = config_service.get_config().unwrap();
     if passwd.get("passwd").unwrap() == &config.auth.password {
         Json("ok".to_string())
