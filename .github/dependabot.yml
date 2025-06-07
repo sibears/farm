@@ -1,7 +1,47 @@
 version: 2
 updates:
-  # Обновления для GitHub Actions
+  - package-ecosystem: "npm"
+    directory: "/front"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 0
+    reviewers:
+      - "x5113nc3x"
+    assignees:
+      - "x5113nc3x"
+    labels:
+      - "dependencies"
+      - "frontend"
+
+  - package-ecosystem: "cargo"
+    directory: "/back"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 0
+    reviewers:
+      - "x5113nc3x"
+    assignees:
+      - "x5113nc3x"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "rust"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 0
+    reviewers:
+      - "x5113nc3x"
+    assignees:
+      - "x5113nc3x"
+    labels:
+      - "dependencies"
+      - "github-actions"
