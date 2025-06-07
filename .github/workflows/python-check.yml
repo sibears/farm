@@ -1,0 +1,59 @@
+name: Python Code Quality Check
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "flag_senders/**"
+
+jobs:
+  python-check:
+    name: Python Lint and Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Set up Python (auto-detect from pyproject.toml)
+        working-directory: ./flag_senders
+        run: |
+          # uv автоматически найдет версию Python из pyproject.toml или .python-version
+          uv python install
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            ./flag_senders/.venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('flag_senders/pyproject.toml', 'flag_senders/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install dependencies
+        working-directory: ./flag_senders
+        run: |
+          uv sync --group dev
+
+      - name: Run Ruff linter (blocking)
+        working-directory: ./flag_senders
+        run: |
+          uv run ruff check --output-format=github .
+        # Проверка линтером с выводом в формате GitHub
+
+      - name: Run Ruff formatter check
+        working-directory: ./flag_senders
+        run: |
+          uv run ruff format --check --diff .
+        # Проверяет форматирование кода
+
+      - name: Run MyPy type checking
+        working-directory: ./flag_senders
+        run: |
+          uv run mypy .
+        # Проверка типов с конфигурацией из pyproject.toml
