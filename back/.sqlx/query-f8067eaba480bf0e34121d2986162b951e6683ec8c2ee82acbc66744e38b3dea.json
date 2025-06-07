@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE flags SET \n                flag = $1, \n                sploit = $2, \n                team = $3, \n                status = $4, \n                checksystem_response = $5,\n                start_waiting_time = $6\n             WHERE id = $7",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamp",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f8067eaba480bf0e34121d2986162b951e6683ec8c2ee82acbc66744e38b3dea"
+}

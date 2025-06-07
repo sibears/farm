@@ -1,5 +1,5 @@
 use std::env;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use rocket::serde::json::Json;
 use rocket::{get, routes};
@@ -11,7 +11,7 @@ use sibears_farm::application::sending::service::SendingService;
 use sibears_farm::cors::CORS;
 use sibears_farm::domain::auth::entities::AuthEntity;
 use sibears_farm::infrastructure::config::file_repository::FileConfigRepo;
-use sibears_farm::presentation::api_docs::ApiDoc;
+// use sibears_farm::presentation::api_docs::ApiDoc;
 use sibears_farm::presentation::auth::controllers::check_auth;
 use sibears_farm::presentation::config::controllers::{get_config, start_sploit};
 use sibears_farm::presentation::flags::controllers::{
@@ -31,13 +31,11 @@ use utoipa::OpenApi;
 async fn main() {
     let config_repo_path =
         env::var("CONFIG_REPO").unwrap_or_else(|_| "./config_test.json".to_string());
-    let config_repo = Arc::new(Mutex::new(FileConfigRepo::new(&config_repo_path)));
+    let config_repo = Arc::new(FileConfigRepo::new(&config_repo_path));
     let config_service = Arc::new(ConfigService::new(config_repo));
 
     let config = config_service.get_config().unwrap();
-    let flag_repo = Arc::new(Mutex::new(PostgresFlagRepo::new(
-        &config.database.database_url.clone(),
-    )));
+    let flag_repo = Arc::new(PostgresFlagRepo::new(&config.database.database_url.clone()).await);
     let flag_service = Arc::new(FlagService::new(flag_repo, config_service.clone()));
 
     let sending_service = SendingService::new(flag_service.clone(), config_service.clone());
@@ -47,7 +45,7 @@ async fn main() {
 
     let prometheus = PrometheusMetrics::new();
     let metrics_service = FlagMetricsService::new(&prometheus);
-    metrics_service.update_flags_count(&flag_service);
+    metrics_service.update_flags_count(&flag_service).await;
 
     rocket::build()
         .attach(CORS)
@@ -74,14 +72,14 @@ async fn main() {
                 get_stats_flags_by_status,
             ],
         )
-        .mount("/api-docs", routes![serve_api_docs])
+        // .mount("/api-docs", routes![serve_api_docs])
         .mount("/metrics", prometheus)
         .launch()
         .await
         .unwrap();
 }
 
-#[get("/openapi.json")]
-fn serve_api_docs() -> Json<utoipa::openapi::OpenApi> {
-    Json(ApiDoc::openapi())
-}
+// #[get("/openapi.json")]
+// fn serve_api_docs() -> Json<utoipa::openapi::OpenApi> {
+//     Json(ApiDoc::openapi())
+// }

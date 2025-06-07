@@ -1,7 +1,4 @@
--- Your SQL goes here
 set enable_parallel_hash=on;
-
-CREATE TYPE flag_status AS ENUM ('queued', 'skipped', 'accepted', 'rejected');
 
 CREATE TABLE IF NOT EXISTS flags (
     id SERIAL PRIMARY KEY NOT NULL,
@@ -10,6 +7,6 @@ CREATE TABLE IF NOT EXISTS flags (
     team TEXT,
     created_time TIMESTAMP NOT NULL,
     start_waiting_time TIMESTAMP,
-    status TEXT NOT NULL,
+    status flag_status NOT NULL DEFAULT 'queued',
     checksystem_response TEXT
 );

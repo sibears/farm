@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO flags (flag, sploit, team, status, checksystem_response, created_time) \n             VALUES ($1, $2, $3, $4, $5, NOW())",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "337c24a8f763030f4278458b8c7bedf12dd57967f743ebcfa1d2fc26a1c6eb3f"
+}

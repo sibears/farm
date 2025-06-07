@@ -44,7 +44,7 @@ mod tests {
         AuthConfig, Config, CtfConfig, DatabaseConfig, ProtocolConfig,
     };
     use std::collections::HashMap;
-    use std::sync::{Arc, Mutex};
+    use std::sync::Arc;
 
     fn create_test_config() -> Config {
         Config {
@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn test_config_service() {
         let config = create_test_config();
-        let mock_repo = Arc::new(Mutex::new(MockConfigRepo::new(false, config.clone())));
+        let mock_repo = Arc::new(MockConfigRepo::new(false, config.clone()));
         let service = ConfigService::new(mock_repo);
 
         let result = service.get_config().unwrap();
