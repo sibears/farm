@@ -1,11 +1,5 @@
 version: 2
 updates:
-  # Обновления для Cargo зависимостей в бэкенд части
-  - package-ecosystem: "cargo"
-    directory: "/back"
-    schedule:
-      interval: "weekly"
-    
   # Обновления для GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
