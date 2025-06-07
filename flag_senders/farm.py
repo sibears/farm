@@ -95,6 +95,7 @@ class BackendClient:
                 logging.error(f"Ошибка аутентификации: {e}")
         else:
             raise ValueError(f"Unsupported protocol: {self.protocol}")
+        return False
 
     def get_config(self) -> Config:
         """

@@ -50,7 +50,7 @@ class FlagSender(ABC):
             logging.error(f"Произошла ошибка: {e}")
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Flag Sender Client")
     parser.add_argument(
         "--host",
