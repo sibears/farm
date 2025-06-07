@@ -7,7 +7,7 @@ from flag_sender import FlagSender
 
 
 class RuCtfTcpFlagSender(FlagSender):
-    def connect_to_checksystem(self, host, port: int) -> socket.socket:
+    def connect_to_checksystem(self, host: str, port: int) -> socket.socket:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(5.0)
         sock.connect((host, port))
