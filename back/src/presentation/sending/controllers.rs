@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use crate::application::flags::service::FlagService;
-use crate::application::metrics;
 use crate::application::metrics::service::FlagMetricsService;
 use crate::domain::flags::entities::Flag;
 use crate::{application::sending::service::SendingService, presentation::auth::guard::AuthGuard};
@@ -43,7 +42,7 @@ pub fn force_update_waiting_flags(
 ) {
     debug!("Force updating waiting flags");
     sending_service.update_waiting_flags().unwrap();
-    metrics_service.update_flags_count(&flag_service);
+    metrics_service.update_flags_count(flag_service);
 }
 
 /// Update flags from sending
@@ -65,5 +64,5 @@ pub fn update_flags_from_sending(
 ) {
     debug!("Updating flags from sending: {:?}", flags);
     sending_service.update_flags_from_sending(&flags).unwrap();
-    metrics_service.update_flags_count(&flag_service);
+    metrics_service.update_flags_count(flag_service);
 }

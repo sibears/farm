@@ -2,12 +2,11 @@ use chrono::NaiveDateTime;
 use diesel::sql_types::Text;
 use diesel_enum::DbEnum;
 use regex::Regex;
+use rocket::form::FromForm;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
 use utoipa::ToSchema;
-use rocket::form::FromForm;
-
 
 use crate::domain::flags::errors::FlagStatusError;
 use crate::schema::flags;

@@ -1,2 +1,2 @@
-pub mod guard;
 pub mod controllers;
+pub mod guard;

@@ -12,7 +12,7 @@ pub enum FlagRepoError {
     #[error("Failed to update flag in database")]
     UpdateFlagError(Error),
     #[error("Unknown error: {0}")]
-    OtherError(String)
+    OtherError(String),
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -24,9 +24,6 @@ pub struct FlagStatusError {
 
 impl FlagStatusError {
     pub fn not_found(msg: String) -> Self {
-        Self {
-            msg,
-            status: 404,
-        }
+        Self { msg, status: 404 }
     }
 }

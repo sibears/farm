@@ -4,14 +4,26 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "pydantic>=2.10.2",
-    "pytest>=8.3.4",
-    "requests>=2.32.3",
-]
+dependencies = ["pydantic>=2.10.2", "pytest>=8.3.4", "requests>=2.32.3"]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+venv = ".venv"
+
+[tool.mypy]
+strict = true
+
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.0",
+    "pyright>=1.1.401",
+    "ruff>=0.11.13",
+    "types-requests>=2.32.0",
+]

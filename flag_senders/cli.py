@@ -1,13 +1,11 @@
 import logging
 
 from farm import BackendClient
-from flag_sender import parse_args
-from protocols.ructf_http import RuCtfHttpFlagSender
-from protocols.ructf_tcp import RuCtfTcpFlagSender
-from protocols.sibir_http import SibirCtfHttpFlagSender
+from flag_sender import FlagSender, parse_args
+from protocols import RuCtfHttpFlagSender, RuCtfTcpFlagSender, SibirCtfHttpFlagSender
 
 
-def main():
+def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
@@ -20,6 +18,7 @@ def main():
 
     protocol = config.ctf.protocol.protocol
 
+    sender: FlagSender
     if protocol == "ructf_tcp":
         sender = RuCtfTcpFlagSender(backend_client)
     elif protocol == "ructf_http":
