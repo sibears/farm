@@ -1,0 +1,46 @@
+name: Rust Code Quality Check
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "back/**"
+
+jobs:
+  clippy-check:
+    name: Clippy Lint Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ./back/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run Clippy (blocking)
+        working-directory: ./back
+        run: |
+          cargo clippy --all-features --all-targets -- -D warnings
+        # -D warnings превращает предупреждения в ошибки, блокируя PR
+
+      - name: Run cargo fmt check
+        working-directory: ./back
+        run: |
+          cargo fmt --all -- --check
+        # Проверяет форматирование кода
+
+      - name: Run cargo check
+        working-directory: ./back
+        run: |
+          cargo check --all-features --all-targets
