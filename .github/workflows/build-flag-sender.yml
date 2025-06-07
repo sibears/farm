@@ -2,14 +2,14 @@ name: Build and Push Flag sender Docker image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'flag_senders/**'
-      - '.github/workflows/build-flag-sender.yml'
+      - "flag_senders/**"
+      - ".github/workflows/build-flag-sender.yml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'flag_senders/**'
+      - "flag_senders/**"
   workflow_dispatch:
 
 env:
@@ -17,8 +17,11 @@ env:
   BACKEND_IMAGE_NAME: ${{ github.repository }}/sibears_farm_flag_sender
 
 jobs:
+  python-check:
+    uses: ./.github/workflows/python-check.yml
   build-and-push:
     runs-on: ubuntu-latest
+    needs: python-check
     permissions:
       contents: read
       packages: write

@@ -2,14 +2,14 @@ name: Build and Push Backend Docker image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'back/**'
-      - '.github/workflows/build-backend.yml'
+      - "back/**"
+      - ".github/workflows/build-backend.yml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'back/**'
+      - "back/**"
   workflow_dispatch:
 
 env:
@@ -17,8 +17,11 @@ env:
   BACKEND_IMAGE_NAME: ${{ github.repository }}/sibears_farm
 
 jobs:
+  rust-check:
+    uses: ./.github/workflows/rust-check.yml
   build-and-push:
     runs-on: ubuntu-latest
+    needs: rust-check
     permissions:
       contents: read
       packages: write

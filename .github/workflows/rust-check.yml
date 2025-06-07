@@ -1,12 +1,16 @@
 name: Rust Code Quality Check
-permissions:
-  contents: read
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - "back/**"
+      - ".github/workflows/rust-check.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "back/**"
+  workflow_call:
 
 jobs:
   clippy-check:

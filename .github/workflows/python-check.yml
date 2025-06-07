@@ -1,10 +1,16 @@
 name: Python Code Quality Check
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - "flag_senders/**"
+      - ".github/workflows/python-check.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "flag_senders/**"
+  workflow_call:
 
 jobs:
   python-check:
