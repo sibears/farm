@@ -1,6 +1,7 @@
 use crate::domain::flags::entities::{FlagStatus, SaveFlag};
 use crate::domain::flags::{entities::Flag, repository::FlagRepo};
 use async_trait::async_trait;
+use sqlx::types::chrono;
 
 // Mock репозиторий
 #[allow(dead_code)]
