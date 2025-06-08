@@ -14,7 +14,7 @@ pub struct FlagsQuery {
     pub offset: u32,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone, ToSchema)]
 pub struct Flag {
     pub id: i32,
     pub flag: String,

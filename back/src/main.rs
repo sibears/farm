@@ -11,7 +11,7 @@ use sibears_farm::application::sending::service::SendingService;
 use sibears_farm::cors::CORS;
 use sibears_farm::domain::auth::entities::AuthEntity;
 use sibears_farm::infrastructure::config::file_repository::FileConfigRepo;
-// use sibears_farm::presentation::api_docs::ApiDoc;
+use sibears_farm::presentation::api_docs::ApiDoc;
 use sibears_farm::presentation::auth::controllers::check_auth;
 use sibears_farm::presentation::config::controllers::{get_config, start_sploit};
 use sibears_farm::presentation::flags::controllers::{
@@ -72,14 +72,14 @@ async fn main() {
                 get_stats_flags_by_status,
             ],
         )
-        // .mount("/api-docs", routes![serve_api_docs])
+        .mount("/api-docs", routes![serve_api_docs])
         .mount("/metrics", prometheus)
         .launch()
         .await
         .unwrap();
 }
 
-// #[get("/openapi.json")]
-// fn serve_api_docs() -> Json<utoipa::openapi::OpenApi> {
-//     Json(ApiDoc::openapi())
-// }
+#[get("/openapi.json")]
+fn serve_api_docs() -> Json<utoipa::openapi::OpenApi> {
+    Json(ApiDoc::openapi())
+}

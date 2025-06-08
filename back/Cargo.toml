@@ -25,7 +25,7 @@ notify = "8.0.0"
 env_logger = "0.11.7"
 chrono = { version = "0.4.40", features = ["serde"] }
 schemars = { version = "0.8.22", features = ["chrono"] }
-utoipa = { version = "5.3.1" }
+utoipa = { version = "5.3.1", features = ["chrono"] }
 rocket_cors = "0.6.0"
 rocket_prometheus = "0.10.1"
 sqlx = { version = "0.8.6", features = [

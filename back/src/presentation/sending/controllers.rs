@@ -7,13 +7,13 @@ use crate::types::{ConcreteFlagService, ConcreteSendingService};
 use rocket::{serde::json::Json, State};
 
 /// Get flags for senders
-// #[utoipa::path(
-//     get,
-//     path = "/api/get_sending_flags",
-//     responses(
-//         (status = 200, description = "Get flags for sending", body = Vec<Flag>)
-//     )
-// )]
+#[utoipa::path(
+    get,
+    path = "/api/get_sending_flags",
+    responses(
+        (status = 200, description = "Get flags for sending", body = Vec<Flag>)
+    )
+)]
 #[get("/get_sending_flags")]
 pub async fn get_flags_for_senders(
     _auth: AuthGuard,
@@ -46,14 +46,14 @@ pub async fn force_update_waiting_flags(
 }
 
 /// Update flags from sending
-// #[utoipa::path(
-//     post,
-//     path = "/api/update_flags_from_sending",
-//     request_body = Vec<Flag>,
-//     responses(
-//         (status = 200, description = "Update flags from sending")
-//     )
-// )]
+#[utoipa::path(
+    post,
+    path = "/api/update_flags_from_sending",
+    request_body = Vec<Flag>,
+    responses(
+        (status = 200, description = "Update flags from sending")
+    )
+)]
 #[post("/update_flags_from_sending", data = "<flags>")]
 pub async fn update_flags_from_sending(
     _auth: AuthGuard,

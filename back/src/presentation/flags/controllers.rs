@@ -10,13 +10,13 @@ use crate::{
     presentation::auth::guard::AuthGuard,
 };
 
-// #[utoipa::path(
-//     get,
-//     path = "/api/flags",
-//     responses(
-//         (status = 200, description = "List all flags", body = Vec<Flag>)
-//     )
-// )]
+#[utoipa::path(
+    get,
+    path = "/api/flags",
+    responses(
+        (status = 200, description = "List all flags", body = Vec<Flag>)
+    )
+)]
 #[get("/flags")]
 pub async fn get_flags(
     _auth: AuthGuard,

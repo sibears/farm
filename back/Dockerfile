@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . .
 
+ENV SQLX_OFFLINE=true
+
 RUN --mount=type=cache,target=/app/target \
     cargo build --release && \
     cp /app/target/x86_64-unknown-linux-musl/release/sibears_farm /sibears_farm

@@ -1,1 +1,9 @@
-target
+target/
+.ruff_cache/
+.git/
+.github/
+*.md
+.env*
+.gitignore
+Dockerfile*
+docker-compose*
