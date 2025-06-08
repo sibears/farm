@@ -1,7 +1,6 @@
 use chrono::NaiveDateTime;
 use regex::Regex;
 use rocket::form::FromForm;
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
 use utoipa::ToSchema;
@@ -14,7 +13,7 @@ pub struct FlagsQuery {
     pub offset: u32,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, ToSchema)]
 pub struct Flag {
     pub id: i32,
     pub flag: String,
@@ -26,7 +25,7 @@ pub struct Flag {
     pub checksystem_response: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, ToSchema)]
 pub struct NewFlag {
     pub flag: String,
     pub sploit: Option<String>,
@@ -66,7 +65,6 @@ impl From<&NewFlag> for SaveFlag {
     Serialize,
     Deserialize,
     PartialEq,
-    JsonSchema,
     Clone,
     Copy,
     Display,

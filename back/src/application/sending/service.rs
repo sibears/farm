@@ -3,7 +3,9 @@ use crate::application::flags::service::FlagService;
 use crate::domain::config::repository::ConfigRepo;
 use crate::domain::flags::entities::{Flag, FlagStatus};
 use crate::domain::flags::repository::FlagRepo;
+use sqlx::types::chrono;
 use std::sync::Arc;
+use tokio::time::Duration;
 
 pub struct SendingService<T: FlagRepo, C: ConfigRepo> {
     flag_service: Arc<FlagService<T, C>>,
@@ -36,7 +38,7 @@ impl<T: FlagRepo, C: ConfigRepo> SendingService<T, C> {
         let duraction = config.ctf.waiting_period;
         let mut flags = self.flag_service.get_waiting_flags().await?;
         flags.iter_mut().for_each(|item| {
-            if item.start_waiting_time.unwrap() + chrono::Duration::seconds(duraction.into())
+            if item.start_waiting_time.unwrap() + Duration::new(duraction.into(), 0)
                 < chrono::Utc::now().naive_utc()
             {
                 item.status = FlagStatus::QUEUED;
