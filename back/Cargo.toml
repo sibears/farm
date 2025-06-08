@@ -5,12 +5,10 @@ edition = "2018"
 
 [dependencies]
 rocket = { version = "0.5.1", features = ["json"] }
-diesel = { version = "2.2.8", features = ["chrono", "postgres", "r2d2"] }
 dotenv = "0.15.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = { version = "1.0.140", features = ["preserve_order"] }
 uuid = { version = "1.16.0", features = ["serde", "v4"] }
-diesel_migrations = "2.2.0"
 rand = "0.9.0"
 reqwest = { version = "0.12.14", features = ["json", "blocking"] }
 tokio = { version = "1.44.1", features = ["full"] }
@@ -26,14 +24,19 @@ thiserror = "2.0.12"
 notify = "8.0.0"
 env_logger = "0.11.7"
 chrono = { version = "0.4.40", features = ["serde"] }
-diesel-enum = "0.2.1"
 schemars = { version = "0.8.22", features = ["chrono"] }
-utoipa = { version = "5.3.1" }
+utoipa = { version = "5.3.1", features = ["chrono"] }
 rocket_cors = "0.6.0"
 rocket_prometheus = "0.10.1"
+sqlx = { version = "0.8.6", features = [
+    "runtime-tokio",
+    "postgres",
+    "chrono",
+    "migrate",
+] }
+async-trait = "0.1.88"
 
 
 [profile.release]
 strip = true
 lto = true
-

@@ -1,5 +1,5 @@
 use std::env;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use rocket::serde::json::Json;
 use rocket::{get, routes};
@@ -31,13 +31,11 @@ use utoipa::OpenApi;
 async fn main() {
     let config_repo_path =
         env::var("CONFIG_REPO").unwrap_or_else(|_| "./config_test.json".to_string());
-    let config_repo = Arc::new(Mutex::new(FileConfigRepo::new(&config_repo_path)));
+    let config_repo = Arc::new(FileConfigRepo::new(&config_repo_path));
     let config_service = Arc::new(ConfigService::new(config_repo));
 
     let config = config_service.get_config().unwrap();
-    let flag_repo = Arc::new(Mutex::new(PostgresFlagRepo::new(
-        &config.database.database_url.clone(),
-    )));
+    let flag_repo = Arc::new(PostgresFlagRepo::new(&config.database.database_url.clone()).await);
     let flag_service = Arc::new(FlagService::new(flag_repo, config_service.clone()));
 
     let sending_service = SendingService::new(flag_service.clone(), config_service.clone());
@@ -47,7 +45,7 @@ async fn main() {
 
     let prometheus = PrometheusMetrics::new();
     let metrics_service = FlagMetricsService::new(&prometheus);
-    metrics_service.update_flags_count(&flag_service);
+    metrics_service.update_flags_count(&flag_service).await;
 
     rocket::build()
         .attach(CORS)

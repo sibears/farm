@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT \n                id, \n                flag, \n                sploit,\n                team,\n                created_time,\n                start_waiting_time,\n                status as \"status: FlagStatus\",\n                checksystem_response\n               FROM flags WHERE status = $1 LIMIT $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "flag",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "sploit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "team",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_time",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "start_waiting_time",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 6,
+        "name": "status: FlagStatus",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "checksystem_response",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "de48fec97c23d47efef3536b30b4db7da5c5739446b26efb1d09ea90041a9198"
+}

@@ -1,5 +1,6 @@
 use crate::domain::flags::entities::{FlagStatus, SaveFlag};
 use crate::domain::flags::{entities::Flag, repository::FlagRepo};
+use async_trait::async_trait;
 
 // Mock репозиторий
 #[allow(dead_code)]
@@ -7,12 +8,13 @@ struct MockFlagRepo {
     should_fail: bool,
 }
 
+#[async_trait]
 impl FlagRepo for MockFlagRepo {
-    type FlagRepoError = diesel::result::Error;
+    type FlagRepoError = sqlx::Error;
 
-    fn get(&self, id: i32) -> Result<Flag, Self::FlagRepoError> {
+    async fn get(&self, id: i32) -> Result<Flag, Self::FlagRepoError> {
         if self.should_fail {
-            Err(diesel::result::Error::NotFound)
+            Err(sqlx::Error::RowNotFound)
         } else {
             Ok(Flag {
                 id,
@@ -27,9 +29,9 @@ impl FlagRepo for MockFlagRepo {
         }
     }
 
-    fn get_all(&self) -> Result<Vec<Flag>, Self::FlagRepoError> {
+    async fn get_all(&self) -> Result<Vec<Flag>, Self::FlagRepoError> {
         if self.should_fail {
-            Err(diesel::result::Error::NotFound)
+            Err(sqlx::Error::RowNotFound)
         } else {
             Ok(vec![
                 Flag {
@@ -56,70 +58,70 @@ impl FlagRepo for MockFlagRepo {
         }
     }
 
-    fn save(&self, _new_flag: &SaveFlag) -> Result<usize, Self::FlagRepoError> {
+    async fn save(&self, _new_flag: &SaveFlag) -> Result<usize, Self::FlagRepoError> {
         if self.should_fail {
-            Err(diesel::result::Error::NotFound)
+            Err(sqlx::Error::RowNotFound)
         } else {
             Ok(1)
         }
     }
 
-    fn delete(&self, _id: i32) -> Result<usize, Self::FlagRepoError> {
+    async fn delete(&self, _id: i32) -> Result<usize, Self::FlagRepoError> {
         if self.should_fail {
-            Err(diesel::result::Error::NotFound)
+            Err(sqlx::Error::RowNotFound)
         } else {
             Ok(1)
         }
     }
 
-    fn update(&self, _flag: &Flag) -> Result<usize, Self::FlagRepoError> {
+    async fn update(&self, _flag: &Flag) -> Result<usize, Self::FlagRepoError> {
         if self.should_fail {
-            Err(diesel::result::Error::NotFound)
+            Err(sqlx::Error::RowNotFound)
         } else {
             Ok(1)
         }
     }
 
-    fn get_all_by_status(
+    async fn get_all_by_status(
         &self,
         _flag_status: crate::domain::flags::entities::FlagStatus,
     ) -> Result<Vec<crate::domain::flags::entities::Flag>, Self::FlagRepoError> {
         todo!()
     }
 
-    fn save_all(
+    async fn save_all(
         &self,
         _flag: &[crate::domain::flags::entities::SaveFlag],
     ) -> Result<usize, Self::FlagRepoError> {
         todo!()
     }
 
-    fn delete_all(
+    async fn delete_all(
         &self,
         _flags: &[crate::domain::flags::entities::Flag],
     ) -> Result<usize, Self::FlagRepoError> {
         todo!()
     }
 
-    fn update_all(
+    async fn update_all(
         &self,
         _flags: &[crate::domain::flags::entities::Flag],
     ) -> Result<usize, Self::FlagRepoError> {
         todo!()
     }
 
-    fn get_limit(
+    async fn get_limit(
         &self,
         _limit: u32,
     ) -> Result<Vec<crate::domain::flags::entities::Flag>, Self::FlagRepoError> {
         todo!()
     }
 
-    fn get_last_id(&self) -> Result<i32, Self::FlagRepoError> {
+    async fn get_last_id(&self) -> Result<i32, Self::FlagRepoError> {
         todo!()
     }
 
-    fn get_limit_by_status(
+    async fn get_limit_by_status(
         &self,
         _flag_status: crate::domain::flags::entities::FlagStatus,
         _limit: u32,
@@ -127,14 +129,14 @@ impl FlagRepo for MockFlagRepo {
         todo!()
     }
 
-    fn get_all_by_id(
+    async fn get_all_by_id(
         &self,
         _ids: &[i32],
     ) -> Result<Vec<crate::domain::flags::entities::Flag>, Self::FlagRepoError> {
         todo!()
     }
 
-    fn get_limit_with_offset_from_start(
+    async fn get_limit_with_offset_from_start(
         &self,
         _limit: u32,
         _offset: u32,
@@ -142,7 +144,7 @@ impl FlagRepo for MockFlagRepo {
         todo!()
     }
 
-    fn get_limit_with_offset_from_end(
+    async fn get_limit_with_offset_from_end(
         &self,
         _limit: u32,
         _offset: u32,
@@ -150,11 +152,11 @@ impl FlagRepo for MockFlagRepo {
         todo!()
     }
 
-    fn get_total_flags(&self) -> Result<i64, Self::FlagRepoError> {
+    async fn get_total_flags(&self) -> Result<i64, Self::FlagRepoError> {
         todo!()
     }
 
-    fn get_total_flags_by_status(
+    async fn get_total_flags_by_status(
         &self,
         _flag_status: FlagStatus,
     ) -> Result<i64, Self::FlagRepoError> {
@@ -164,10 +166,7 @@ impl FlagRepo for MockFlagRepo {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        collections::HashMap,
-        sync::{Arc, Mutex},
-    };
+    use std::{collections::HashMap, sync::Arc};
 
     use crate::{
         application::{
@@ -207,41 +206,41 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_get_flag() {
-        let mock_flag_repo = Arc::new(Mutex::new(MockFlagRepo { should_fail: false }));
-        let mock_config_repo =
-            Arc::new(Mutex::new(MockConfigRepo::new(false, create_test_config())));
+    #[tokio::test]
+    async fn test_get_flag() {
+        let mock_flag_repo = Arc::new(MockFlagRepo { should_fail: false });
+        let mock_config_repo = Arc::new(MockConfigRepo::new(false, create_test_config()));
         let config_service = Arc::new(ConfigService::new(mock_config_repo));
         let service = FlagService::new(mock_flag_repo, config_service);
 
-        let flag = service.get_flag(1).expect("Expected a flag");
+        let flag = service.get_flag(1).await.expect("Expected a flag");
 
         assert_eq!(flag.id, 1);
         assert_eq!(flag.flag, "Test Flag");
         assert_eq!(flag.status, FlagStatus::QUEUED);
     }
 
-    #[test]
-    fn test_get_all_flags() {
-        let mock_flag_repo = Arc::new(Mutex::new(MockFlagRepo { should_fail: false }));
-        let mock_config_repo =
-            Arc::new(Mutex::new(MockConfigRepo::new(false, create_test_config())));
+    #[tokio::test]
+    async fn test_get_all_flags() {
+        let mock_flag_repo = Arc::new(MockFlagRepo { should_fail: false });
+        let mock_config_repo = Arc::new(MockConfigRepo::new(false, create_test_config()));
         let config_service = Arc::new(ConfigService::new(mock_config_repo));
         let service = FlagService::new(mock_flag_repo, config_service);
 
-        let flags = service.get_all_flags().expect("Expected a list of flags");
+        let flags = service
+            .get_all_flags()
+            .await
+            .expect("Expected a list of flags");
 
         assert_eq!(flags.len(), 2);
         assert_eq!(flags[0].flag, "Flag 1");
         assert_eq!(flags[1].flag, "Flag 2");
     }
 
-    #[test]
-    fn test_save_flag() {
-        let mock_flag_repo = Arc::new(Mutex::new(MockFlagRepo { should_fail: false }));
-        let mock_config_repo =
-            Arc::new(Mutex::new(MockConfigRepo::new(false, create_test_config())));
+    #[tokio::test]
+    async fn test_save_flag() {
+        let mock_flag_repo = Arc::new(MockFlagRepo { should_fail: false });
+        let mock_config_repo = Arc::new(MockConfigRepo::new(false, create_test_config()));
         let config_service = Arc::new(ConfigService::new(mock_config_repo));
         let service = FlagService::new(mock_flag_repo, config_service);
 
@@ -253,29 +252,29 @@ mod tests {
 
         let result = service
             .save_flag(&new_flag)
+            .await
             .expect("Expected successful save");
         assert_eq!(result, 1);
     }
 
-    #[test]
-    fn test_delete_flag() {
-        let mock_flag_repo = Arc::new(Mutex::new(MockFlagRepo { should_fail: false }));
-        let mock_config_repo =
-            Arc::new(Mutex::new(MockConfigRepo::new(false, create_test_config())));
+    #[tokio::test]
+    async fn test_delete_flag() {
+        let mock_flag_repo = Arc::new(MockFlagRepo { should_fail: false });
+        let mock_config_repo = Arc::new(MockConfigRepo::new(false, create_test_config()));
         let config_service = Arc::new(ConfigService::new(mock_config_repo));
         let service = FlagService::new(mock_flag_repo, config_service);
 
         let result = service
             .delete_flag(1)
+            .await
             .expect("Expected successful deletion");
         assert_eq!(result, 1);
     }
 
-    #[test]
-    fn test_update_flag() {
-        let mock_flag_repo = Arc::new(Mutex::new(MockFlagRepo { should_fail: false }));
-        let mock_config_repo =
-            Arc::new(Mutex::new(MockConfigRepo::new(false, create_test_config())));
+    #[tokio::test]
+    async fn test_update_flag() {
+        let mock_flag_repo = Arc::new(MockFlagRepo { should_fail: false });
+        let mock_config_repo = Arc::new(MockConfigRepo::new(false, create_test_config()));
         let config_service = Arc::new(ConfigService::new(mock_config_repo));
         let service = FlagService::new(mock_flag_repo, config_service);
 
@@ -292,19 +291,19 @@ mod tests {
 
         let result = service
             .update_flag(&updated_flag)
+            .await
             .expect("Expected successful update");
         assert_eq!(result, 1);
     }
 
-    #[test]
-    fn test_get_flag_with_error() {
-        let mock_flag_repo = Arc::new(Mutex::new(MockFlagRepo { should_fail: true }));
-        let mock_config_repo =
-            Arc::new(Mutex::new(MockConfigRepo::new(false, create_test_config())));
+    #[tokio::test]
+    async fn test_get_flag_with_error() {
+        let mock_flag_repo = Arc::new(MockFlagRepo { should_fail: true });
+        let mock_config_repo = Arc::new(MockConfigRepo::new(false, create_test_config()));
         let config_service = Arc::new(ConfigService::new(mock_config_repo));
         let service = FlagService::new(mock_flag_repo, config_service);
 
-        let result = service.get_flag(1);
+        let result = service.get_flag(1).await;
         assert!(result.is_err());
     }
 }

@@ -1,4 +1,4 @@
-use diesel::result::Error;
+use sqlx::Error;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

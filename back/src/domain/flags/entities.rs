@@ -1,15 +1,10 @@
 use chrono::NaiveDateTime;
-use diesel::sql_types::Text;
-use diesel_enum::DbEnum;
 use regex::Regex;
 use rocket::form::FromForm;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
 use utoipa::ToSchema;
-
-use crate::domain::flags::errors::FlagStatusError;
-use crate::schema::flags;
 
 #[derive(FromForm)]
 pub struct FlagsQuery {
@@ -19,28 +14,13 @@ pub struct FlagsQuery {
     pub offset: u32,
 }
 
-#[derive(
-    Queryable,
-    Insertable,
-    Serialize,
-    Deserialize,
-    PartialEq,
-    Debug,
-    AsChangeset,
-    JsonSchema,
-    Clone,
-    ToSchema,
-)]
-#[diesel(primary_key(id))]
-#[diesel(table_name = flags)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone, ToSchema)]
 pub struct Flag {
     pub id: i32,
     pub flag: String,
     pub sploit: Option<String>,
     pub team: Option<String>,
-    #[schema(value_type = String, format = "date-time")]
     pub created_time: NaiveDateTime,
-    #[schema(value_type = Option<String>, format = "date-time")]
     pub start_waiting_time: Option<NaiveDateTime>,
     pub status: FlagStatus,
     pub checksystem_response: Option<String>,
@@ -59,8 +39,6 @@ impl NewFlag {
     }
 }
 
-#[derive(Insertable)]
-#[diesel(table_name = flags)]
 pub struct SaveFlag {
     pub flag: String,
     pub sploit: Option<String>,
@@ -90,17 +68,14 @@ impl From<&NewFlag> for SaveFlag {
     PartialEq,
     JsonSchema,
     Clone,
+    Copy,
     Display,
     EnumIter,
     EnumString,
-    AsExpression,
-    FromSqlRow,
-    DbEnum,
     ToSchema,
+    sqlx::Type,
 )]
-#[diesel(sql_type = Text)]
-#[diesel_enum(error_fn = FlagStatusError::not_found)]
-#[diesel_enum(error_type = FlagStatusError)]
+#[sqlx(type_name = "flag_status", rename_all = "lowercase")]
 pub enum FlagStatus {
     QUEUED,
     WAITING,

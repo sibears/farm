@@ -1,4 +1,10 @@
-use crate::{application::flags::service::FlagService, domain::flags::entities::FlagStatus};
+use crate::{
+    application::flags::service::FlagService,
+    domain::{
+        config::repository::ConfigRepo,
+        flags::{entities::FlagStatus, repository::FlagRepo},
+    },
+};
 use rocket_prometheus::{
     prometheus::{Gauge as PromGauge, Opts},
     PrometheusMetrics,
@@ -63,19 +69,26 @@ impl FlagMetricsService {
     }
 
     /// Обновляет значения метрик на основе данных из FlagService.
-    pub fn update_flags_count(&self, flag_service: &Arc<FlagService>) {
+    pub async fn update_flags_count<T: FlagRepo, C: ConfigRepo>(
+        &self,
+        flag_service: &Arc<FlagService<T, C>>,
+    ) {
         // Удобная функция для обновления значения конкретного Gauge
-        fn update_gauge(flag_service: &FlagService, status: FlagStatus, gauge: &PromGauge) {
-            match flag_service.get_total_flags_by_status(status) {
+        async fn update_gauge<T: FlagRepo, C: ConfigRepo>(
+            flag_service: &FlagService<T, C>,
+            status: FlagStatus,
+            gauge: &PromGauge,
+        ) {
+            match flag_service.get_total_flags_by_status(status).await {
                 Ok(count) => gauge.set(count as f64),
                 Err(_) => gauge.set(0.0),
             }
         }
 
-        update_gauge(flag_service, FlagStatus::ACCEPTED, &self.accepted);
-        update_gauge(flag_service, FlagStatus::REJECTED, &self.rejected);
-        update_gauge(flag_service, FlagStatus::SKIPPED, &self.skipped);
-        update_gauge(flag_service, FlagStatus::QUEUED, &self.queued);
-        update_gauge(flag_service, FlagStatus::WAITING, &self.waiting);
+        update_gauge(flag_service, FlagStatus::ACCEPTED, &self.accepted).await;
+        update_gauge(flag_service, FlagStatus::REJECTED, &self.rejected).await;
+        update_gauge(flag_service, FlagStatus::SKIPPED, &self.skipped).await;
+        update_gauge(flag_service, FlagStatus::QUEUED, &self.queued).await;
+        update_gauge(flag_service, FlagStatus::WAITING, &self.waiting).await;
     }
 }

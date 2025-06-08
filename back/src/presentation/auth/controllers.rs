@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use rocket::{serde::json::Json, State};
 
-use crate::application::config::service::ConfigService;
+use crate::types::ConcreteConfigService;
 
 /// Check authentication with password
 #[utoipa::path(
@@ -16,7 +16,7 @@ use crate::application::config::service::ConfigService;
 )]
 #[post("/check_auth", data = "<passwd>")]
 pub fn check_auth(
-    config_service: &State<Arc<ConfigService>>,
+    config_service: &State<Arc<ConcreteConfigService>>,
     passwd: Json<HashMap<String, String>>,
 ) -> Json<String> {
     let config = config_service.get_config().unwrap();
