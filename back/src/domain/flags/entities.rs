@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
 use utoipa::ToSchema;
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug)]
 pub struct FlagsQuery {
     #[field(default = 20)]
     pub limit: u32,
@@ -25,6 +25,17 @@ pub struct Flag {
     pub checksystem_response: Option<String>,
 }
 
+impl PartialEq<SaveFlag> for Flag {
+    fn eq(&self, other: &SaveFlag) -> bool {
+        self.flag == other.flag
+            && self.sploit == other.sploit
+            && self.team == other.team
+            && self.created_time == other.created_time
+            && self.status == other.status
+            && self.checksystem_response == other.checksystem_response
+    }
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, ToSchema)]
 pub struct NewFlag {
     pub flag: String,
@@ -38,6 +49,7 @@ impl NewFlag {
     }
 }
 
+#[derive(Debug)]
 pub struct SaveFlag {
     pub flag: String,
     pub sploit: Option<String>,
