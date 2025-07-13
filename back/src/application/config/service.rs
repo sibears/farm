@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::domain::config::{entities::Config, repository::ConfigRepo};
+use crate::domain::config::{Config, ConfigRepo, ConfigServiceError};
 
 pub struct ConfigService<T: ConfigRepo> {
     repo: Arc<T>,
@@ -11,7 +11,7 @@ impl<T: ConfigRepo> ConfigService<T> {
         ConfigService { repo }
     }
 
-    pub fn get_config(&self) -> Result<Config, T::ConfigRepoError> {
+    pub fn get_config(&self) -> Result<Config, ConfigServiceError> {
         let config = self.repo.get_config()?;
         Ok(config)
     }

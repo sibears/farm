@@ -22,6 +22,8 @@ sqlx = { version = "0.8.6", features = [
 ] }
 async-trait = "0.1.88"
 
+[dev-dependencies]
+rstest = "0.25.0"
 
 [profile.release]
 strip = true

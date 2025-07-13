@@ -26,7 +26,10 @@ class FlagSender(ABC):
         """
         Запускает периодический процесс отправки флагов.
         """
-        logging.info("Запуск отправки флагов.")
+        config = self.backend_client.get_config()
+        logging.info(
+            f"Запуск отправки флагов с журейкой: {config.ctf.protocol.checksys_host}"
+        )
         try:
             while True:
                 start_time = time.time()

@@ -21,12 +21,12 @@ use crate::{
 pub async fn get_flags(
     _auth: AuthGuard,
     flag_service: &State<Arc<ConcreteFlagService>>,
-) -> Json<Vec<Flag>> {
+) -> Json<Arc<[Flag]>> {
     let res = flag_service.get_all_flags().await.unwrap();
     Json(res)
 }
 
-#[get("/flags?<flags_query..>")]
+#[get("/flags_limit?<flags_query..>")]
 pub async fn get_flags_per_page(
     _auth: AuthGuard,
     flag_service: &State<Arc<ConcreteFlagService>>,
