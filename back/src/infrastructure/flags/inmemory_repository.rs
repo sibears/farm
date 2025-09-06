@@ -31,7 +31,10 @@ impl FlagRepo for InMemoryFlagRepository {
     async fn get_all(&self) -> Result<Arc<[Flag]>, FlagRepoError> {
         Ok(self.flags.clone().into())
     }
-    async fn get_all_by_status(&self, flag_status: FlagStatus) -> Result<Vec<Flag>, FlagRepoError> {
+    async fn get_all_by_status(
+        &self,
+        _flag_status: FlagStatus,
+    ) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
 
@@ -49,42 +52,42 @@ impl FlagRepo for InMemoryFlagRepository {
         Ok(1)
     }
 
-    async fn save_all(&mut self, flags: &[SaveFlag]) -> Result<usize, FlagRepoError> {
+    async fn save_all(&mut self, _flags: &[SaveFlag]) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
-    async fn delete(&mut self, id: i32) -> Result<usize, FlagRepoError> {
+    async fn delete(&mut self, _id: i32) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
-    async fn delete_all(&mut self, flags: &[Flag]) -> Result<usize, FlagRepoError> {
+    async fn delete_all(&mut self, _flags: &[Flag]) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
-    async fn update(&mut self, flag: &Flag) -> Result<usize, FlagRepoError> {
+    async fn update(&mut self, _flag: &Flag) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
-    async fn update_all(&mut self, flags: &[Flag]) -> Result<usize, FlagRepoError> {
+    async fn update_all(&mut self, _flags: &[Flag]) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
-    async fn get_limit(&self, limit: u32) -> Result<Vec<Flag>, FlagRepoError> {
+    async fn get_limit(&self, _limit: u32) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
 
     async fn get_limit_with_offset_from_start(
         &self,
-        limit: u32,
-        offset: u32,
+        _limit: u32,
+        _offset: u32,
     ) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
 
     async fn get_limit_with_offset_from_end(
         &self,
-        limit: u32,
-        offset: u32,
+        _limit: u32,
+        _offset: u32,
     ) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
@@ -98,13 +101,13 @@ impl FlagRepo for InMemoryFlagRepository {
 
     async fn get_limit_by_status(
         &self,
-        flag_status: FlagStatus,
-        limit: u32,
+        _flag_status: FlagStatus,
+        _limit: u32,
     ) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
 
-    async fn get_all_by_id(&self, ids: &[i32]) -> Result<Vec<Flag>, FlagRepoError> {
+    async fn get_all_by_id(&self, _ids: &[i32]) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
 
@@ -114,7 +117,7 @@ impl FlagRepo for InMemoryFlagRepository {
 
     async fn get_total_flags_by_status(
         &self,
-        flag_status: FlagStatus,
+        _flag_status: FlagStatus,
     ) -> Result<i64, FlagRepoError> {
         todo!()
     }

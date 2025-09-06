@@ -4,7 +4,7 @@ pub use service::*;
 #[cfg(test)]
 mod tests {
     use crate::application::config::ConfigService;
-    use crate::domain::config::{Config, ConfigRepo};
+    use crate::domain::config::Config;
     use crate::infrastructure::config::InMemoryConfigRepository;
     use rstest::*;
     use std::sync::Arc;

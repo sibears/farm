@@ -11,7 +11,6 @@ mod tests {
     };
     use crate::infrastructure::config::InMemoryConfigRepository;
     use rstest::*;
-    use std::collections::HashMap;
 
     #[fixture]
     fn repository() -> impl ConfigRepo {

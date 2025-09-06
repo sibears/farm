@@ -1,13 +1,12 @@
-use rocket::response::status;
-use rocket::{serde::json::Json, State};
+use rocket::{response::status, serde::json::Json, State};
 use std::sync::Arc;
 use strum::IntoEnumIterator;
 
 use crate::types::ConcreteFlagService;
 use crate::{
     application::metrics::service::FlagMetricsService,
-    domain::flags::entities::{Flag, FlagStatus, FlagsQuery, NewFlag},
-    presentation::auth::guard::AuthGuard,
+    domain::flags::{Flag, FlagStatus, FlagsQuery, NewFlag},
+    presentation::auth::AuthGuard,
 };
 
 #[utoipa::path(

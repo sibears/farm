@@ -1,6 +1,6 @@
-use crate::application::config::service::ConfigService;
-use crate::application::flags::service::FlagService;
-use crate::domain::config::repository::ConfigRepo;
+use crate::application::config::ConfigService;
+use crate::application::flags::FlagService;
+use crate::domain::config::ConfigRepo;
 use crate::domain::flags::{Flag, FlagRepo, FlagStatus};
 use crate::domain::sending::SendingServiceError;
 use sqlx::types::chrono;
