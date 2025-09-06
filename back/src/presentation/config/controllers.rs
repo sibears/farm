@@ -5,10 +5,7 @@ use std::sync::Arc;
 
 use rocket::{serde::json::Json, State};
 
-use crate::{
-    domain::config::entities::Config, presentation::auth::guard::AuthGuard,
-    types::ConcreteConfigService,
-};
+use crate::{domain::config::Config, presentation::auth::AuthGuard, types::ConcreteConfigService};
 
 /// Get config
 #[utoipa::path(

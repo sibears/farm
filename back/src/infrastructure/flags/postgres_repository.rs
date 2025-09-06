@@ -1,8 +1,6 @@
 use sqlx::PgPool;
 
-use crate::domain::flags::entities::{Flag, FlagStatus, SaveFlag};
-use crate::domain::flags::repository::FlagRepo;
-use crate::domain::flags::FlagRepoError;
+use crate::domain::flags::{Flag, FlagRepo, FlagRepoError, FlagStatus, SaveFlag};
 use async_trait::async_trait;
 use sqlx::migrate::Migrator;
 use std::path::Path;

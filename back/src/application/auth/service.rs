@@ -1,4 +1,4 @@
-use crate::domain::auth::entities::AuthEntity;
+use crate::domain::auth::AuthEntity;
 
 pub struct AuthService {
     pub auth_entity: AuthEntity,

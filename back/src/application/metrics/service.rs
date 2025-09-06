@@ -1,8 +1,8 @@
 use crate::{
-    application::flags::service::FlagService,
+    application::flags::FlagService,
     domain::{
-        config::repository::ConfigRepo,
-        flags::{entities::FlagStatus, repository::FlagRepo},
+        config::ConfigRepo,
+        flags::{FlagRepo, FlagStatus},
     },
 };
 use rocket_prometheus::{

@@ -1,7 +1,7 @@
 use regex::Regex;
 
-use crate::application::config::service::ConfigService;
-use crate::domain::config::repository::ConfigRepo;
+use crate::application::config::ConfigService;
+use crate::domain::config::ConfigRepo;
 use crate::domain::flags::{
     Flag, FlagRepo, FlagRepoError, FlagServiceError, FlagStatus, NewFlag, SaveFlag,
 };
