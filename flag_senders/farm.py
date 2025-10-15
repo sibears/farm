@@ -108,7 +108,7 @@ class BackendClient:
             headers: dict[str, str] = {}
             if self.auth_token:
                 headers["X-Authorization"] = self.auth_token
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=5)
             response.raise_for_status()
             return Config(**response.json())
         else:
@@ -126,7 +126,7 @@ class BackendClient:
             if self.auth_token:
                 headers["X-Authorization"] = self.auth_token
             try:
-                response = requests.get(url, headers=headers)
+                response = requests.get(url, headers=headers, timeout=5)
                 response.raise_for_status()
                 flags_data: List[Dict[str, Any]] = response.json()
                 return [Flag(**flag_data) for flag_data in flags_data]
@@ -150,7 +150,9 @@ class BackendClient:
 
             try:
                 flags_data = [flag.model_dump(mode="json") for flag in flags]
-                response = requests.post(url, json=flags_data, headers=headers)
+                response = requests.post(
+                    url, json=flags_data, headers=headers, timeout=5
+                )
                 response.raise_for_status()
             except requests.RequestException as e:
                 logging.error(f"Ошибка обновления флагов: {e}")
