@@ -85,7 +85,7 @@ class BackendClient:
 			headers = {"Content-Type": "application/json", "Accept": "*/*"}
 			try:
 				payload = {"passwd": password}
-				response = requests.post(url, json=payload, headers=headers)
+				response = requests.post(url, json=payload, headers=headers, timeout=5)
 				response.raise_for_status()
 				if response.json() == "ok":
 					return True
