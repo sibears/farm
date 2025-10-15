@@ -37,7 +37,6 @@ class FlagSender(ABC):
                 submit_period = config.ctf.submit_period
 
                 if flags := self.backend_client.get_sending_flags():
-                    time.sleep(3)
                     updated_flags = self.send_flags(config, flags)
                     self.backend_client.update_all_flags(updated_flags)
 
