@@ -29,6 +29,7 @@ class RuCtfHttpFlagSender(FlagSender):
             "already submitted",
             "invalid flag",
             "denied",
+            "stolen",
         ],
     }
 
@@ -56,6 +57,7 @@ class RuCtfHttpFlagSender(FlagSender):
                 f"http://{protocol_config.checksys_host}:{protocol_config.checksys_port}/flags",
                 headers={"X-Team-Token": protocol_config.team_token},
                 json=flags_to_submit,
+                timeout=config.ctf.submit_period,
             )
 
             if not response.ok:
