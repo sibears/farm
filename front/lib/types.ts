@@ -1,10 +1,10 @@
 // Enum для статусов флагов
 export enum FlagStatus {
   QUEUED = "QUEUED",
-  WAITING = "WAITING", 
+  WAITING = "WAITING",
   SKIPPED = "SKIPPED",
   ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED"
+  REJECTED = "REJECTED",
 }
 
 // Интерфейс для флага

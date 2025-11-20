@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { LoginForm } from "@/components/login-form"
+import { useEffect, useState } from "react"
 import { FlagDashboard } from "@/components/flag-dashboard"
+import { LoginForm } from "@/components/login-form"
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)

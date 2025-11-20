@@ -1,9 +1,7 @@
 "use client"
 
-import type React from "react"
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FlagStatus, type FlagType } from "@/lib/types"
 
 interface FlagDetailsModalProps {
@@ -113,7 +111,9 @@ export function FlagDetailsModal({ flag, isOpen, onClose }: FlagDetailsModalProp
               {flag.start_waiting_time && (
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-muted-foreground">Processing:</span>
-                  <span className="font-mono text-foreground">{new Date(flag.start_waiting_time).toLocaleString()}</span>
+                  <span className="font-mono text-foreground">
+                    {new Date(flag.start_waiting_time).toLocaleString()}
+                  </span>
                 </div>
               )}
             </div>
@@ -126,7 +126,9 @@ export function FlagDetailsModal({ flag, isOpen, onClose }: FlagDetailsModalProp
                 <span className="text-lg text-primary">▸</span>
                 <span className="font-mono text-sm text-muted-foreground">System Response</span>
               </div>
-              <p className="font-mono text-foreground bg-muted/20 p-2 rounded border text-sm">{flag.checksystem_response}</p>
+              <p className="font-mono text-foreground bg-muted/20 p-2 rounded border text-sm">
+                {flag.checksystem_response}
+              </p>
             </div>
           )}
         </div>
