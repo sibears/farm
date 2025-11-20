@@ -1,21 +1,25 @@
 import type { NextRequest } from "next/server"
-import { jwtVerify } from "jose"
-import { AUTH_CONFIG } from './env-config'
+import { config } from "./config"
 
-const JWT_SECRET = new TextEncoder().encode(AUTH_CONFIG.JWT_SECRET)
+export interface AuthContext {
+  authenticated: boolean
+  passwordHash?: string
+}
 
-export async function verifyAuth(request: NextRequest): Promise<boolean> {
+export async function verifyAuth(request: NextRequest): Promise<AuthContext> {
   try {
-    const token = request.cookies.get(AUTH_CONFIG.COOKIE_NAME)?.value
+    const storedHash = request.cookies.get(config.auth.cookieName)?.value
 
-    if (!token) {
-      return false
+    if (!storedHash) {
+      return { authenticated: false }
     }
 
-    await jwtVerify(token, JWT_SECRET)
-    return true
+    return {
+      authenticated: true,
+      passwordHash: storedHash,
+    }
   } catch (error) {
     console.error("Auth verification failed:", error)
-    return false
+    return { authenticated: false }
   }
 }

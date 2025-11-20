@@ -1,31 +1,30 @@
-import { API_CONFIG } from './env-config'
+import { config } from "./config"
 
 export const BACKEND_CONFIG = {
-  // URL Rust бэкенда из переменных окружения
-  BASE_URL: API_CONFIG.BASE_URL,
+  BASE_URL: config.api.baseUrl,
+  ENDPOINTS: config.api.endpoints,
+  TIMEOUT: config.api.timeout,
 
-  // API endpoints
-  ENDPOINTS: API_CONFIG.ENDPOINTS,
-
-  // Request configuration
-  TIMEOUT: API_CONFIG.TIMEOUT,
-
-  // Headers for API requests
   getHeaders: (token?: string) => ({
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   }),
 }
 
-// Helper function to make API calls to your backend
-export async function callBackendAPI(endpoint: string, options: RequestInit = {}, token?: string) {
+type BackendAuthOptions = {
+  bearerToken?: string
+  passwordHash?: string
+}
+
+export async function callBackendAPI(endpoint: string, options: RequestInit = {}, auth?: BackendAuthOptions) {
   const url = `${BACKEND_CONFIG.BASE_URL}${endpoint}`
-  console.log(`url: ${url}`)
+
   try {
     const response = await fetch(url, {
       ...options,
       headers: {
-        ...BACKEND_CONFIG.getHeaders(token),
+        ...BACKEND_CONFIG.getHeaders(auth?.bearerToken),
+        ...(auth?.passwordHash ? { "X-Authorization": auth.passwordHash } : {}),
         ...options.headers,
       },
       signal: AbortSignal.timeout(BACKEND_CONFIG.TIMEOUT),

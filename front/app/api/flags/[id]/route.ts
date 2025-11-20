@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { verifyAuth } from "@/lib/auth-middleware"
 
 // Указываем, что роут динамический
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 interface Flag {
   id: number
@@ -23,12 +23,12 @@ const flagsDatabase: Flag[] = [
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Verify authentication
-    const isAuthenticated = await verifyAuth(request)
-    if (!isAuthenticated) {
+    const authContext = await verifyAuth(request)
+    if (!authContext.authenticated) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
-    const flagId = Number.parseInt(params.id)
+    const flagId = Number.parseInt(params.id, 10)
     const flag = flagsDatabase.find((f) => f.id === flagId)
 
     if (!flag) {
@@ -45,12 +45,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Verify authentication
-    const isAuthenticated = await verifyAuth(request)
-    if (!isAuthenticated) {
+    const authContext = await verifyAuth(request)
+    if (!authContext.authenticated) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
-    const flagId = Number.parseInt(params.id)
+    const flagId = Number.parseInt(params.id, 10)
     const flagIndex = flagsDatabase.findIndex((f) => f.id === flagId)
 
     if (flagIndex === -1) {

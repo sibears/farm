@@ -3,11 +3,11 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface FlagSubmissionModalProps {
   isOpen: boolean
@@ -36,11 +36,7 @@ export function FlagSubmissionModal({ isOpen, onClose, onSubmit }: FlagSubmissio
     setError("")
 
     try {
-      // Validate flag format
-      if (!formData.flag.startsWith("CTF{") || !formData.flag.endsWith("}")) {
-        throw new Error("Flag must be in CTF{...} format")
-      }
-
+      // Валидация происходит на сервере через API
       await onSubmit({
         flag: formData.flag,
         sploit: formData.sploit || undefined,
@@ -85,7 +81,7 @@ export function FlagSubmissionModal({ isOpen, onClose, onSubmit }: FlagSubmissio
             </Label>
             <Input
               id="flag"
-              placeholder="CTF{your_flag_here}"
+              placeholder="Enter flag"
               value={formData.flag}
               onChange={(e) => setFormData((prev) => ({ ...prev, flag: e.target.value }))}
               className="font-mono bg-input border-border text-foreground"

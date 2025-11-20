@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
 import { AUTH_CONFIG } from "@/lib/env-config"
 
 // Указываем, что роут динамический
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function POST() {
   try {

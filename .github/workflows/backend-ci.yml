@@ -1,0 +1,188 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - feature/*
+    paths:
+      - 'back/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+    paths:
+      - 'back/**'
+      - '.github/workflows/backend-ci.yml'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint-and-test:
+    name: 🔍 Lint & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: rustfmt, clippy
+          override: true
+
+      - name: 💾 Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 💾 Cache Cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 💾 Cache Cargo build
+        uses: actions/cache@v4
+        with:
+          path: back/target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 🎨 Run Rustfmt
+        working-directory: ./back
+        run: cargo fmt -- --check
+
+      - name: 🔍 Run Clippy
+        working-directory: ./back
+        run: cargo clippy -- -D warnings
+
+      - name: 🧪 Run tests
+        working-directory: ./back
+        run: cargo test --verbose
+
+      - name: ✅ All checks passed
+        run: echo "✅ Все проверки пройдены успешно!"
+
+  build:
+    name: 🏗️ Build Application
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: 💾 Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            back/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 🏗️ Build release
+        working-directory: ./back
+        run: cargo build --release --verbose
+
+      - name: 📊 Check binary
+        working-directory: ./back
+        run: |
+          echo "✅ Build успешно завершен"
+          ls -lah target/release/
+
+  docker-build:
+    name: 🐳 Build Docker Image
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📝 Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./back
+          file: ./back/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 📦 Image digest
+        run: echo ${{ steps.meta.outputs.digest }}
+
+  summary:
+    name: 📊 CI Summary
+    runs-on: ubuntu-latest
+    needs: [lint-and-test, build, docker-build]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate summary
+        run: |
+          echo "# 🎉 Backend CI/CD Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 Lint & Test: ${{ needs.lint-and-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏗️ Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐳 Docker Build: ${{ needs.docker-build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.lint-and-test.result }}" == "success" ] && \
+             [ "${{ needs.build.result }}" == "success" ] && \
+             [ "${{ needs.docker-build.result }}" == "success" ]; then
+            echo "## ✅ Все проверки пройдены!" >> $GITHUB_STEP_SUMMARY
+            echo "Готово к развертыванию 🚀" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Некоторые проверки не прошли" >> $GITHUB_STEP_SUMMARY
+            echo "Проверьте логи выше для деталей" >> $GITHUB_STEP_SUMMARY
+          fi
+
+
