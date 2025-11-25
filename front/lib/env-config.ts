@@ -1,7 +1,6 @@
 import { config } from "./config"
 
 export const ENV_CONFIG = {
-  JWT_SECRET: config.auth.jwtSecret,
   CTF_BACKEND_URL: config.api.baseUrl,
   NEXT_PUBLIC_CTF_BACKEND_URL: config.api.baseUrl,
   API_TIMEOUT: config.api.timeout,
@@ -20,7 +19,6 @@ export const API_CONFIG = {
 } as const
 
 export const AUTH_CONFIG = {
-  JWT_SECRET: config.auth.jwtSecret,
   COOKIE_NAME: config.auth.cookieName,
   COOKIE_MAX_AGE: config.auth.cookieMaxAge,
   SESSION_DURATION: "24h",
