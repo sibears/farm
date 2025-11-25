@@ -10,16 +10,9 @@ impl AuthService {
         Self { auth_entity }
     }
 
-    pub fn authenticate(&self, password_or_hash: &str) -> bool {
-        let candidate = password_or_hash.trim();
-        let stored_plain = self.auth_entity.password.trim();
-
-        if stored_plain == candidate {
-            return true;
-        }
-
-        let stored_hash = hash_password(stored_plain);
-        stored_hash.eq_ignore_ascii_case(candidate)
+    pub fn authenticate(&self, hash: &str) -> bool {
+        let stored_hash = hash_password(&self.auth_entity.password);
+        hash.eq_ignore_ascii_case(&stored_hash)
     }
 }
 
