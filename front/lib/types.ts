@@ -1,4 +1,3 @@
-// Enum для статусов флагов
 export enum FlagStatus {
   QUEUED = "QUEUED",
   WAITING = "WAITING",
@@ -7,7 +6,6 @@ export enum FlagStatus {
   REJECTED = "REJECTED",
 }
 
-// Интерфейс для флага
 export interface FlagType {
   id: number
   flag: string

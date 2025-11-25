@@ -87,7 +87,7 @@ export function FlagPagination({
           disabled={isAtEnd}
           className="font-mono bg-transparent border-border"
         >
-          <span>→</span>
+          <span>&gt;</span>
         </Button>
         <Button
           variant="outline"

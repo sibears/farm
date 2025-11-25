@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { verifyAuth } from "@/lib/auth-middleware"
 
-// Указываем, что роут динамический
 export const dynamic = "force-dynamic"
 
 interface Flag {
@@ -15,14 +14,10 @@ interface Flag {
   checksystem_response?: string
 }
 
-// This would be replaced with actual database in production
-const flagsDatabase: Flag[] = [
-  // Same mock data as in flags/route.ts - could be populated from shared source
-]
+const flagsDatabase: Flag[] = []
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Verify authentication
     const authContext = await verifyAuth(request)
     if (!authContext.authenticated) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
@@ -44,7 +39,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Verify authentication
     const authContext = await verifyAuth(request)
     if (!authContext.authenticated) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
@@ -59,7 +53,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     const { status, checksystem_response } = await request.json()
 
-    // Update flag
     if (status) {
       flagsDatabase[flagIndex].status = status
     }

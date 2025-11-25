@@ -1,4 +1,3 @@
-// Единый файл конфигурации
 const env = {
   backendUrl: process.env.CTF_BACKEND_URL || process.env.NEXT_PUBLIC_CTF_BACKEND_URL || "http://localhost:8777",
   timeout: parseInt(process.env.API_TIMEOUT || process.env.NEXT_PUBLIC_API_TIMEOUT || "10000", 10),

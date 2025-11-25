@@ -4,7 +4,6 @@ import { BACKEND_CONFIG, callBackendAPI } from "@/lib/backend-config"
 import { API_CONFIG } from "@/lib/env-config"
 import { FlagStatus, type FlagType } from "@/lib/types"
 
-// Указываем, что роут динамический
 export const dynamic = "force-dynamic"
 
 type RawFlag = {
@@ -147,13 +146,10 @@ async function validateFlagFormat(
     return { valid: false, error: "Flag is required" }
   }
 
-  // Если используется мок-данные, пропускаем валидацию (или можно получить регулярку из конфига)
   if (API_CONFIG.USE_MOCK_DATA) {
-    // В мок-режиме валидация не требуется, так как это тестовые данные
     return { valid: true }
   }
 
-  // Получаем регулярное выражение из бекенда
   if (!authContext.passwordHash) {
     return { valid: false, error: "Missing authentication hash" }
   }

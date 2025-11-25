@@ -36,7 +36,6 @@ export function FlagSubmissionModal({ isOpen, onClose, onSubmit }: FlagSubmissio
     setError("")
 
     try {
-      // Валидация происходит на сервере через API
       await onSubmit({
         flag: formData.flag,
         sploit: formData.sploit || undefined,
@@ -44,7 +43,6 @@ export function FlagSubmissionModal({ isOpen, onClose, onSubmit }: FlagSubmissio
         start_waiting_time: new Date().toISOString(),
       })
 
-      // Reset form
       setFormData({ flag: "", sploit: "", team: "" })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit flag")
@@ -66,7 +64,6 @@ export function FlagSubmissionModal({ isOpen, onClose, onSubmit }: FlagSubmissio
       <DialogContent className="bg-card border-border max-w-md">
         <DialogHeader>
           <DialogTitle className="font-mono text-foreground flex items-center space-x-2">
-            <span className="text-primary">⚡</span>
             <span>Submit New Flag</span>
           </DialogTitle>
           <DialogDescription className="font-mono text-muted-foreground">
@@ -138,10 +135,7 @@ export function FlagSubmissionModal({ isOpen, onClose, onSubmit }: FlagSubmissio
                   <span>Submitting...</span>
                 </span>
               ) : (
-                <span className="flex items-center space-x-2">
-                  <span>↑</span>
-                  <span>Submit Flag</span>
-                </span>
+                "Submit Flag"
               )}
             </Button>
           </div>

@@ -1,7 +1,5 @@
-// Упрощенный файл - теперь все в config.ts
 import { config } from "./config"
 
-// Экспортируем для обратной совместимости
 export const ENV_CONFIG = {
   JWT_SECRET: config.auth.jwtSecret,
   CTF_BACKEND_URL: config.api.baseUrl,
@@ -36,6 +34,6 @@ export const SECURITY_CONFIG = {
 } as const
 
 export function validateEnvironment() {
-  console.log("✅ Конфигурация окружения валидна")
+  console.log("Конфигурация окружения валидна")
   return true
 }

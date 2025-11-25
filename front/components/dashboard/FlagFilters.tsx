@@ -1,6 +1,7 @@
 "use client"
 
 import { Input } from "@/components/ui/input"
+import { getStatusIcon } from "@/lib/flag-status"
 import { FlagStatus } from "@/lib/types"
 
 type FlagFiltersProps = {
@@ -44,11 +45,11 @@ export function FlagFilters({
           className="w-40 px-3 py-2 font-mono bg-input border border-border rounded-md text-foreground cursor-pointer"
         >
           <option value="all">All Status</option>
-          <option value={FlagStatus.QUEUED}>⏱ Queued</option>
-          <option value={FlagStatus.WAITING}>⚠ Waiting</option>
-          <option value={FlagStatus.ACCEPTED}>✓ Accepted</option>
-          <option value={FlagStatus.REJECTED}>✗ Rejected</option>
-          <option value={FlagStatus.SKIPPED}>⊘ Skipped</option>
+          <option value={FlagStatus.QUEUED}>{getStatusIcon(FlagStatus.QUEUED)} Queued</option>
+          <option value={FlagStatus.WAITING}>{getStatusIcon(FlagStatus.WAITING)} Waiting</option>
+          <option value={FlagStatus.ACCEPTED}>{getStatusIcon(FlagStatus.ACCEPTED)} Accepted</option>
+          <option value={FlagStatus.REJECTED}>{getStatusIcon(FlagStatus.REJECTED)} Rejected</option>
+          <option value={FlagStatus.SKIPPED}>{getStatusIcon(FlagStatus.SKIPPED)} Skipped</option>
         </select>
 
         <select

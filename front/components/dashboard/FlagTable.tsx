@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { getStatusColor, getStatusIcon } from "@/lib/flag-status"
 import { FlagStatus, type FlagType } from "@/lib/types"
 
 type SortField = "id" | "flag" | "team" | "sploit" | "status" | "checksystem_response" | "created_time"
@@ -16,35 +17,6 @@ type FlagTableProps = {
 }
 
 export function FlagTable({ flags, onFlagClick, sortField, sortDirection, onSort }: FlagTableProps) {
-  const getStatusIcon = (status: FlagStatus) => {
-    switch (status) {
-      case FlagStatus.ACCEPTED:
-        return <span className="text-green-500">✓</span>
-      case FlagStatus.REJECTED:
-        return <span className="text-destructive">✗</span>
-      case FlagStatus.WAITING:
-        return <span className="text-yellow-500">⚠</span>
-      case FlagStatus.SKIPPED:
-        return <span className="text-muted-foreground">⊘</span>
-      default:
-        return <span className="text-blue-500">⏱</span>
-    }
-  }
-
-  const getStatusColor = (status: FlagStatus) => {
-    switch (status) {
-      case FlagStatus.ACCEPTED:
-        return "text-green-500"
-      case FlagStatus.REJECTED:
-        return "text-destructive"
-      case FlagStatus.WAITING:
-        return "text-yellow-500"
-      case FlagStatus.SKIPPED:
-        return "text-muted-foreground"
-      default:
-        return "text-blue-500"
-    }
-  }
 
   const SortButton = ({ field, label }: { field: SortField; label: string }) => (
     <Button
@@ -52,7 +24,7 @@ export function FlagTable({ flags, onFlagClick, sortField, sortDirection, onSort
       onClick={() => onSort(field)}
       className="font-mono text-muted-foreground hover:text-foreground p-0 h-auto"
     >
-      {label} {sortField === field && (sortDirection === "asc" ? "↑" : "↓")}
+      {label} {sortField === field && (sortDirection === "asc" ? "^" : "v")}
     </Button>
   )
 
@@ -95,7 +67,7 @@ export function FlagTable({ flags, onFlagClick, sortField, sortDirection, onSort
                   flag.team
                 ) : (
                   <Badge variant="outline" className="font-mono text-xs text-muted-foreground bg-muted/30">
-                    —
+                    -
                   </Badge>
                 )}
               </td>
@@ -106,22 +78,24 @@ export function FlagTable({ flags, onFlagClick, sortField, sortDirection, onSort
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="font-mono text-xs text-muted-foreground bg-muted/30">
-                    —
+                    -
                   </Badge>
                 )}
               </td>
               <td className="p-3">
                 <div className={`flex items-center space-x-2 ${getStatusColor(flag.status)}`}>
-                  {getStatusIcon(flag.status)}
+                  <span>{getStatusIcon(flag.status)}</span>
                   <span className="font-mono">{flag.status}</span>
                 </div>
               </td>
-              <td className="p-3 font-mono text-muted-foreground text-sm max-w-xs truncate">
+              <td className="p-3 font-mono text-muted-foreground text-sm max-w-xs">
                 {flag.checksystem_response ? (
-                  flag.checksystem_response
+                  <div className="line-clamp-2 break-words overflow-hidden">
+                    {flag.checksystem_response}
+                  </div>
                 ) : (
                   <Badge variant="outline" className="font-mono text-xs text-muted-foreground bg-muted/30">
-                    —
+                    -
                   </Badge>
                 )}
               </td>

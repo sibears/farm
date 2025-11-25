@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { verifyAuth } from "@/lib/auth-middleware"
 
-// Указываем, что роут динамический
 export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {

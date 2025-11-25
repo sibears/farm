@@ -18,11 +18,8 @@
     "lint:fix": "biome check --write .",
     "lint:old": "next lint",
     "format": "biome format --write .",
-    "format:check": "biome format --check .",
     "type-check": "tsc --noEmit",
     "check-all": "bun run type-check && bun run lint",
-    "ci": "bun run format:check && bun run lint && bun run type-check && bun run build",
-    "ci:quick": "bun run lint && bun run type-check",
     "clean": "rm -rf .next node_modules/.cache"
   },
   "dependencies": {

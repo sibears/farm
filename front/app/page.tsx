@@ -21,7 +21,6 @@ export default function Home() {
     verifyAuth()
   }, [])
 
-  // Show loading state while checking authentication
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">

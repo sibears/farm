@@ -53,6 +53,6 @@ export function useFlagStats() {
 
       return aggregated
     },
-    refetchInterval: 30000, // Автообновление каждые 30 секунд
+    refetchInterval: 30000,
   })
 }

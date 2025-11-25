@@ -4,7 +4,6 @@ import { type NextRequest, NextResponse } from "next/server"
 import { BACKEND_CONFIG, callBackendAPI } from "@/lib/backend-config"
 import { AUTH_CONFIG, SECURITY_CONFIG } from "@/lib/env-config"
 
-// Указываем, что роут динамический
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
@@ -27,7 +26,7 @@ export async function POST(request: NextRequest) {
     try {
       const backendResponse = await callBackendAPI(BACKEND_CONFIG.ENDPOINTS.auth, {
         method: "POST",
-        body: JSON.stringify({ passwd: password }), // Use 'passwd' key as expected by Rust backend
+        body: JSON.stringify({ passwd: password }),
       })
 
       if (backendResponse.success && backendResponse.data === "ok") {
@@ -42,7 +41,6 @@ export async function POST(request: NextRequest) {
       console.error("Backend authentication failed:", backendError)
     }
 
-    // Hardcoded fallback (deprecated, лучше использовать backend)
     const fallbackPassword = "sibears1cool"
 
     if (password === fallbackPassword) {

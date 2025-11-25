@@ -28,7 +28,6 @@ export function FlagDashboard() {
   const [activeTab, setActiveTab] = useState<"flags" | "statistics">("flags")
   const [selectedFlag, setSelectedFlag] = useState<FlagType | null>(null)
 
-  // Фильтры и поиск
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [teamFilter, setTeamFilter] = useState<string>("all")
@@ -37,20 +36,18 @@ export function FlagDashboard() {
   const [sortField, setSortField] = useState<SortField>("created_time")
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
 
-  // Загрузка данных через React Query
   const { data: flags = [], isLoading, error, refetch } = useFlags()
 
-  // Фильтрация и пагинация
   const {
     flags: filteredFlags,
     total,
     uniqueTeams,
   } = useFilteredFlags(flags, searchTerm, statusFilter, teamFilter, sortField, sortDirection, currentPage, itemsPerPage)
 
-  // Сброс страницы при изменении фильтров
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally resetting page on filter changes
   useEffect(() => {
     setCurrentPage(1)
-  }, [])
+  }, [searchTerm, statusFilter, teamFilter, itemsPerPage])
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -90,7 +87,6 @@ export function FlagDashboard() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Заголовок */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Image
@@ -111,7 +107,6 @@ export function FlagDashboard() {
               onClick={() => refetch()}
               className="font-mono border-border hover:bg-muted bg-transparent"
             >
-              <span className="mr-2">↻</span>
               Refresh
             </Button>
             <Button
@@ -119,13 +114,11 @@ export function FlagDashboard() {
               onClick={handleLogout}
               className="font-mono border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground bg-transparent"
             >
-              <span className="mr-2">→</span>
               Logout
             </Button>
           </div>
         </div>
 
-        {/* Ошибка загрузки */}
         {error && (
           <Alert className="border-destructive bg-destructive/10">
             <AlertDescription className="font-mono text-destructive text-sm">
@@ -134,10 +127,8 @@ export function FlagDashboard() {
           </Alert>
         )}
 
-        {/* Форма отправки флага */}
         <FlagSubmitForm />
 
-        {/* Табы */}
         <div className="flex items-center space-x-2 border-b border-border">
           <Button
             variant="ghost"
@@ -163,10 +154,8 @@ export function FlagDashboard() {
           </Button>
         </div>
 
-        {/* Вкладка статистики */}
         {activeTab === "statistics" && <FlagStats />}
 
-        {/* Вкладка флагов */}
         {activeTab === "flags" && (
           <Card className="bg-card border-border red-glow">
             <CardHeader>

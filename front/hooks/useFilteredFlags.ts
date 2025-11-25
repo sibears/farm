@@ -17,7 +17,6 @@ export function useFilteredFlags(
   return useMemo(() => {
     let filtered = [...flags]
 
-    // Поиск
     if (searchTerm) {
       const search = searchTerm.toLowerCase()
       filtered = filtered.filter(
@@ -28,17 +27,14 @@ export function useFilteredFlags(
       )
     }
 
-    // Фильтр по статусу
     if (statusFilter !== "all") {
       filtered = filtered.filter((flag) => flag.status === statusFilter)
     }
 
-    // Фильтр по команде
     if (teamFilter !== "all") {
       filtered = filtered.filter((flag) => flag.team === teamFilter)
     }
 
-    // Сортировка
     // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: complex sorting logic for different field types
     filtered.sort((a, b) => {
       let aVal: string | number | undefined = a[sortField as keyof FlagType]
@@ -59,12 +55,10 @@ export function useFilteredFlags(
       }
     })
 
-    // Пагинация
     const total = filtered.length
     const startIndex = (currentPage - 1) * itemsPerPage
     const paginated = filtered.slice(startIndex, startIndex + itemsPerPage)
 
-    // Уникальные команды
     const uniqueTeams = Array.from(new Set(filtered.map((f) => f.team).filter(Boolean))) as string[]
 
     return {

@@ -4,7 +4,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color scheme to match SiBears branding - red, black, white, gray, green, yellow */
   --background: #0a0a0a;
   --foreground: #ffffff;
   --card: #1a1a1a;
@@ -45,7 +44,6 @@
 }
 
 .dark {
-  /* Dark mode uses same colors as our CTF theme is already dark */
   --background: #0a0a0a;
   --foreground: #ffffff;
   --card: #1a1a1a;
@@ -138,7 +136,6 @@
   }
 }
 
-/* Added terminal-style animations and effects for CTF theme */
 @keyframes terminal-blink {
   0%,
   50% {
@@ -227,7 +224,6 @@
   }
 }
 
-/* Added SiBears-themed animations with red glow effects */
 .red-glow {
   box-shadow:
     0 0 20px rgba(239, 68, 68, 0.3),
@@ -240,7 +236,6 @@
     0 0 60px rgba(239, 68, 68, 0.3);
 }
 
-/* Dark scrollbar styles */
 .scrollbar-dark {
   scrollbar-width: thin;
   scrollbar-color: #404040 #1a1a1a;

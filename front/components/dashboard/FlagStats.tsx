@@ -16,10 +16,7 @@ export function FlagStats() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <Card className="bg-card border-border red-glow">
         <CardHeader>
-          <CardTitle className="font-mono text-foreground flex items-center gap-2">
-            <span className="text-2xl text-primary">▸</span>
-            Total Flags
-          </CardTitle>
+          <CardTitle className="font-mono text-foreground flex items-center gap-2">Total Flags</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold font-mono text-foreground">{stats.total}</p>
@@ -29,10 +26,7 @@ export function FlagStats() {
 
       <Card className="bg-card border-border red-glow">
         <CardHeader>
-          <CardTitle className="font-mono text-green-500 flex items-center gap-2">
-            <span className="text-2xl">✓</span>
-            Accepted
-          </CardTitle>
+          <CardTitle className="font-mono text-green-500 flex items-center gap-2">Accepted</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold font-mono text-green-500">{stats.accepted}</p>
@@ -44,10 +38,7 @@ export function FlagStats() {
 
       <Card className="bg-card border-border red-glow">
         <CardHeader>
-          <CardTitle className="font-mono text-blue-500 flex items-center gap-2">
-            <span className="text-2xl">⏱</span>
-            Queued
-          </CardTitle>
+          <CardTitle className="font-mono text-blue-500 flex items-center gap-2">Queued</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold font-mono text-blue-500">{stats.queued}</p>
@@ -57,10 +48,7 @@ export function FlagStats() {
 
       <Card className="bg-card border-border red-glow">
         <CardHeader>
-          <CardTitle className="font-mono text-yellow-500 flex items-center gap-2">
-            <span className="text-2xl">⚠</span>
-            Waiting
-          </CardTitle>
+          <CardTitle className="font-mono text-yellow-500 flex items-center gap-2">Waiting</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold font-mono text-yellow-500">{stats.waiting}</p>
@@ -70,10 +58,7 @@ export function FlagStats() {
 
       <Card className="bg-card border-border red-glow">
         <CardHeader>
-          <CardTitle className="font-mono text-destructive flex items-center gap-2">
-            <span className="text-2xl">✗</span>
-            Rejected
-          </CardTitle>
+          <CardTitle className="font-mono text-destructive flex items-center gap-2">Rejected</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold font-mono text-destructive">{stats.rejected}</p>
@@ -83,10 +68,7 @@ export function FlagStats() {
 
       <Card className="bg-card border-border red-glow">
         <CardHeader>
-          <CardTitle className="font-mono text-muted-foreground flex items-center gap-2">
-            <span className="text-2xl">⊘</span>
-            Skipped
-          </CardTitle>
+          <CardTitle className="font-mono text-muted-foreground flex items-center gap-2">Skipped</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold font-mono text-muted-foreground">{stats.skipped}</p>

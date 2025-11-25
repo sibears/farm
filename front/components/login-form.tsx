@@ -70,7 +70,6 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         <Card className="bg-card border-border shadow-2xl red-glow">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-mono flex items-center space-x-2">
-              <span className="text-primary">▸</span>
               <span>Login</span>
             </CardTitle>
             <CardDescription className="font-mono text-muted-foreground">
