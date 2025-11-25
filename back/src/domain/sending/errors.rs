@@ -6,4 +6,3 @@ pub enum SendingServiceError {
     #[error(transparent)]
     FlagService(#[from] FlagServiceError),
 }
-
