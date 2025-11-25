@@ -26,7 +26,7 @@ def main() -> None:
 	elif protocol == "sibir_http":
 		sender = SibirCtfHttpFlagSender(backend_client)
 	else:
-		raise ValueError(f"Unsupported farm protocol: {args.protocol}")
+		raise ValueError(f"Unsupported farm protocol: {protocol}")
 
 	sender.run()
 
