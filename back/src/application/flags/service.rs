@@ -2,9 +2,7 @@ use regex::Regex;
 
 use crate::application::config::ConfigService;
 use crate::domain::config::ConfigRepo;
-use crate::domain::flags::{
-    Flag, FlagRepo, FlagRepoError, FlagServiceError, FlagStatus, NewFlag, SaveFlag,
-};
+use crate::domain::flags::{Flag, FlagRepo, FlagServiceError, FlagStatus, NewFlag, SaveFlag};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -27,7 +25,7 @@ impl<T: FlagRepo, C: ConfigRepo> FlagService<T, C> {
         Ok(flag)
     }
 
-    pub async fn get_all_flags(&self) -> Result<Arc<[Flag]>, FlagRepoError> {
+    pub async fn get_all_flags(&self) -> Result<Arc<[Flag]>, FlagServiceError> {
         let repo = self.repo.read().await;
         let flags = repo.get_all().await?;
         Ok(flags)
