@@ -1,13 +1,12 @@
-use rocket::response::status;
-use rocket::{serde::json::Json, State};
+use rocket::{response::status, serde::json::Json, State};
 use std::sync::Arc;
 use strum::IntoEnumIterator;
 
 use crate::types::ConcreteFlagService;
 use crate::{
     application::metrics::service::FlagMetricsService,
-    domain::flags::entities::{Flag, FlagStatus, FlagsQuery, NewFlag},
-    presentation::auth::guard::AuthGuard,
+    domain::flags::{Flag, FlagStatus, FlagsQuery, NewFlag},
+    presentation::auth::AuthGuard,
 };
 
 #[utoipa::path(
@@ -21,12 +20,12 @@ use crate::{
 pub async fn get_flags(
     _auth: AuthGuard,
     flag_service: &State<Arc<ConcreteFlagService>>,
-) -> Json<Vec<Flag>> {
+) -> Json<Arc<[Flag]>> {
     let res = flag_service.get_all_flags().await.unwrap();
     Json(res)
 }
 
-#[get("/flags?<flags_query..>")]
+#[get("/flags_limit?<flags_query..>")]
 pub async fn get_flags_per_page(
     _auth: AuthGuard,
     flag_service: &State<Arc<ConcreteFlagService>>,

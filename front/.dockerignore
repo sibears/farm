@@ -1,2 +1,77 @@
+# Зависимости
 node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Локальные env файлы
+.env
+.env.local  
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# Next.js
+.next/
+out/
+
+# Кеши
+.bun/
+
+# Производственная сборка
+/build
+
+# Различные
+.DS_Store
+*.pem
+
+# Debug
+.nyc_output
+
+# Локальные IDE файлы
+.vscode
+.idea
+
+# Логи
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# ESLint cache
+.eslintcache
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Git
+.git
+.gitignore
 README.md
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Testing
+__tests__
+*.test.js
+*.test.ts
+*.test.tsx

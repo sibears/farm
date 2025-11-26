@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::application::metrics::service::FlagMetricsService;
-use crate::domain::flags::entities::Flag;
+use crate::application::metrics::FlagMetricsService;
+use crate::domain::flags::Flag;
 use crate::presentation::auth::guard::AuthGuard;
 use crate::types::{ConcreteFlagService, ConcreteSendingService};
 use rocket::{serde::json::Json, State};

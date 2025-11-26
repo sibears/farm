@@ -1,12 +1,11 @@
 use chrono::NaiveDateTime;
 use regex::Regex;
 use rocket::form::FromForm;
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumIter, EnumString};
 use utoipa::ToSchema;
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug)]
 pub struct FlagsQuery {
     #[field(default = 20)]
     pub limit: u32,
@@ -14,7 +13,7 @@ pub struct FlagsQuery {
     pub offset: u32,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, ToSchema)]
 pub struct Flag {
     pub id: i32,
     pub flag: String,
@@ -26,7 +25,18 @@ pub struct Flag {
     pub checksystem_response: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, JsonSchema, Clone, ToSchema)]
+impl PartialEq<SaveFlag> for Flag {
+    fn eq(&self, other: &SaveFlag) -> bool {
+        self.flag == other.flag
+            && self.sploit == other.sploit
+            && self.team == other.team
+            && self.created_time == other.created_time
+            && self.status == other.status
+            && self.checksystem_response == other.checksystem_response
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, ToSchema)]
 pub struct NewFlag {
     pub flag: String,
     pub sploit: Option<String>,
@@ -39,6 +49,7 @@ impl NewFlag {
     }
 }
 
+#[derive(Debug)]
 pub struct SaveFlag {
     pub flag: String,
     pub sploit: Option<String>,
@@ -66,7 +77,6 @@ impl From<&NewFlag> for SaveFlag {
     Serialize,
     Deserialize,
     PartialEq,
-    JsonSchema,
     Clone,
     Copy,
     Display,

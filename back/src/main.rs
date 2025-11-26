@@ -1,30 +1,39 @@
+#[macro_use]
+extern crate rocket;
+
+pub mod application;
+pub mod cors;
+pub mod domain;
+pub mod infrastructure;
+pub mod presentation;
+pub mod types;
+
 use std::env;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
-use rocket::serde::json::Json;
-use rocket::{get, routes};
-use rocket_prometheus::PrometheusMetrics;
-use sibears_farm::application::auth::service::AuthService;
-use sibears_farm::application::config::service::ConfigService;
-use sibears_farm::application::metrics::service::FlagMetricsService;
-use sibears_farm::application::sending::service::SendingService;
-use sibears_farm::cors::CORS;
-use sibears_farm::domain::auth::entities::AuthEntity;
-use sibears_farm::infrastructure::config::file_repository::FileConfigRepo;
-use sibears_farm::presentation::api_docs::ApiDoc;
-use sibears_farm::presentation::auth::controllers::check_auth;
-use sibears_farm::presentation::config::controllers::{get_config, start_sploit};
-use sibears_farm::presentation::flags::controllers::{
+use application::auth::AuthService;
+use application::config::ConfigService;
+use application::flags::FlagService;
+use application::metrics::FlagMetricsService;
+use application::sending::SendingService;
+use cors::CORS;
+use domain::auth::entities::AuthEntity;
+use infrastructure::config::FileConfigRepo;
+use infrastructure::flags::PostgresFlagRepo;
+use presentation::api_docs::ApiDoc;
+use presentation::auth::controllers::check_auth;
+use presentation::config::controllers::{get_config, start_sploit};
+use presentation::flags::controllers::{
     get_flags, get_flags_per_page, get_stats_flags_by_status, get_total_flags, post_flag,
     post_flags,
 };
-use sibears_farm::presentation::sending::controllers::{
+use presentation::sending::controllers::{
     force_update_waiting_flags, get_flags_for_senders, update_flags_from_sending,
 };
-use sibears_farm::{
-    application::flags::service::FlagService,
-    infrastructure::flags::postgres_repository::PostgresFlagRepo,
-};
+use rocket::serde::json::Json;
+use rocket::{get, routes};
+use rocket_prometheus::PrometheusMetrics;
 use utoipa::OpenApi;
 
 #[tokio::main]
@@ -35,7 +44,9 @@ async fn main() {
     let config_service = Arc::new(ConfigService::new(config_repo));
 
     let config = config_service.get_config().unwrap();
-    let flag_repo = Arc::new(PostgresFlagRepo::new(&config.database.database_url.clone()).await);
+    let flag_repo = Arc::new(RwLock::new(
+        PostgresFlagRepo::new(&config.database.database_url.clone()).await,
+    ));
     let flag_service = Arc::new(FlagService::new(flag_repo, config_service.clone()));
 
     let sending_service = SendingService::new(flag_service.clone(), config_service.clone());

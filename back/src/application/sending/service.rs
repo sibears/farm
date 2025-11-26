@@ -1,9 +1,11 @@
-use crate::application::config::service::ConfigService;
-use crate::application::flags::service::FlagService;
-use crate::domain::config::repository::ConfigRepo;
-use crate::domain::flags::entities::{Flag, FlagStatus};
-use crate::domain::flags::repository::FlagRepo;
+use crate::application::config::ConfigService;
+use crate::application::flags::FlagService;
+use crate::domain::config::ConfigRepo;
+use crate::domain::flags::{Flag, FlagRepo, FlagStatus};
+use crate::domain::sending::SendingServiceError;
+use sqlx::types::chrono;
 use std::sync::Arc;
+use tokio::time::Duration;
 
 pub struct SendingService<T: FlagRepo, C: ConfigRepo> {
     flag_service: Arc<FlagService<T, C>>,
@@ -21,7 +23,7 @@ impl<T: FlagRepo, C: ConfigRepo> SendingService<T, C> {
         }
     }
 
-    pub async fn get_flags_for_senders(&self) -> Result<Vec<Flag>, T::FlagRepoError> {
+    pub async fn get_flags_for_senders(&self) -> Result<Vec<Flag>, SendingServiceError> {
         let mut flags = self.flag_service.next_send_flags().await?;
         flags.iter_mut().for_each(|item| {
             item.status = FlagStatus::WAITING;
@@ -31,12 +33,12 @@ impl<T: FlagRepo, C: ConfigRepo> SendingService<T, C> {
         Ok(flags)
     }
 
-    pub async fn update_waiting_flags(&self) -> Result<(), T::FlagRepoError> {
+    pub async fn update_waiting_flags(&self) -> Result<(), SendingServiceError> {
         let config = self.config_service.get_config().unwrap();
         let duraction = config.ctf.waiting_period;
         let mut flags = self.flag_service.get_waiting_flags().await?;
         flags.iter_mut().for_each(|item| {
-            if item.start_waiting_time.unwrap() + chrono::Duration::seconds(duraction.into())
+            if item.start_waiting_time.unwrap() + Duration::new(duraction.into(), 0)
                 < chrono::Utc::now().naive_utc()
             {
                 item.status = FlagStatus::QUEUED;
@@ -49,7 +51,10 @@ impl<T: FlagRepo, C: ConfigRepo> SendingService<T, C> {
         Ok(())
     }
 
-    pub async fn update_flags_from_sending(&self, flags: &[Flag]) -> Result<(), T::FlagRepoError> {
+    pub async fn update_flags_from_sending(
+        &self,
+        flags: &[Flag],
+    ) -> Result<(), SendingServiceError> {
         let original_flags = self.flag_service.get_full_flags(flags).await?;
 
         // Создаем вектор для обновленных флагов

@@ -1,2 +1,2 @@
 pub mod service;
-pub mod test;
+pub use service::*;

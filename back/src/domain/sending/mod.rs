@@ -1,1 +1,3 @@
-pub mod repository;
+pub mod errors;
+
+pub use errors::*;

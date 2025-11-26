@@ -4,16 +4,15 @@
 
 ### Собраный докер
 
-В гитлабе автоматически собираются докер образы
-с беком и фронтом для фермы
+В гитхабе автоматически собираются докер образы
+с беком, фронтом и флаг сендерами для фермы
 
 Доступны по адресам:
- - registry.gitlab.com/sibears/infrastructure/sibears_farm:main
- - registry.gitlab.com/sibears/infrastructure/sibears-farm-front:main
+ - ghcr.io/sibears/farm/sibears_farm:main
+ - ghcr.io/sibears/farm/sibears_farm_front:main
+ - ghcr.io/sibears/farm/sibears_farm_flag_sender:main
 
-*Или можно взять конкретную версию из gitlab*
-
-Может потребоваться авторизоваться в gitlab registry из докера, т.к. образы приватные
+*Или можно взять конкретную версию из github*
 
 Пример типичного **docker-compose.yml** для поднятия фермы, 
 используя готовые образы

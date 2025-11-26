@@ -1,24 +1,46 @@
-FROM node:23-alpine AS builder
+FROM oven/bun:1 AS base
+WORKDIR /app
 
-WORKDIR /srv
+ARG BACKEND_URL=http://backend:8080
 
-COPY package*.json ./
-COPY .babelrc ./
+FROM base AS deps
+COPY package.json bun.lockb* ./
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
 
-ENV NODE_OPTIONS=--openssl-legacy-provider
+FROM base AS builder
+ARG BACKEND_URL
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-RUN --mount=type=cache,target=/root/.npm \
-    npm install
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV BACKEND_URL=${BACKEND_URL}
 
-COPY ./src ./src
-COPY ./public ./public
+RUN --mount=type=cache,target=/app/.next/cache \
+    --mount=type=cache,target=/root/.bun/install/cache \
+    bun run build
 
-RUN --mount=type=cache,target=/root/.npm \
-    npm run build
+FROM base AS runner
+ARG BACKEND_URL
+WORKDIR /app
 
-FROM nginx:1.27.4-alpine AS runner
-LABEL authors="sibears"
-COPY --from=builder /srv/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+ENV PORT=80
+ENV HOSTNAME="0.0.0.0"
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV BACKEND_URL=${BACKEND_URL}
+
+CMD ["bun", "server.js"]

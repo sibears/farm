@@ -1,3 +1,15 @@
-# SiBears Farm Front
+# SiBears Front Farm
 
-Простой интерфейс для взаимодействия с SiBears Farm (мне сука стыдно за каждую строчку тут)
+Фронтенд для CTF фермы.
+
+## Установка
+
+```bash
+bun install
+```
+
+## ️Запуск
+
+```bash
+bun run dev
+```

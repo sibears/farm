@@ -1,5 +1,5 @@
-use crate::domain::config::entities::Config;
-use crate::domain::flags::entities::{Flag, NewFlag};
+use crate::domain::config::Config;
+use crate::domain::flags::{Flag, NewFlag};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]

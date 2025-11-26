@@ -1,0 +1,10 @@
+[alias]
+build-offline = "build --config env.SQLX_OFFLINE=\"true\""
+check-offline = "check --config env.SQLX_OFFLINE=\"true\""
+test-offline  = "test --config env.SQLX_OFFLINE=\"true\""
+run-offline   = "run  --config env.SQLX_OFFLINE=\"true\""
+
+build-online = "build --config env.SQLX_OFFLINE=\"false\""
+check-online = "check --config env.SQLX_OFFLINE=\"false\""
+test-online  = "test --config env.SQLX_OFFLINE=\"false\""
+run-online   = "run  --config env.SQLX_OFFLINE=\"false\""

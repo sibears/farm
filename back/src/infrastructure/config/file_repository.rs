@@ -1,6 +1,7 @@
+use rocket::serde::json::serde_json;
 use std::fs;
 
-use crate::domain::config::{entities::Config, repository::ConfigRepo};
+use crate::domain::config::{Config, ConfigRepo, ConfigRepoError};
 
 pub struct FileConfigRepo {
     file_path: String,
@@ -12,30 +13,18 @@ impl FileConfigRepo {
             file_path: file_path.to_string(),
         }
     }
+}
 
-    fn read_config(&self) -> Result<Config, std::io::Error> {
+impl ConfigRepo for FileConfigRepo {
+    fn get_config(&self) -> Result<Config, ConfigRepoError> {
         let config_str = fs::read_to_string(&self.file_path)?;
         let file_config: Config = serde_json::from_str(&config_str)?;
         Ok(file_config)
     }
 
-    fn write_config(&self, config: &Config) -> Result<(), std::io::Error> {
+    fn save_config(&mut self, config: &Config) -> Result<(), ConfigRepoError> {
         let config_str = serde_json::to_string(config)?;
         fs::write(&self.file_path, config_str)?;
         Ok(())
-    }
-}
-
-impl ConfigRepo for FileConfigRepo {
-    type ConfigRepoError = std::io::Error;
-
-    fn get_config(&self) -> Result<Config, Self::ConfigRepoError> {
-        let file_config = self.read_config()?;
-        Ok(file_config)
-    }
-
-    fn save_config(&mut self, config: &Config) -> Result<(), Self::ConfigRepoError> {
-        let file_config = config.clone();
-        self.write_config(&file_config)
     }
 }
