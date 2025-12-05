@@ -30,13 +30,10 @@ services:
       args:
         - DOCKER_BUILDKIT=1
     environment:
-      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
       - ROCKET_LOG_LEVEL=normal
       - CONFIG_REPO=config.json
     ports:
       - "8777:8777"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
     volumes:
@@ -45,10 +42,14 @@ services:
 
   sibears_farm_front:
     image: sibears_farm_front:latest
+    environment:
+      - BACKEND_URL=http://sibears_farm_back:8777
     build:
       context: ../front/
       args:
         - DOCKER_BUILDKIT=1
+    depends_on:
+      - sibears_farm_back
     ports:
       - "8776:80"
 

@@ -89,13 +89,13 @@ export async function GET(request: NextRequest) {
       return getMockFlags()
     }
 
-    if (!authContext.passwordHash) {
-      return NextResponse.json({ error: "Missing authentication hash" }, { status: 403 })
+    if (!authContext.password) {
+      return NextResponse.json({ error: "Missing authentication password" }, { status: 403 })
     }
 
     const requestUrl = new URL(request.url)
     const endpoint = buildFlagsEndpoint(requestUrl.searchParams)
-    const backendResponse = await callBackendAPI(endpoint, {}, { passwordHash: authContext.passwordHash })
+    const backendResponse = await callBackendAPI(endpoint, {}, { password: authContext.password })
 
     if (backendResponse.success && backendResponse.data) {
       const normalized = normalizeFlagsResponse(backendResponse.data)
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
           const totalResponse = await callBackendAPI(
             BACKEND_CONFIG.ENDPOINTS.flagsTotal,
             {},
-            { passwordHash: authContext.passwordHash },
+            { password: authContext.password },
           )
           if (totalResponse.success && typeof totalResponse.data === "number") {
             total = totalResponse.data
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
 
 async function validateFlagFormat(
   flag: string,
-  authContext: { passwordHash?: string },
+  authContext: { password?: string },
 ): Promise<{ valid: boolean; error?: string }> {
   if (!flag) {
     return { valid: false, error: "Flag is required" }
@@ -150,15 +150,15 @@ async function validateFlagFormat(
     return { valid: true }
   }
 
-  if (!authContext.passwordHash) {
-    return { valid: false, error: "Missing authentication hash" }
+  if (!authContext.password) {
+    return { valid: false, error: "Missing authentication password" }
   }
 
   try {
     const configResponse = await callBackendAPI(
       BACKEND_CONFIG.ENDPOINTS.config,
       {},
-      { passwordHash: authContext.passwordHash },
+      { password: authContext.password },
     )
 
     if (!configResponse.success || !configResponse.data || typeof configResponse.data !== "object") {
@@ -214,8 +214,8 @@ export async function POST(request: NextRequest) {
       return submitMockFlag({ flag, sploit: requestBody.sploit, team: requestBody.team })
     }
 
-    if (!authContext.passwordHash) {
-      return NextResponse.json({ error: "Missing authentication hash" }, { status: 403 })
+    if (!authContext.password) {
+      return NextResponse.json({ error: "Missing authentication password" }, { status: 403 })
     }
 
     const backendPayload = {
@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
         method: "POST",
         body: JSON.stringify(backendPayload),
       },
-      { passwordHash: authContext.passwordHash },
+      { password: authContext.password },
     )
 
     if (backendResponse.success) {

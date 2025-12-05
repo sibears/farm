@@ -21,7 +21,6 @@ sqlx = { version = "0.8.6", features = [
     "migrate",
 ] }
 async-trait = "0.1.88"
-sha2 = "0.10"
 
 [dev-dependencies]
 rstest = "0.25.0"

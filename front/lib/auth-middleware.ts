@@ -3,20 +3,20 @@ import { config } from "./config"
 
 export interface AuthContext {
   authenticated: boolean
-  passwordHash?: string
+  password?: string
 }
 
 export async function verifyAuth(request: NextRequest): Promise<AuthContext> {
   try {
-    const storedHash = request.cookies.get(config.auth.cookieName)?.value
+    const storedPassword = request.cookies.get(config.auth.cookieName)?.value
 
-    if (!storedHash) {
+    if (!storedPassword) {
       return { authenticated: false }
     }
 
     return {
       authenticated: true,
-      passwordHash: storedHash,
+      password: storedPassword,
     }
   } catch (error) {
     console.error("Auth verification failed:", error)

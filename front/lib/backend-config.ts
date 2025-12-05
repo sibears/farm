@@ -13,7 +13,7 @@ export const BACKEND_CONFIG = {
 
 type BackendAuthOptions = {
   bearerToken?: string
-  passwordHash?: string
+  password?: string
 }
 
 export async function callBackendAPI(endpoint: string, options: RequestInit = {}, auth?: BackendAuthOptions) {
@@ -24,7 +24,7 @@ export async function callBackendAPI(endpoint: string, options: RequestInit = {}
       ...options,
       headers: {
         ...BACKEND_CONFIG.getHeaders(auth?.bearerToken),
-        ...(auth?.passwordHash ? { "X-Authorization": auth.passwordHash } : {}),
+        ...(auth?.password ? { "X-Authorization": auth.password } : {}),
         ...options.headers,
       },
       signal: AbortSignal.timeout(BACKEND_CONFIG.TIMEOUT),

@@ -1,7 +1,7 @@
 const env = {
-  backendUrl: process.env.CTF_BACKEND_URL || process.env.NEXT_PUBLIC_CTF_BACKEND_URL || "http://localhost:8777",
-  timeout: parseInt(process.env.API_TIMEOUT || process.env.NEXT_PUBLIC_API_TIMEOUT || "10000", 10),
-  useMockData: process.env.USE_MOCK_DATA === "true" || process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true",
+  backendUrl: process.env.BACKEND_URL || "http://localhost:8777",
+  timeout: parseInt(process.env.API_TIMEOUT || "10000", 10),
+  useMockData: process.env.USE_MOCK_DATA === "true",
   cookieName: process.env.COOKIE_NAME || "ctf-auth-token",
   cookieMaxAge: parseInt(process.env.COOKIE_MAX_AGE || "86400", 10),
   nodeEnv: process.env.NODE_ENV || "development",

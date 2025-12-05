@@ -1815,7 +1815,6 @@ dependencies = [
  "rocket_prometheus",
  "rstest",
  "serde",
- "sha2",
  "sqlx",
  "strum",
  "strum_macros",

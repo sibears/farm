@@ -28,7 +28,6 @@ services:
     depends_on:
       - postgres
     environment:
-      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
       - ROCKET_LOG_LEVEL=normal
     volumes:
       - ./config.json:/srv/config.json:ro

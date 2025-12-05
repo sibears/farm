@@ -8,7 +8,6 @@ services:
       args:
         - DOCKER_BUILDKIT=1
     environment:
-      - DATABASE_URL=postgres://postgres:sibears1cool@postgres/flags
       - ROCKET_LOG_LEVEL=normal
       - CONFIG_REPO=config.json
     ports:

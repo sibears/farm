@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto"
 import { cookies } from "next/headers"
 import { type NextRequest, NextResponse } from "next/server"
 import { BACKEND_CONFIG, callBackendAPI } from "@/lib/backend-config"
@@ -11,16 +10,14 @@ export async function POST(request: NextRequest) {
     const { password } = await request.json()
     const cookieStore = cookies()
 
-    const persistAuthHash = (rawPassword: string) => {
-      const passwordHash = createHash("sha256").update(rawPassword).digest("hex")
-      cookieStore.set(AUTH_CONFIG.COOKIE_NAME, passwordHash, {
+    const persistAuth = (rawPassword: string) => {
+      cookieStore.set(AUTH_CONFIG.COOKIE_NAME, rawPassword, {
         httpOnly: true,
         secure: SECURITY_CONFIG.SECURE_COOKIES,
         sameSite: SECURITY_CONFIG.SAME_SITE as "strict" | "lax",
         maxAge: AUTH_CONFIG.COOKIE_MAX_AGE,
         path: "/",
       })
-      return passwordHash
     }
 
     try {
@@ -30,7 +27,7 @@ export async function POST(request: NextRequest) {
       })
 
       if (backendResponse.success && backendResponse.data === "ok") {
-        persistAuthHash(password)
+        persistAuth(password)
 
         return NextResponse.json({
           success: true,
@@ -44,7 +41,7 @@ export async function POST(request: NextRequest) {
     const fallbackPassword = "sibears1cool"
 
     if (password === fallbackPassword) {
-      persistAuthHash(password)
+      persistAuth(password)
 
       return NextResponse.json({
         success: true,

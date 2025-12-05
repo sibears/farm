@@ -11,14 +11,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
-    if (!authContext.passwordHash) {
-      return NextResponse.json({ error: "Missing authentication hash" }, { status: 403 })
+    if (!authContext.password) {
+      return NextResponse.json({ error: "Missing authentication password" }, { status: 403 })
     }
 
     const backendResponse = await callBackendAPI(
       BACKEND_CONFIG.ENDPOINTS.flagsStats,
       {},
-      { passwordHash: authContext.passwordHash },
+      { password: authContext.password },
     )
 
     if (backendResponse.success) {
