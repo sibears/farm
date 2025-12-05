@@ -2,7 +2,7 @@ import logging
 
 from farm import BackendClient
 from flag_sender import FlagSender, parse_args
-from protocols import RuCtfHttpFlagSender, RuCtfTcpFlagSender, SibirCtfHttpFlagSender
+from protocols import RuCtfHttpFlagSender, RuCtfTcpFlagSender, SaarTcpFlagSender, SibirCtfHttpFlagSender
 
 
 def main() -> None:
@@ -25,6 +25,8 @@ def main() -> None:
 		sender = RuCtfHttpFlagSender(backend_client)
 	elif protocol == "sibir_http":
 		sender = SibirCtfHttpFlagSender(backend_client)
+	elif protocol == "saar_tcp":
+		sender = SaarTcpFlagSender(backend_client)
 	else:
 		raise ValueError(f"Unsupported farm protocol: {protocol}")
 

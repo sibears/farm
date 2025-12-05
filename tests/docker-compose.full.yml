@@ -70,3 +70,9 @@ services:
     ports:
       - "8780:8780"
     restart: always
+
+  check_system_saar_tcp:
+    build: ./check_system/saar_tcp
+    ports:
+      - "31337:31337"
+    restart: always
