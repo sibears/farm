@@ -1,4 +1,6 @@
 name: Rust Code Quality Check
+permissions:
+  contents: read
 
 on:
   workflow_call:
