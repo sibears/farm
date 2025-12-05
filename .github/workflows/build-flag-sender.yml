@@ -18,6 +18,7 @@ env:
 
 jobs:
   python-check:
+    permissions: {}
     uses: ./.github/workflows/python-check.yml
   build-and-push:
     runs-on: ubuntu-latest
