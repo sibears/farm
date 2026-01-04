@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 from pydantic import BaseModel
@@ -26,12 +26,12 @@ class FlagStatus(str, Enum):
 class Flag(BaseModel):
 	id: int
 	flag: str
-	sploit: Optional[str]
-	team: Optional[str]
+	sploit: str | None
+	team: str | None
 	created_time: datetime
-	start_waiting_time: Optional[datetime]
+	start_waiting_time: datetime | None
 	status: FlagStatus
-	checksystem_response: Optional[str]
+	checksystem_response: str | None
 
 
 class DatabaseConfig(BaseModel):
@@ -56,7 +56,7 @@ class CtfConfig(BaseModel):
 	submit_period: int
 	waiting_period: int
 	submit_flag_limit: int
-	teams: Dict[str, str]
+	teams: dict[str, str]
 
 
 class Config(BaseModel):
@@ -114,7 +114,7 @@ class BackendClient:
 		else:
 			raise ValueError(f"Unsupported protocol: {self.protocol}")
 
-	def get_sending_flags(self) -> Optional[List[Flag]]:
+	def get_sending_flags(self) -> list[Flag] | None:
 		"""
 		Получает флаги для отправки в журейный сервер.
 
@@ -128,7 +128,7 @@ class BackendClient:
 			try:
 				response = requests.get(url, headers=headers, timeout=5)
 				response.raise_for_status()
-				flags_data: List[Dict[str, Any]] = response.json()
+				flags_data: list[dict[str, Any]] = response.json()
 				return [Flag(**flag_data) for flag_data in flags_data]
 			except requests.RequestException as e:
 				logging.error(f"Ошибка отправки флагов: {e}")
@@ -136,7 +136,7 @@ class BackendClient:
 		else:
 			raise ValueError(f"Unsupported protocol: {self.protocol}")
 
-	def update_all_flags(self, flags: List[Flag]) -> None:
+	def update_all_flags(self, flags: list[Flag]) -> None:
 		"""
 		Обновляет статусы нескольких флагов в бэкенде.
 

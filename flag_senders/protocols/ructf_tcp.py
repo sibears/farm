@@ -1,12 +1,13 @@
 import logging
 import socket
-from typing import List
 
 from farm import Config, Flag, FlagStatus
-from flag_sender import FlagSender
+from .base_protocol import BaseProtocol
 
 
-class RuCtfTcpFlagSender(FlagSender):
+class RuCtfTcpFlagSender(BaseProtocol):
+	protocol = "ructf_tcp"
+
 	def connect_to_checksystem(self, host: str, port: int) -> socket.socket:
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		sock.settimeout(5.0)
@@ -20,7 +21,7 @@ class RuCtfTcpFlagSender(FlagSender):
 
 		return sock
 
-	def send_flags(self, config: Config, flags: List[Flag]) -> List[Flag]:
+	def send_flags(self, config: Config, flags: list[Flag]) -> list[Flag]:
 		protocol_config = config.ctf.protocol
 
 		if not flags:
@@ -31,7 +32,7 @@ class RuCtfTcpFlagSender(FlagSender):
 			with self.connect_to_checksystem(
 				protocol_config.checksys_host, protocol_config.checksys_port
 			) as sock:
-				responses: List[str] = []
+				responses: list[str] = []
 				try:
 					for flag in flags:
 						sock.sendall(flag.flag.encode("utf-8") + b"\n")
