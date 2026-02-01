@@ -2,7 +2,8 @@ import logging
 import time
 import argparse
 
-from farm import BackendClient
+from errors import CliError
+from farm import BackendClient, get_client_cls
 from protocols import get_protocol_cls, BaseProtocol
 
 def mainloop(backend: BackendClient, protocol: BaseProtocol) -> None:
@@ -53,13 +54,15 @@ def main() -> None:
 	)
 
 	args = parse_args()
-	backend_client = BackendClient(args.host, args.token)
+	backend_client_cls = get_client_cls(args.host)
+	backend_client = backend_client_cls(args.host, args.token)
+
 	config = backend_client.get_config()
 
 	protocol = config.ctf.protocol.protocol
 
 	if (sender_cls := get_protocol_cls(protocol)) is None:
-		raise ValueError(f"Unsupported farm protocol: {protocol}")
+		raise CliError(f"Unsupported farm protocol: {protocol}")
 	sender = sender_cls()
 	mainloop(backend_client, sender)
 
