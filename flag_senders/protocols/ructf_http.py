@@ -1,13 +1,13 @@
 import logging
-from typing import List
-
 import requests
 
 from farm import Config, Flag, FlagStatus
-from flag_sender import FlagSender
+from .base_protocol import BaseProtocol
 
 
-class RuCtfHttpFlagSender(FlagSender):
+class RuCtfHttpFlagSender(BaseProtocol):
+	protocol = "ructf_http"
+
 	RESPONSES = {
 		FlagStatus.QUEUED: [
 			"timeout",
@@ -44,7 +44,7 @@ class RuCtfHttpFlagSender(FlagSender):
 		)
 		return FlagStatus.QUEUED, response_text
 
-	def send_flags(self, config: Config, flags: List[Flag]) -> List[Flag]:
+	def send_flags(self, config: Config, flags: list[Flag]) -> list[Flag]:
 		protocol_config = config.ctf.protocol
 
 		if not flags:

@@ -6,7 +6,7 @@ ARG BACKEND_URL=http://backend:8080
 FROM base AS deps
 COPY package.json bun.lockb* ./
 RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --frozen-lockfile
+	bun install --frozen-lockfile
 
 FROM base AS builder
 ARG BACKEND_URL
@@ -18,22 +18,18 @@ ENV NODE_ENV=production
 ENV BACKEND_URL=${BACKEND_URL}
 
 RUN --mount=type=cache,target=/app/.next/cache \
-    --mount=type=cache,target=/root/.bun/install/cache \
-    bun run build
+	--mount=type=cache,target=/root/.bun/install/cache \
+	bun run build
 
 FROM base AS runner
 ARG BACKEND_URL
-WORKDIR /app
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+WORKDIR /app
 
 COPY --from=builder /app/public ./public
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 80
 

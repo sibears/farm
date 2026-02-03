@@ -1,21 +1,21 @@
 import logging
-from typing import List
-
 import requests
 
 from farm import Config, Flag, FlagStatus
-from flag_sender import FlagSender
+from .base_protocol import BaseProtocol
 
 
-class SibirCtfHttpFlagSender(FlagSender):
-	def send_flags(self, config: Config, flags: List[Flag]) -> List[Flag]:
+class SibirCtfHttpFlagSender(BaseProtocol):
+	protocol = "sibir_http"
+
+	def send_flags(self, config: Config, flags: list[Flag]) -> list[Flag]:
 		protocol_config = config.ctf.protocol
 
 		if not flags:
 			logging.debug("Нет флагов для отправки.")
 			return []
 
-		flags_to_update: List[Flag] = []
+		flags_to_update: list[Flag] = []
 		for flag in flags:
 			params = {"teamid": protocol_config.team_token, "flag": flag.flag}
 			url = f"http://{protocol_config.checksys_host}:{protocol_config.checksys_port}/flag"
