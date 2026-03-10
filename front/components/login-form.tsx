@@ -13,6 +13,8 @@ interface LoginFormProps {
   onLogin: () => void
 }
 
+const LOCAL_AUTH_PASSWORD_KEY = "ctf-auth-password"
+
 export function LoginForm({ onLogin }: LoginFormProps) {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -34,6 +36,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
       if (response.ok) {
         await response.json()
+        window.localStorage.setItem(LOCAL_AUTH_PASSWORD_KEY, password)
         onLogin()
       } else {
         await response.json()

@@ -24,6 +24,7 @@ const FlagDetailsModal = dynamic(
 
 type SortField = "id" | "flag" | "team" | "sploit" | "status" | "checksystem_response" | "created_time"
 type SortDirection = "asc" | "desc"
+const LOCAL_AUTH_PASSWORD_KEY = "ctf-auth-password"
 
 export function FlagDashboard() {
   const [activeTab, setActiveTab] = useState<"flags" | "statistics">("flags")
@@ -65,6 +66,7 @@ export function FlagDashboard() {
     } catch (error) {
       console.error("Logout error:", error)
     } finally {
+      window.localStorage.removeItem(LOCAL_AUTH_PASSWORD_KEY)
       window.location.reload()
     }
   }
