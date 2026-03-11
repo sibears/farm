@@ -38,18 +38,7 @@ export async function POST(request: NextRequest) {
       console.error("Backend authentication failed:", backendError)
     }
 
-    const fallbackPassword = "sibears1cool"
-
-    if (password === fallbackPassword) {
-      persistAuth(password)
-
-      return NextResponse.json({
-        success: true,
-        message: "Authentication successful (local)",
-      })
-    } else {
-      return NextResponse.json({ error: "Invalid password. Access denied." }, { status: 401 })
-    }
+    return NextResponse.json({ error: "Invalid password. Access denied." }, { status: 401 })
   } catch (error) {
     console.error("Authentication error:", error)
     return NextResponse.json(

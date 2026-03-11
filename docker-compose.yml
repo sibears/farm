@@ -26,6 +26,9 @@ services:
       context: ./front/
       args:
         - DOCKER_BUILDKIT=1
+        - BACKEND_URL=http://sibears_farm_back:8777
+    environment:
+      - BACKEND_URL=http://sibears_farm_back:8777
     ports:
       - "8776:80"
 

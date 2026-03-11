@@ -29,7 +29,7 @@ export const config = {
   },
 
   security: {
-    secureCookies: env.nodeEnv === "production",
+    secureCookies: false,
     sameSite: (env.nodeEnv === "production" ? "strict" : "lax") as "strict" | "lax",
   },
 } as const

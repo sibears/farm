@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFilteredFlags } from "@/hooks/useFilteredFlags"
 import { useFlags } from "@/hooks/useFlags"
+import { config } from "@/lib/config"
 import type { FlagType } from "@/lib/types"
 import { FlagFilters } from "./dashboard/FlagFilters"
 import { FlagPagination } from "./dashboard/FlagPagination"
@@ -23,6 +24,7 @@ const FlagDetailsModal = dynamic(
 
 type SortField = "id" | "flag" | "team" | "sploit" | "status" | "checksystem_response" | "created_time"
 type SortDirection = "asc" | "desc"
+const LOCAL_AUTH_PASSWORD_KEY = "ctf-auth-password"
 
 export function FlagDashboard() {
   const [activeTab, setActiveTab] = useState<"flags" | "statistics">("flags")
@@ -64,8 +66,17 @@ export function FlagDashboard() {
     } catch (error) {
       console.error("Logout error:", error)
     } finally {
+      window.localStorage.removeItem(LOCAL_AUTH_PASSWORD_KEY)
       window.location.reload()
     }
+  }
+
+  const handleDownloadStartSploit = () => {
+    const backendUrl = new URL(config.api.baseUrl, window.location.origin)
+
+    const startSploitUrl = new URL("/api/start_sploit.py", window.location.origin)
+    startSploitUrl.port = backendUrl.port
+    window.open(startSploitUrl.toString(), "_blank", "noopener,noreferrer")
   }
 
   const totalPages = Math.max(1, Math.ceil(total / itemsPerPage))
@@ -102,6 +113,13 @@ export function FlagDashboard() {
             </div>
           </div>
           <div className="flex items-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={handleDownloadStartSploit}
+              className="font-mono border-border hover:bg-muted bg-transparent"
+            >
+              start_sploit
+            </Button>
             <Button
               variant="outline"
               onClick={() => refetch()}
