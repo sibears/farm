@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-
-assert sys.version_info >= (3, 4), "Python < 3.4 is not supported"
-
 import argparse
 import binascii
 import itertools
@@ -21,6 +18,8 @@ from enum import Enum
 from math import ceil
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
+
+assert sys.version_info >= (3, 4), "Python < 3.4 is not supported"
 
 
 os_windows = os.name == "nt"
