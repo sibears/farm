@@ -104,7 +104,9 @@ def parse_args():
     parser.add_argument(
         "-a", "--alias", metavar="ALIAS", default=None, help="Sploit alias"
     )
-    parser.add_argument("--token", metavar="TOKEN", help="Farm authorization token")
+    parser.add_argument(
+        "--password", metavar="PASSWORD", help="Farm authorization password"
+    )
     parser.add_argument(
         "--interpreter",
         metavar="COMMAND",
@@ -292,8 +294,8 @@ SERVER_TIMEOUT = 5
 def get_config(args):
     req = Request(urljoin(args.server_url, "/api/config"))
     logging.info(f"url = {req.full_url}")
-    if args.token is not None:
-        req.add_header("X-Authorization", args.token)
+    if args.password is not None:
+        req.add_header("X-Authorization", args.password)
     with urlopen(req, timeout=SERVER_TIMEOUT) as conn:
         if conn.status != 200:
             raise APIException(conn.read())
@@ -314,8 +316,8 @@ def post_flags(args, flags):
 
     req = Request(urljoin(args.server_url, "/api/flags"))
     req.add_header("Content-Type", "application/json")
-    if args.token is not None:
-        req.add_header("X-Authorization", args.token)
+    if args.password is not None:
+        req.add_header("X-Authorization", args.password)
     with urlopen(req, data=json.dumps(data).encode(), timeout=SERVER_TIMEOUT) as conn:
         if conn.status != 201:
             raise APIException(conn.read())
