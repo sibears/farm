@@ -3,6 +3,7 @@ use sqlx::PgPool;
 use crate::domain::flags::{Flag, FlagRepo, FlagRepoError, FlagStatus, SaveFlag};
 use async_trait::async_trait;
 use sqlx::migrate::Migrator;
+use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -24,8 +25,8 @@ impl PostgresFlagRepo {
 
 #[async_trait]
 impl FlagRepo for PostgresFlagRepo {
-    async fn get(&self, id_arg: i32) -> Result<Flag, FlagRepoError> {
-        sqlx::query_as!(
+    async fn get(&self, ids: &[i32]) -> Result<Vec<Flag>, FlagRepoError> {
+        let flags_by_ids = sqlx::query_as!(
             Flag,
             r#"SELECT 
                 id, 
@@ -36,12 +37,21 @@ impl FlagRepo for PostgresFlagRepo {
                 start_waiting_time,
                 status as "status: FlagStatus",
                 checksystem_response
-               FROM flags WHERE id = $1"#,
-            id_arg
+               FROM flags WHERE id = ANY($1) ORDER BY id"#,
+            ids
         )
-        .fetch_one(&*self.conn)
-        .await
-        .map_err(|_| FlagRepoError::NotFound(id_arg))
+        .fetch_all(&*self.conn)
+        .await?;
+
+        let found_ids = flags_by_ids
+            .iter()
+            .map(|flag| flag.id)
+            .collect::<HashSet<i32>>();
+        if let Some(missing_id) = ids.iter().copied().find(|id| !found_ids.contains(id)) {
+            return Err(FlagRepoError::NotFound(missing_id));
+        }
+
+        Ok(flags_by_ids)
     }
 
     async fn get_all(&self) -> Result<Arc<[Flag]>, FlagRepoError> {
@@ -64,7 +74,7 @@ impl FlagRepo for PostgresFlagRepo {
         Ok(flags.into())
     }
 
-    async fn get_all_by_status(&self, flag_status: FlagStatus) -> Result<Vec<Flag>, FlagRepoError> {
+    async fn get_by_status(&self, flag_status: FlagStatus) -> Result<Vec<Flag>, FlagRepoError> {
         let flags = sqlx::query_as!(
             Flag,
             r#"SELECT 
@@ -76,7 +86,7 @@ impl FlagRepo for PostgresFlagRepo {
                 start_waiting_time,
                 status as "status: FlagStatus",
                 checksystem_response
-               FROM flags WHERE status = $1"#,
+               FROM flags WHERE status = $1 ORDER BY id"#,
             flag_status as FlagStatus
         )
         .fetch_all(&*self.conn)
@@ -85,30 +95,14 @@ impl FlagRepo for PostgresFlagRepo {
         Ok(flags)
     }
 
-    async fn save(&mut self, flag_arg: &SaveFlag) -> Result<usize, FlagRepoError> {
-        let result = sqlx::query!(
-            "INSERT INTO flags (flag, sploit, team, status, checksystem_response, created_time) 
-             VALUES ($1, $2, $3, $4, $5, NOW())",
-            flag_arg.flag,
-            flag_arg.sploit,
-            flag_arg.team,
-            flag_arg.status as FlagStatus,
-            flag_arg.checksystem_response
-        )
-        .execute(&*self.conn)
-        .await?;
-
-        Ok(result.rows_affected() as usize)
-    }
-
-    async fn save_all(&mut self, flags_arg: &[SaveFlag]) -> Result<usize, FlagRepoError> {
+    async fn save(&mut self, flags_arg: &[SaveFlag]) -> Result<usize, FlagRepoError> {
         let mut tx = self.conn.begin().await?;
         let mut total_affected = 0;
 
         for flag in flags_arg {
             let result = sqlx::query!(
                 "INSERT INTO flags (flag, sploit, team, status, checksystem_response, created_time) 
-                 VALUES ($1, $2, $3, $4, $5, NOW())",
+                 VALUES ($1, $2, $3, $4, $5, NOW()) ON CONFLICT (flag) DO NOTHING",
                 flag.flag,
                 flag.sploit,
                 flag.team,
@@ -125,48 +119,15 @@ impl FlagRepo for PostgresFlagRepo {
         Ok(total_affected)
     }
 
-    async fn delete(&mut self, id_arg: i32) -> Result<usize, FlagRepoError> {
-        let result = sqlx::query!("DELETE FROM flags WHERE id = $1", id_arg)
+    async fn delete(&mut self, ids: &[i32]) -> Result<usize, FlagRepoError> {
+        let result = sqlx::query!("DELETE FROM flags WHERE id = ANY($1)", ids)
             .execute(&*self.conn)
             .await?;
 
         Ok(result.rows_affected() as usize)
     }
 
-    async fn delete_all(&mut self, flags_arg: &[Flag]) -> Result<usize, FlagRepoError> {
-        let ids: Vec<i32> = flags_arg.iter().map(|item| item.id).collect();
-        let result = sqlx::query!("DELETE FROM flags WHERE id = ANY($1)", &ids)
-            .execute(&*self.conn)
-            .await?;
-
-        Ok(result.rows_affected() as usize)
-    }
-
-    async fn update(&mut self, flag_arg: &Flag) -> Result<usize, FlagRepoError> {
-        let result = sqlx::query!(
-            "UPDATE flags SET 
-                flag = $1, 
-                sploit = $2, 
-                team = $3, 
-                status = $4, 
-                checksystem_response = $5,
-                start_waiting_time = $6
-             WHERE id = $7",
-            flag_arg.flag,
-            flag_arg.sploit,
-            flag_arg.team,
-            flag_arg.status as FlagStatus,
-            flag_arg.checksystem_response,
-            flag_arg.start_waiting_time,
-            flag_arg.id
-        )
-        .execute(&*self.conn)
-        .await?;
-
-        Ok(result.rows_affected() as usize)
-    }
-
-    async fn update_all(&mut self, flags_arg: &[Flag]) -> Result<usize, FlagRepoError> {
+    async fn update(&mut self, flags_arg: &[Flag]) -> Result<usize, FlagRepoError> {
         let mut tx = self.conn.begin().await?;
         let mut total_affected = 0;
 
@@ -190,6 +151,10 @@ impl FlagRepo for PostgresFlagRepo {
             )
             .execute(&mut *tx)
             .await?;
+
+            if result.rows_affected() == 0 {
+                return Err(FlagRepoError::NotFound(flag.id));
+            }
 
             total_affected += result.rows_affected() as usize;
         }
@@ -295,7 +260,7 @@ impl FlagRepo for PostgresFlagRepo {
                 start_waiting_time,
                 status as "status: FlagStatus",
                 checksystem_response
-               FROM flags WHERE status = $1 LIMIT $2"#,
+               FROM flags WHERE status = $1 ORDER BY id LIMIT $2"#,
             flag_status as FlagStatus,
             limit as i64
         )
@@ -304,28 +269,6 @@ impl FlagRepo for PostgresFlagRepo {
 
         Ok(flags_by_status)
     }
-
-    async fn get_all_by_id(&self, ids: &[i32]) -> Result<Vec<Flag>, FlagRepoError> {
-        let flags_by_ids = sqlx::query_as!(
-            Flag,
-            r#"SELECT 
-                id, 
-                flag, 
-                sploit,
-                team,
-                created_time,
-                start_waiting_time,
-                status as "status: FlagStatus",
-                checksystem_response
-               FROM flags WHERE id = ANY($1)"#,
-            ids
-        )
-        .fetch_all(&*self.conn)
-        .await?;
-
-        Ok(flags_by_ids)
-    }
-
     async fn get_total_flags(&self) -> Result<i64, FlagRepoError> {
         let result = sqlx::query!("SELECT COUNT(*) as count FROM flags")
             .fetch_one(&*self.conn)

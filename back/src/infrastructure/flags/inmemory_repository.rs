@@ -1,5 +1,6 @@
 use crate::domain::flags::{Flag, FlagRepo, FlagRepoError, FlagStatus, SaveFlag};
 use async_trait::async_trait;
+use std::collections::HashSet;
 use std::sync::Arc;
 
 pub struct InMemoryFlagRepository {
@@ -20,55 +21,52 @@ impl Default for InMemoryFlagRepository {
 
 #[async_trait]
 impl FlagRepo for InMemoryFlagRepository {
-    async fn get(&self, id: i32) -> Result<Flag, FlagRepoError> {
-        self.flags
+    async fn get(&self, ids: &[i32]) -> Result<Vec<Flag>, FlagRepoError> {
+        let requested_ids = ids.iter().copied().collect::<HashSet<i32>>();
+        let flags = self
+            .flags
             .iter()
-            .find(|flag| flag.id == id)
+            .filter(|flag| requested_ids.contains(&flag.id))
             .cloned()
-            .ok_or(FlagRepoError::NotFound(id))
+            .collect::<Vec<Flag>>();
+
+        let found_ids = flags.iter().map(|flag| flag.id).collect::<HashSet<i32>>();
+        if let Some(missing_id) = ids.iter().copied().find(|id| !found_ids.contains(id)) {
+            return Err(FlagRepoError::NotFound(missing_id));
+        }
+
+        Ok(flags)
     }
 
     async fn get_all(&self) -> Result<Arc<[Flag]>, FlagRepoError> {
         Ok(self.flags.clone().into())
     }
-    async fn get_all_by_status(
-        &self,
-        _flag_status: FlagStatus,
-    ) -> Result<Vec<Flag>, FlagRepoError> {
+    async fn get_by_status(&self, _flag_status: FlagStatus) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
 
-    async fn save(&mut self, flag: &SaveFlag) -> Result<usize, FlagRepoError> {
-        self.flags.push(Flag {
-            id: self.flags.len() as i32 + 1,
-            flag: flag.flag.clone(),
-            sploit: flag.sploit.clone(),
-            team: flag.team.clone(),
-            created_time: flag.created_time,
-            start_waiting_time: None,
-            status: flag.status,
-            checksystem_response: flag.checksystem_response.clone(),
-        });
-        Ok(1)
+    async fn save(&mut self, flags: &[SaveFlag]) -> Result<usize, FlagRepoError> {
+        let mut inserted_count = 0;
+
+        for flag in flags {
+            if self.flags.iter().any(|stored| stored.flag == flag.flag) {
+                continue;
+            }
+
+            let mut flag = Flag::from(flag);
+            flag.id = self.flags.last().map_or(1, |stored| stored.id + 1);
+            self.flags.push(flag);
+            inserted_count += 1;
+        }
+
+        Ok(inserted_count)
     }
 
-    async fn save_all(&mut self, _flags: &[SaveFlag]) -> Result<usize, FlagRepoError> {
+    async fn delete(&mut self, _flags: &[i32]) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
-    async fn delete(&mut self, _id: i32) -> Result<usize, FlagRepoError> {
-        todo!()
-    }
-
-    async fn delete_all(&mut self, _flags: &[Flag]) -> Result<usize, FlagRepoError> {
-        todo!()
-    }
-
-    async fn update(&mut self, _flag: &Flag) -> Result<usize, FlagRepoError> {
-        todo!()
-    }
-
-    async fn update_all(&mut self, _flags: &[Flag]) -> Result<usize, FlagRepoError> {
+    async fn update(&mut self, _flags: &[Flag]) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
@@ -104,10 +102,6 @@ impl FlagRepo for InMemoryFlagRepository {
         _flag_status: FlagStatus,
         _limit: u32,
     ) -> Result<Vec<Flag>, FlagRepoError> {
-        todo!()
-    }
-
-    async fn get_all_by_id(&self, _ids: &[i32]) -> Result<Vec<Flag>, FlagRepoError> {
         todo!()
     }
 

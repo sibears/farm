@@ -25,6 +25,21 @@ pub struct Flag {
     pub checksystem_response: Option<String>,
 }
 
+impl From<&SaveFlag> for Flag {
+    fn from(save_flag: &SaveFlag) -> Self {
+        Flag {
+            id: 0, // This should be set by the repository when saving
+            flag: save_flag.flag.clone(),
+            sploit: save_flag.sploit.clone(),
+            team: save_flag.team.clone(),
+            created_time: save_flag.created_time,
+            start_waiting_time: None,
+            status: save_flag.status,
+            checksystem_response: save_flag.checksystem_response.clone(),
+        }
+    }
+}
+
 impl PartialEq<SaveFlag> for Flag {
     fn eq(&self, other: &SaveFlag) -> bool {
         self.flag == other.flag
@@ -49,7 +64,7 @@ impl NewFlag {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SaveFlag {
     pub flag: String,
     pub sploit: Option<String>,
