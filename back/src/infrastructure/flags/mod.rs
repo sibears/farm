@@ -26,7 +26,7 @@ mod tests {
             status: FlagStatus::QUEUED,
             checksystem_response: None,
         };
-        repository.save(&[flag.clone()]).await.unwrap();
+        repository.save(std::slice::from_ref(&flag)).await.unwrap();
         let last_id = repository.get_last_id().await.unwrap();
         let flag_from_db = repository
             .get(&[last_id])
@@ -80,7 +80,7 @@ mod tests {
             .save(&[flag.clone(), flag.clone()])
             .await
             .unwrap();
-        let second_save_count = repository.save(&[flag.clone()]).await.unwrap();
+        let second_save_count = repository.save(std::slice::from_ref(&flag)).await.unwrap();
         let all_flags = repository.get_all().await.unwrap();
 
         assert_eq!(first_save_count, 1);
