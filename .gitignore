@@ -3,7 +3,6 @@
 /.idea
 /.vscode
 /tests/vol
-/back/.sqlx
 
 # Python
 __pycache__/
