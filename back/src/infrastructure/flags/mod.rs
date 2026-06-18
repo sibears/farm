@@ -79,8 +79,13 @@ mod tests {
         let first_save_count = repository
             .save(&[flag.clone(), flag.clone()])
             .await
-            .unwrap();
-        let second_save_count = repository.save(std::slice::from_ref(&flag)).await.unwrap();
+            .unwrap()
+            .len();
+        let second_save_count = repository
+            .save(std::slice::from_ref(&flag))
+            .await
+            .unwrap()
+            .len();
         let all_flags = repository.get_all().await.unwrap();
 
         assert_eq!(first_save_count, 1);

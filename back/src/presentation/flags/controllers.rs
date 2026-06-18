@@ -63,12 +63,12 @@ pub async fn post_flag(
     new_flag: Json<NewFlag>,
 ) -> Json<usize> {
     info!("post_flag: {:?}", &new_flag);
-    let res = flag_service
+    let inserted = flag_service
         .save_flags(&[new_flag.into_inner()])
         .await
         .unwrap();
     metrics_service.update_flags_count(flag_service).await;
-    Json(res)
+    Json(inserted.len())
 }
 
 #[utoipa::path(
@@ -87,12 +87,12 @@ pub async fn post_flags(
     new_flags: Json<Vec<NewFlag>>,
 ) -> status::Created<Json<usize>> {
     info!("post_flags: {:?}", &new_flags);
-    let res = flag_service
+    let inserted = flag_service
         .save_flags(&new_flags.into_inner())
         .await
         .unwrap();
     metrics_service.update_flags_count(flag_service).await;
-    status::Created::new("/api/flags").body(Json(res))
+    status::Created::new("/api/flags").body(Json(inserted.len()))
 }
 
 #[utoipa::path(
