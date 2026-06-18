@@ -61,6 +61,7 @@ class Config(BaseModel):
 	auth: AuthConfig
 	ctf: CtfConfig
 
+
 class BackendClient(ABC):
 	def __init__(self, host: str, token: str):
 		self.host = host.rstrip("/")

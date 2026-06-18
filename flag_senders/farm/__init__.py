@@ -9,4 +9,12 @@ def get_client_cls(host: str) -> type[BackendClient]:
 	else:
 		raise CliError(f"Unsupported protocol for host: {host}")
 
-__all__ = ["Config", "Flag", "FlagStatus", "HttpBackendClient"]
+
+__all__ = [
+	"Config",
+	"Flag",
+	"FlagStatus",
+	"BackendClient",
+	"HttpBackendClient",
+	"get_client_cls",
+]

@@ -6,6 +6,7 @@ from errors import CliError
 from farm import BackendClient, get_client_cls
 from protocols import get_protocol_cls, BaseProtocol
 
+
 def mainloop(backend: BackendClient, protocol: BaseProtocol) -> None:
 	"""
 	Запускает периодический процесс отправки флагов.
@@ -35,6 +36,7 @@ def mainloop(backend: BackendClient, protocol: BaseProtocol) -> None:
 	except Exception as e:
 		logging.error(f"Произошла ошибка: {e}")
 
+
 def parse_args() -> argparse.Namespace:
 	parser = argparse.ArgumentParser(description="Flag Sender Client")
 	parser.add_argument(
@@ -45,6 +47,7 @@ def parse_args() -> argparse.Namespace:
 	parser.add_argument("--token", required=True, help="Пароль от фермы")
 
 	return parser.parse_args()
+
 
 def main() -> None:
 	logging.basicConfig(

@@ -11,12 +11,13 @@ proto_list = [
 	SaarTcpFlagSender,
 ]
 
+
 def get_protocol_cls(protocol: str) -> type[BaseProtocol] | None:
-	if protocol not in [proto.protocol for proto in proto_list]:
-		return None
 	for proto in proto_list:
 		if proto.protocol == protocol:
 			return proto
+	return None
+
 
 __all__ = [
 	"BaseProtocol",
