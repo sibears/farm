@@ -1,0 +1,134 @@
+{
+  "uid": "ctf-overview",
+  "title": "CTF Overview",
+  "tags": ["ctf", "flags"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Получено флагов по сплойту (флаги/мин)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line" } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (sploit) (rate(flags_received_total[5m])) * 60",
+          "legendFormat": "{{sploit}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Обработано по сплойту: accepted / rejected (флаги/мин)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line" } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (sploit, result) (rate(flags_processed_total[5m])) * 60",
+          "legendFormat": "{{sploit}} {{result}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "% сдачи по сплойту",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (sploit) (rate(flags_processed_total{result=\"accepted\"}[5m])) / clamp_min(sum by (sploit) (rate(flags_processed_total{result=~\"accepted|rejected\"}[5m])), 1)",
+          "legendFormat": "{{sploit}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Получено по командам (флаги/мин)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "line" } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (team) (rate(flags_received_total[5m])) * 60",
+          "legendFormat": "{{team}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Бэклог (очередь / ожидание)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 16 },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "flags_queued",
+          "legendFormat": "queued"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "flags_waiting",
+          "legendFormat": "waiting"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Итого (всего / accepted / rejected)",
+      "datasource": { "type": "postgres", "uid": "postgres" },
+      "gridPos": { "h": 6, "w": 16, "x": 8, "y": 16 },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*) AS \"Всего\", count(*) FILTER (WHERE status = 'accepted') AS \"Accepted\", count(*) FILTER (WHERE status = 'rejected') AS \"Rejected\" FROM flags"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "table",
+      "title": "Матрица сплойт × команда (за выбранный период)",
+      "datasource": { "type": "postgres", "uid": "postgres" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 22 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "postgres", "uid": "postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT sploit, team, count(*) AS flags, count(*) FILTER (WHERE status = 'accepted') AS accepted FROM flags WHERE $__timeFilter(created_time) GROUP BY sploit, team ORDER BY flags DESC"
+        }
+      ]
+    }
+  ]
+}
