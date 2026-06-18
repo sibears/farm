@@ -67,6 +67,7 @@ pub async fn post_flag(
         .save_flags(&[new_flag.into_inner()])
         .await
         .unwrap();
+    metrics_service.record_received(&inserted);
     metrics_service.update_flags_count(flag_service).await;
     Json(inserted.len())
 }
@@ -91,6 +92,7 @@ pub async fn post_flags(
         .save_flags(&new_flags.into_inner())
         .await
         .unwrap();
+    metrics_service.record_received(&inserted);
     metrics_service.update_flags_count(flag_service).await;
     status::Created::new("/api/flags").body(Json(inserted.len()))
 }

@@ -74,7 +74,10 @@ impl FlagMetricsService {
 
         // Размеченные событийные счётчики.
         let received = CounterVec::new(
-            Opts::new("flags_received_total", "Total flags received per sploit/team"),
+            Opts::new(
+                "flags_received_total",
+                "Total flags received per sploit/team",
+            ),
             &["sploit", "team"],
         )
         .unwrap();
@@ -217,7 +220,10 @@ mod tests {
             save_flag("b", Some("sploit1"), Some("team1")),
         ]);
         assert_eq!(
-            metrics.received.with_label_values(&["sploit1", "team1"]).get(),
+            metrics
+                .received
+                .with_label_values(&["sploit1", "team1"])
+                .get(),
             2.0
         );
     }
@@ -228,7 +234,10 @@ mod tests {
         let metrics = metrics();
         metrics.record_received(&[save_flag("a", None, Some("team1"))]);
         assert_eq!(
-            metrics.received.with_label_values(&["unknown", "team1"]).get(),
+            metrics
+                .received
+                .with_label_values(&["unknown", "team1"])
+                .get(),
             1.0
         );
     }
@@ -241,7 +250,13 @@ mod tests {
             metrics.record_received(&[save_flag("f", Some(&format!("sploit{i}")), Some("team1"))]);
         }
         // Значение сверх капа учитывается под "other".
-        assert!(metrics.received.with_label_values(&["other", "team1"]).get() >= 1.0);
+        assert!(
+            metrics
+                .received
+                .with_label_values(&["other", "team1"])
+                .get()
+                >= 1.0
+        );
     }
 
     #[test]

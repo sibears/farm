@@ -63,9 +63,10 @@ pub async fn update_flags_from_sending(
     flags: Json<Vec<Flag>>,
 ) {
     debug!("Updating flags from sending: {:?}", flags);
-    sending_service
+    let resolved = sending_service
         .update_flags_from_sending(&flags)
         .await
         .unwrap();
+    metrics_service.record_processed(&resolved);
     metrics_service.update_flags_count(flag_service).await;
 }

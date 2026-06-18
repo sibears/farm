@@ -66,8 +66,18 @@ impl FlagRepo for InMemoryFlagRepository {
         todo!()
     }
 
-    async fn update(&mut self, _flags: &[Flag]) -> Result<usize, FlagRepoError> {
-        todo!()
+    async fn update(&mut self, flags: &[Flag]) -> Result<usize, FlagRepoError> {
+        let mut updated = 0;
+        for flag in flags {
+            match self.flags.iter_mut().find(|stored| stored.id == flag.id) {
+                Some(stored) => {
+                    *stored = flag.clone();
+                    updated += 1;
+                }
+                None => return Err(FlagRepoError::NotFound(flag.id)),
+            }
+        }
+        Ok(updated)
     }
 
     async fn get_limit(&self, _limit: u32) -> Result<Vec<Flag>, FlagRepoError> {
