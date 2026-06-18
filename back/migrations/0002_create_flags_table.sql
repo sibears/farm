@@ -2,7 +2,7 @@ set enable_parallel_hash=on;
 
 CREATE TABLE IF NOT EXISTS flags (
     id SERIAL PRIMARY KEY NOT NULL,
-    flag TEXT NOT NULL,
+    flag TEXT UNIQUE NOT NULL,
     sploit TEXT,
     team TEXT,
     created_time TIMESTAMP NOT NULL,

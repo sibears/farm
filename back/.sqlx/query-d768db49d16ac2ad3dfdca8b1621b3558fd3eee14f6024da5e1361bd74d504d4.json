@@ -36,7 +36,20 @@
       {
         "ordinal": 6,
         "name": "status: FlagStatus",
-        "type_info": "Text"
+        "type_info": {
+          "Custom": {
+            "name": "flag_status",
+            "kind": {
+              "Enum": [
+                "queued",
+                "waiting",
+                "skipped",
+                "accepted",
+                "rejected"
+              ]
+            }
+          }
+        }
       },
       {
         "ordinal": 7,

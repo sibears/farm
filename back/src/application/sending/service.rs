@@ -55,7 +55,8 @@ impl<T: FlagRepo, C: ConfigRepo> SendingService<T, C> {
         &self,
         flags: &[Flag],
     ) -> Result<(), SendingServiceError> {
-        let original_flags = self.flag_service.get_full_flags(flags).await?;
+        let ids = flags.iter().map(|flag| flag.id).collect::<Vec<i32>>();
+        let original_flags = self.flag_service.get_flags(&ids).await?;
 
         // Создаем вектор для обновленных флагов
         let flags_to_update: Vec<Flag> = original_flags

@@ -11,7 +11,20 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        {
+          "Custom": {
+            "name": "flag_status",
+            "kind": {
+              "Enum": [
+                "queued",
+                "waiting",
+                "skipped",
+                "accepted",
+                "rejected"
+              ]
+            }
+          }
+        }
       ]
     },
     "nullable": [

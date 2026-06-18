@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT \n                id, \n                flag, \n                sploit,\n                team,\n                created_time,\n                start_waiting_time,\n                status as \"status: FlagStatus\",\n                checksystem_response\n               FROM flags ORDER BY id DESC LIMIT $1 OFFSET $2",
+  "query": "SELECT \n                id, \n                flag, \n                sploit,\n                team,\n                created_time,\n                start_waiting_time,\n                status as \"status: FlagStatus\",\n                checksystem_response\n               FROM flags WHERE status = $1 ORDER BY id",
   "describe": {
     "columns": [
       {
@@ -59,8 +59,20 @@
     ],
     "parameters": {
       "Left": [
-        "Int8",
-        "Int8"
+        {
+          "Custom": {
+            "name": "flag_status",
+            "kind": {
+              "Enum": [
+                "queued",
+                "waiting",
+                "skipped",
+                "accepted",
+                "rejected"
+              ]
+            }
+          }
+        }
       ]
     },
     "nullable": [
@@ -74,5 +86,5 @@
       true
     ]
   },
-  "hash": "0a4b39333cd9bf4ad3321554c771f03d9d354af73ed46e2973b3308a5bdd7437"
+  "hash": "c26b633bfa80f47c6f4b1182d432d61ef82d0f2a077b6efd833906479d805dbe"
 }

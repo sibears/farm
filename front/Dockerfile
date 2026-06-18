@@ -4,7 +4,7 @@ WORKDIR /app
 ARG BACKEND_URL=http://backend:8080
 
 FROM base AS deps
-COPY package.json bun.lockb* ./
+COPY package.json bun.lock ./
 RUN --mount=type=cache,target=/root/.bun/install/cache \
 	bun install --frozen-lockfile
 

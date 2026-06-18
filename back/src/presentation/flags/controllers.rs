@@ -64,7 +64,7 @@ pub async fn post_flag(
 ) -> Json<usize> {
     info!("post_flag: {:?}", &new_flag);
     let res = flag_service
-        .save_flag(&new_flag.into_inner())
+        .save_flags(&[new_flag.into_inner()])
         .await
         .unwrap();
     metrics_service.update_flags_count(flag_service).await;
@@ -87,7 +87,10 @@ pub async fn post_flags(
     new_flags: Json<Vec<NewFlag>>,
 ) -> status::Created<Json<usize>> {
     info!("post_flags: {:?}", &new_flags);
-    let res = flag_service.save_all_flags(&new_flags).await.unwrap();
+    let res = flag_service
+        .save_flags(&new_flags.into_inner())
+        .await
+        .unwrap();
     metrics_service.update_flags_count(flag_service).await;
     status::Created::new("/api/flags").body(Json(res))
 }

@@ -1,3 +1,4 @@
+use sqlx::error::ErrorKind;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -10,6 +11,8 @@ pub enum FlagServiceError {
 pub enum FlagRepoError {
     #[error("Not find flag with id {0}")]
     NotFound(i32),
+    #[error("Flag already exists")]
+    AlreadyExists,
     #[error(transparent)]
     Infrastructure(#[from] InfrastructureError),
 }
@@ -23,7 +26,14 @@ pub enum InfrastructureError {
 
 impl From<sqlx::Error> for FlagRepoError {
     fn from(error: sqlx::Error) -> Self {
-        Self::Infrastructure(InfrastructureError::Sqlx(error))
+        match &error {
+            sqlx::Error::Database(db_error)
+                if matches!(db_error.kind(), ErrorKind::UniqueViolation) =>
+            {
+                Self::AlreadyExists
+            }
+            _ => Self::Infrastructure(InfrastructureError::Sqlx(error)),
+        }
     }
 }
 

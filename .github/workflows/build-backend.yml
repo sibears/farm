@@ -19,7 +19,8 @@ env:
 jobs:
   rust-check:
     uses: ./.github/workflows/rust-check.yml
-    permissions: {}
+    permissions:
+      contents: read
   build-and-push:
     runs-on: ubuntu-latest
     needs: rust-check
