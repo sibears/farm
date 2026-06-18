@@ -21,6 +21,9 @@ env/
 
 .DS_Store
 
+# Local secrets for docker-compose.full.yml
+.env
+
 /front/.DS_Store
 /front/build
 /front/node_modules
