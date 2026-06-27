@@ -14,10 +14,13 @@ datasources:
     type: postgres
     access: proxy
     url: postgres:5432
-    database: flags
     user: grafana_ro
     editable: false
     jsonData:
+      # Grafana 11+ reads the DB name from jsonData.database; the legacy
+      # top-level `database:` field is ignored by the SQL datasource and
+      # yields a "no default database configured" error at query time.
+      database: flags
       sslmode: disable
       postgresVersion: 1600
     # Password comes from the GF_RO_PASSWORD env var (set in docker-compose.full.yml
