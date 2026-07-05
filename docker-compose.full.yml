@@ -7,7 +7,6 @@
 # (8777/8776/5432/6378/8780) and cannot run simultaneously on one host.
 #
 # Secrets come from .env (see .env.example); do not commit real passwords.
-version: '3'
 
 services:
   sibears_farm_back:
