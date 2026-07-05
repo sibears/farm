@@ -6,7 +6,7 @@ use std::sync::Arc;
 pub trait FlagRepo: Send + Sync {
     async fn get_all(&self) -> Result<Arc<[Flag]>, FlagRepoError>;
     async fn get_by_status(&self, flag_status: FlagStatus) -> Result<Vec<Flag>, FlagRepoError>;
-    async fn save(&mut self, flags: &[SaveFlag]) -> Result<usize, FlagRepoError>;
+    async fn save(&mut self, flags: &[SaveFlag]) -> Result<Vec<SaveFlag>, FlagRepoError>;
     async fn delete(&mut self, flags: &[i32]) -> Result<usize, FlagRepoError>;
     async fn update(&mut self, flags: &[Flag]) -> Result<usize, FlagRepoError>;
     async fn get_limit(&self, limit: u32) -> Result<Vec<Flag>, FlagRepoError>;

@@ -45,29 +45,39 @@ impl FlagRepo for InMemoryFlagRepository {
         todo!()
     }
 
-    async fn save(&mut self, flags: &[SaveFlag]) -> Result<usize, FlagRepoError> {
-        let mut inserted_count = 0;
+    async fn save(&mut self, flags: &[SaveFlag]) -> Result<Vec<SaveFlag>, FlagRepoError> {
+        let mut inserted = Vec::new();
 
         for flag in flags {
             if self.flags.iter().any(|stored| stored.flag == flag.flag) {
                 continue;
             }
 
-            let mut flag = Flag::from(flag);
-            flag.id = self.flags.last().map_or(1, |stored| stored.id + 1);
-            self.flags.push(flag);
-            inserted_count += 1;
+            let mut stored_flag = Flag::from(flag);
+            stored_flag.id = self.flags.last().map_or(1, |stored| stored.id + 1);
+            self.flags.push(stored_flag);
+            inserted.push(flag.clone());
         }
 
-        Ok(inserted_count)
+        Ok(inserted)
     }
 
     async fn delete(&mut self, _flags: &[i32]) -> Result<usize, FlagRepoError> {
         todo!()
     }
 
-    async fn update(&mut self, _flags: &[Flag]) -> Result<usize, FlagRepoError> {
-        todo!()
+    async fn update(&mut self, flags: &[Flag]) -> Result<usize, FlagRepoError> {
+        let mut updated = 0;
+        for flag in flags {
+            match self.flags.iter_mut().find(|stored| stored.id == flag.id) {
+                Some(stored) => {
+                    *stored = flag.clone();
+                    updated += 1;
+                }
+                None => return Err(FlagRepoError::NotFound(flag.id)),
+            }
+        }
+        Ok(updated)
     }
 
     async fn get_limit(&self, _limit: u32) -> Result<Vec<Flag>, FlagRepoError> {

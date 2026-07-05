@@ -66,7 +66,10 @@ impl<T: FlagRepo, C: ConfigRepo> FlagService<T, C> {
         Ok(flags)
     }
 
-    pub async fn save_flags(&self, new_flags: &[NewFlag]) -> Result<usize, FlagServiceError> {
+    pub async fn save_flags(
+        &self,
+        new_flags: &[NewFlag],
+    ) -> Result<Vec<SaveFlag>, FlagServiceError> {
         let mut repo = self.repo.write().await;
         let flag_regex = self.config_service.get_config().unwrap().ctf.flag_format;
         let re = Regex::new(&flag_regex).unwrap();
@@ -75,8 +78,8 @@ impl<T: FlagRepo, C: ConfigRepo> FlagService<T, C> {
             .filter(|next_flag| next_flag.match_regex(&re))
             .map(SaveFlag::from)
             .collect();
-        let result = repo.save(&save_flags).await?;
-        Ok(result)
+        let inserted = repo.save(&save_flags).await?;
+        Ok(inserted)
     }
 
     pub async fn delete_flag(&self, id: i32) -> Result<usize, FlagServiceError> {
@@ -142,11 +145,13 @@ mod tests {
         let saved_count = service
             .save_flags(&[duplicate_flag.clone(), duplicate_flag.clone()])
             .await
-            .expect("Duplicate flags should be ignored");
+            .expect("Duplicate flags should be ignored")
+            .len();
         let repeated_saved_count = service
             .save_flags(std::slice::from_ref(&duplicate_flag))
             .await
-            .expect("Previously saved duplicate flag should be ignored");
+            .expect("Previously saved duplicate flag should be ignored")
+            .len();
         let flags = service.get_all_flags().await.unwrap();
 
         assert_eq!(saved_count, 1);

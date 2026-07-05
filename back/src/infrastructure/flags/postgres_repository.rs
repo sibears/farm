@@ -95,9 +95,9 @@ impl FlagRepo for PostgresFlagRepo {
         Ok(flags)
     }
 
-    async fn save(&mut self, flags_arg: &[SaveFlag]) -> Result<usize, FlagRepoError> {
+    async fn save(&mut self, flags_arg: &[SaveFlag]) -> Result<Vec<SaveFlag>, FlagRepoError> {
         let mut tx = self.conn.begin().await?;
-        let mut total_affected = 0;
+        let mut inserted = Vec::new();
 
         for flag in flags_arg {
             let result = sqlx::query!(
@@ -112,11 +112,13 @@ impl FlagRepo for PostgresFlagRepo {
             .execute(&mut *tx)
             .await?;
 
-            total_affected += result.rows_affected() as usize;
+            if result.rows_affected() == 1 {
+                inserted.push(flag.clone());
+            }
         }
 
         tx.commit().await?;
-        Ok(total_affected)
+        Ok(inserted)
     }
 
     async fn delete(&mut self, ids: &[i32]) -> Result<usize, FlagRepoError> {

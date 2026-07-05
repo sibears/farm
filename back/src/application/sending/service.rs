@@ -54,7 +54,7 @@ impl<T: FlagRepo, C: ConfigRepo> SendingService<T, C> {
     pub async fn update_flags_from_sending(
         &self,
         flags: &[Flag],
-    ) -> Result<(), SendingServiceError> {
+    ) -> Result<Vec<Flag>, SendingServiceError> {
         let ids = flags.iter().map(|flag| flag.id).collect::<Vec<i32>>();
         let original_flags = self.flag_service.get_flags(&ids).await?;
 
@@ -77,6 +77,91 @@ impl<T: FlagRepo, C: ConfigRepo> SendingService<T, C> {
             self.flag_service.update_all_flags(&flags_to_update).await?;
         }
 
-        Ok(())
+        Ok(flags_to_update)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::SendingService;
+    use crate::application::config::ConfigService;
+    use crate::application::flags::FlagService;
+    use crate::domain::config::Config;
+    use crate::domain::flags::{Flag, FlagRepo, FlagStatus, SaveFlag};
+    use crate::infrastructure::config::InMemoryConfigRepository;
+    use crate::infrastructure::flags::InMemoryFlagRepository;
+    use sqlx::types::chrono;
+    use std::sync::Arc;
+    use tokio::sync::RwLock;
+
+    type Repo = Arc<RwLock<InMemoryFlagRepository>>;
+
+    fn build() -> (
+        Repo,
+        SendingService<InMemoryFlagRepository, InMemoryConfigRepository>,
+    ) {
+        let repo: Repo = Arc::new(RwLock::new(InMemoryFlagRepository::new()));
+        let config = Config::test_config();
+        let config_repo = Arc::new(InMemoryConfigRepository::new(&config));
+        let config_service = Arc::new(ConfigService::new(config_repo));
+        let flag_service = Arc::new(FlagService::new(repo.clone(), config_service.clone()));
+        let sending = SendingService::new(flag_service, config_service);
+        (repo, sending)
+    }
+
+    async fn seed(repo: &Repo, status: FlagStatus) -> i32 {
+        let mut guard = repo.write().await;
+        guard
+            .save(&[SaveFlag {
+                flag: format!("flag_{status}"),
+                sploit: Some("s".to_string()),
+                team: Some("t".to_string()),
+                created_time: chrono::Utc::now().naive_utc(),
+                status,
+                checksystem_response: None,
+            }])
+            .await
+            .unwrap();
+        guard.get_last_id().await.unwrap()
+    }
+
+    fn incoming(id: i32, status: FlagStatus) -> Flag {
+        Flag {
+            id,
+            flag: "x".to_string(),
+            sploit: Some("s".to_string()),
+            team: Some("t".to_string()),
+            created_time: chrono::Utc::now().naive_utc(),
+            start_waiting_time: None,
+            status,
+            checksystem_response: Some("ok".to_string()),
+        }
+    }
+
+    #[tokio::test]
+    async fn returns_only_waiting_flags_resolved() {
+        let (repo, sending) = build();
+        let id = seed(&repo, FlagStatus::WAITING).await;
+
+        let resolved = sending
+            .update_flags_from_sending(&[incoming(id, FlagStatus::ACCEPTED)])
+            .await
+            .unwrap();
+
+        assert_eq!(resolved.len(), 1);
+        assert_eq!(resolved[0].status, FlagStatus::ACCEPTED);
+    }
+
+    #[tokio::test]
+    async fn non_waiting_flags_are_not_resolved() {
+        let (repo, sending) = build();
+        let id = seed(&repo, FlagStatus::QUEUED).await;
+
+        let resolved = sending
+            .update_flags_from_sending(&[incoming(id, FlagStatus::ACCEPTED)])
+            .await
+            .unwrap();
+
+        assert!(resolved.is_empty());
     }
 }

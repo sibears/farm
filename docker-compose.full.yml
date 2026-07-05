@@ -1,0 +1,113 @@
+# Full observability stack: farm + Postgres + Prometheus + Grafana.
+#
+# Standalone — brings up the whole stack:
+#   docker compose -f docker-compose.full.yml up
+#
+# NOTE: this file and tests/docker-compose.full.yml bind the same host ports
+# (8777/8776/5432/6378/8780) and cannot run simultaneously on one host.
+#
+# Secrets come from .env (see .env.example); do not commit real passwords.
+
+services:
+  sibears_farm_back:
+    image: sibears_farm_back:latest
+    build:
+      context: ./back/
+      args:
+        - DOCKER_BUILDKIT=1
+    environment:
+      - ROCKET_LOG_LEVEL=normal
+      - CONFIG_REPO=config.json
+    ports:
+      - "8777:8777"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+    volumes:
+      - ./config.json:/srv/config.json:ro
+      - ./back/start_sploit.py:/srv/start_sploit.py:ro
+
+  sibears_farm_front:
+    image: sibears_farm_front:latest
+    build:
+      context: ./front/
+      args:
+        - DOCKER_BUILDKIT=1
+        - BACKEND_URL=http://sibears_farm_back:8777
+    environment:
+      - BACKEND_URL=http://sibears_farm_back:8777
+    ports:
+      - "8776:80"
+
+  postgres:
+    image: postgres:16.3-alpine
+    environment:
+      - POSTGRES_PASSWORD=sibears1cool
+      - POSTGRES_DB=flags
+      # Read-only role password for Grafana's PostgreSQL datasource.
+      - GRAFANA_RO_PASSWORD=${GRAFANA_RO_PASSWORD:-sibears_ro}
+    ports:
+      - "5432:5432"
+    volumes:
+      # Init scripts run only on a fresh data volume (see postgres/initdb).
+      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+
+  external_redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6378:6379"
+    restart: unless-stopped
+    command: [ "redis-server", "--appendonly", "yes", "--requirepass", "sibears1cool"]
+    volumes:
+      - ./vol/external_redis:/data
+
+  save-swagger:
+    image: busybox
+    depends_on:
+      - sibears_farm_back
+    volumes:
+      - swagger-json:/spec
+    command: >
+      /bin/sh -c "sleep 15 && mkdir -p /spec && wget -O /spec/swagger.json http://sibears_farm_back:8777/openapi.json"
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    ports:
+      - 8780:8080
+    environment:
+      SWAGGER_JSON: /spec/swagger.json
+    volumes:
+      - swagger-json:/spec
+
+  prometheus:
+    image: prom/prometheus:latest
+    depends_on:
+      - sibears_farm_back
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    # Not published to the host: scraped only inside the compose network and
+    # queried by Grafana. Avoids leaking CTF intel to opponents (R13).
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+      - postgres
+    environment:
+      # No default admin/admin: override in .env (R14).
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-sibears_admin}
+      - GF_RO_PASSWORD=${GRAFANA_RO_PASSWORD:-sibears_ro}
+    ports:
+      # Bound to localhost only by default (R13 posture); change with care.
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  swagger-json:
+  prometheus-data:
+  grafana-data:
